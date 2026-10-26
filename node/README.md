@@ -48,7 +48,7 @@ there; nothing else changes. The bot runs on a webhook (`/tg/<secret>`, register
 membership and hands off to the bot. The coordinator approves on `/c/<node>`; from then on the
 resident is notified in Telegram when ballots, plans and approval open.
 
-Deploy (Railway): new project from this repo → add a Postgres plugin (sets `DATABASE_URL`) → set the
+Deploy (GCP): `PROJECT=<id> TELEGRAM_BOT_TOKEN=<token> ./deploy-gcp.sh` creates Cloud SQL Postgres, secrets, the Cloud Run service (one warm instance) and the domain mapping. Updates: `gcloud run deploy publicbank --source . --region asia-southeast1`. Railway also works: `railway.json` is included.
 variables from `.env.example` → add the custom domain and point `PB_BASE_URL` at it. `railway.json`
 has the start command and health check. Seed with `railway run python -m publicbank.setup_village …`.
 
