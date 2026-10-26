@@ -27,8 +27,10 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   from bot, `/signin` (EdgeOS third-party auth; hidden until `EDGEOS_APP_KEY`), `/me`, `/n/<node>` resident,
   `/c/<node>` coordinator (approve members, advance round → DMs everyone), `/treasury`, `/export/<node>`.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
-  `/payouts` (treasurer: upi:// button + "Mark paid" → reference). Residents are identified by numeric
-  Telegram id only.
+  `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
+  `/propose`, `/ballot`, `/rank`, `/approve`, `/cancel`. Conversation state is a row in `bot_state`
+  (not PTB's in-memory ConversationHandler) because Cloud Run may send the next update to another
+  instance. Residents are identified by numeric Telegram id only.
 - `publicbank/mcp_server.py` — Agent Village mini-app: 6 tools `publicbank_*`. Auth = `Authorization:
   Bearer PB_APP_TOKEN` + 32-hex `X-Village-Subject`; replays by `Idempotency-Key`. Fails closed.
 - `publicbank/main.py` — one ASGI app: `/mcp` → MCP, `/tg/<secret>` → Telegram webhook, rest → web.
@@ -88,8 +90,8 @@ Cloud SQL needs `--edition=ENTERPRISE` for `db-f1-micro`; the compute service ac
 1. Get one real agent call through the mini-app: register manifest + URL + app token with Edge City's
    mini-app team (they have a Telegram support group). Expect the manifest to need adjusting to the shipped
    spec; `_member()` in mcp_server.py is where auth assumptions live.
-2. Make propose / ballot / rank / approve work entirely inside the Telegram bot (conversation handlers),
-   so the web pages are for coordinators only. Keep every core call the same; this is transport work.
+2. ~~Propose / ballot / rank / approve inside the Telegram bot~~ — done 26 Oct. Coordinator steps
+   (approve members, advance the round) are still on `/c/<node>`.
 3. Run one real round in one residency, through to a real UPI payout, before scaling to four.
 
 Not built: the "twin" (offers → draft proposals), feasibility checks, pool-level round UI, EdgeOS app key.

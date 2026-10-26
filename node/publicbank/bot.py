@@ -5,6 +5,15 @@ Telegram bot: the on-ramp and the notification channel.
   /me                the resident's nodes and the current stage, with a link to the web page
   /status            same as the mini-app's status, for people without an agent
   /payouts           treasurer only: the queue, each item with a upi:// link and a "paid" button
+  /propose           title → description → ideal ₹ → minimum ₹ → lead it? → (UPI id) → confirm
+  /ballot            split 100 points across the frozen list in one reply → confirm
+  /rank              tap the four plans best-first → confirm
+  /approve           approve or reject the winning plan
+  /cancel            drop whatever the bot was asking
+
+The four round steps are conversations. Their state lives in the `bot_state` table, not in the
+Application: on Cloud Run the next message may reach a different instance, or a fresh one. Each step
+ends in the same core call the web page makes.
 
 Telegram cannot DM a user who never started the bot, so every resident's first contact is a tap on a
 deep link. After that the bot can DM them when ballots open, when the plan is ready, and when
@@ -16,8 +25,10 @@ via a `link` token the web page mints).
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
+import re
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
@@ -124,21 +135,332 @@ async def payouts(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb))
 
 
+# ----------------------------------------------------------------------------
+# conversations: one row per Telegram user in bot_state, so any instance can pick up the next message
+# ----------------------------------------------------------------------------
+STATE_TTL = 24 * 3600
+RULE_NAMES = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Help the least served"}
+ERRORS = {
+    "proposals_closed": "Proposals are closed for this round.",
+    "ballots_closed": "Ballots are closed for this round.",
+    "ranking_closed": "Ranking is closed for this round.",
+    "ratification_closed": "Approval is closed for this round.",
+    "not_a_member": "The coordinator hasn't confirmed you yet.",
+    "points_must_sum_100": "Points must add up to 100.",
+    "unknown_proposal": "The list changed since you started. Send /ballot again.",
+    "ranking_must_list_every_plan": "The plans changed since you started. Send /rank again.",
+}
+STAGES = {"propose": ("proposals", "propose"), "ballot": ("ballots", "vote on"), "rank": ("plans", "rank"), "approve": ("ratifying", "approve")}
+
+
+def get_state(tg_id: int) -> tuple[str | None, dict]:
+    r = db.row(con.execute("SELECT * FROM bot_state WHERE telegram_id=?", (tg_id,)).fetchone())
+    if not r or r["updated_at"] < db.now() - STATE_TTL:
+        return None, {}
+    return r["state"], db.j(r["data"], {})
+
+
+def set_state(tg_id: int, state: str, data: dict) -> None:
+    with db.tx(con):
+        con.execute("""INSERT INTO bot_state (telegram_id,state,data,updated_at) VALUES (?,?,?,?)
+                       ON CONFLICT(telegram_id) DO UPDATE SET state=excluded.state, data=excluded.data, updated_at=excluded.updated_at""",
+                    (tg_id, state, json.dumps(data), db.now()))
+
+
+def clear_state(tg_id: int) -> None:
+    with db.tx(con):
+        con.execute("DELETE FROM bot_state WHERE telegram_id=?", (tg_id,))
+
+
+def err_text(e: core.PBError) -> str:
+    return ERRORS.get(e.code, f"That didn't work ({e.code}{': ' + e.detail if e.detail else ''}).")
+
+
+def yes_no(prefix: str, yes: str, no: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([[InlineKeyboardButton(yes, callback_data=f"{prefix}:y"), InlineKeyboardButton(no, callback_data=f"{prefix}:n")]])
+
+
+def parse_rupees(s: str) -> int | None:
+    s = re.sub(r"[₹,\s]|rs\.?|inr", "", s.lower())
+    return int(s) if s.isdigit() else None
+
+
+def rounds_at(m: dict, stage: str) -> list[tuple[dict, dict]]:
+    """(node, round) for each node where the member is active and the current round is at `stage`."""
+    out = []
+    for x in db.rows(con.execute("SELECT node_id FROM memberships WHERE member_id=? AND status='active' ORDER BY node_id", (m["id"],)).fetchall()):
+        rnd = core.current_round(con, x["node_id"])
+        if rnd and rnd["status"] == stage:
+            out.append((core.get_node(con, x["node_id"]), rnd))
+    return out
+
+
+async def begin(update: Update, ctx: ContextTypes.DEFAULT_TYPE, cmd: str, node_id: str | None = None) -> None:
+    """Entry for /propose /ballot /rank /approve: find the round, asking which node if there are several."""
+    msg = update.effective_message
+    m = member_for(update)
+    if not m:
+        await msg.reply_text("I don't know you yet. Scan a residency QR code to join."); return
+    stage, verb = STAGES[cmd]
+    found = [(n, r) for n, r in rounds_at(m, stage) if node_id in (None, n["id"])]
+    if not found:
+        await msg.reply_text(f"Nothing to {verb} right now. /status shows where each round is."); return
+    if len(found) > 1:
+        kb = [[InlineKeyboardButton(n["name"], callback_data=f"go:{cmd}:{n['id']}")] for n, _ in found]
+        await msg.reply_text("Which residency?", reply_markup=InlineKeyboardMarkup(kb)); return
+    node, rnd = found[0]
+    await {"propose": start_propose, "ballot": start_ballot, "rank": start_rank, "approve": start_approve}[cmd](update, m, node, rnd)
+
+
+async def cmd_propose(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "propose")
+async def cmd_ballot(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "ballot")
+async def cmd_rank(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "rank")
+async def cmd_approve(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "approve")
+
+
+async def cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    clear_state(update.effective_user.id)
+    await update.effective_message.reply_text("Dropped. Nothing was saved.")
+
+
+# --- propose ----------------------------------------------------------------
+async def start_propose(update: Update, m: dict, node: dict, rnd: dict) -> None:
+    set_state(update.effective_user.id, "p_title", {"round_id": rnd["id"], "node": node["name"]})
+    await update.effective_message.reply_text(f"A proposal for {node['name']}. What's it called? (/cancel to stop)")
+
+
+def proposal_summary(d: dict) -> str:
+    return (f"{d['title']}\n{d['text']}\n\nIdeal {rupees(d['ideal'] * 100)}, minimum {rupees(d['min'] * 100)}\n"
+            + ("You lead it: you buy or organise it and are reimbursed against receipts." if d["lead"]
+               else "No lead yet: it stays a draft, off the ballot, until someone agrees to lead it."))
+
+
+async def propose_text(update: Update, m: dict, state: str, d: dict, text: str) -> None:
+    tg, reply = update.effective_user.id, update.message.reply_text
+    if state == "p_title":
+        if not text: await reply("Send a short title."); return
+        d["title"] = text[:120]; set_state(tg, "p_text", d)
+        await reply("Describe it in a few lines: what it is, who it's for, what the money buys.")
+    elif state == "p_text":
+        d["text"] = text[:2000]; set_state(tg, "p_ideal", d)
+        await reply("Ideal amount, in rupees?")
+    elif state == "p_ideal":
+        v = parse_rupees(text)
+        if not v: await reply("A whole number of rupees above 0, e.g. 5000."); return
+        d["ideal"] = v; set_state(tg, "p_min", d)
+        await reply("The least that would still make it worth doing, in rupees? Send 0 if any amount helps.")
+    elif state == "p_min":
+        v = parse_rupees(text)
+        if v is None or v > d["ideal"]: await reply(f"A whole number of rupees from 0 to {d['ideal']}."); return
+        d["min"] = v; set_state(tg, "p_lead", d)
+        await reply("Will you lead it? The lead buys or organises it and is reimbursed against receipts.",
+                    reply_markup=yes_no("pl", "Yes, I'll lead", "No"))
+    elif state == "p_upi":
+        if text.lower() != "skip":
+            if not re.fullmatch(r"[\w.\-]{2,256}@[\w.\-]{2,64}", text): await reply("That doesn't look like a UPI id (name@bank). Or send skip."); return
+            d["upi"] = text
+        set_state(tg, "p_confirm", d)
+        await reply(proposal_summary(d), reply_markup=yes_no("pc", "Submit", "Cancel"))
+
+
+async def propose_button(update: Update, m: dict, key: str, ans: str, d: dict) -> None:
+    tg, reply = update.effective_user.id, update.callback_query.message.reply_text
+    if key == "pl":
+        d["lead"] = ans == "y"
+        if d["lead"] and not m["upi_id"]:
+            set_state(tg, "p_upi", d)
+            await reply("Your UPI id, for the reimbursement (e.g. name@okaxis)? Only the treasurer sees it. Send skip to add it later."); return
+        set_state(tg, "p_confirm", d)
+        await reply(proposal_summary(d), reply_markup=yes_no("pc", "Submit", "Cancel"))
+    elif key == "pc":
+        clear_state(tg)
+        if ans != "y":
+            await reply("Dropped. Nothing was saved."); return
+        if d.get("upi"):
+            with db.tx(con): con.execute("UPDATE members SET upi_id=? WHERE id=?", (d["upi"], m["id"]))
+        try:
+            p = core.add_proposal(con, d["round_id"], m["id"], title=d["title"], text=d["text"], ideal_paise=d["ideal"] * 100,
+                                  min_paise=d["min"] * 100, lead_id=m["id"] if d["lead"] else None)
+        except core.PBError as e:
+            await reply(err_text(e)); return
+        await reply("Submitted. It's on the list." if p["status"] == "eligible" else "Saved as a draft. It reaches the ballot once someone leads it.")
+
+
+# --- ballot -----------------------------------------------------------------
+async def start_ballot(update: Update, m: dict, node: dict, rnd: dict) -> None:
+    props = core.eligible_proposals(con, rnd["id"])
+    cur = db.j((db.row(con.execute("SELECT points FROM ballots WHERE round_id=? AND member_id=?", (rnd["id"], m["id"])).fetchone()) or {}).get("points"), {})
+    lines = [f"{node['name']} · budget {rupees(core.spendable_budget(con, rnd))}. Split 100 points across:"]
+    for i, p in enumerate(props, 1):
+        lines.append(f"{i}. {p['title']} (ideal {rupees(p['ideal_paise'])}, min {rupees(p['min_paise'])})" + (f" · now {cur[p['id']]}" if p["id"] in cur else ""))
+    lines.append("\nReply with one number per item, in order, adding up to 100, e.g. " + " ".join(["0"] * len(props)).replace("0", "100", 1)
+                 + f"\nOr by item: 1:60 3:40. Add one more number (or u:N) to leave points unspent." + (f" Your current unspent: {cur['_unspent']}." if "_unspent" in cur else ""))
+    set_state(update.effective_user.id, "b_points", {"round_id": rnd["id"], "ids": [p["id"] for p in props], "titles": [p["title"] for p in props]})
+    await update.effective_message.reply_text("\n".join(lines))
+
+
+def parse_points(text: str, ids: list[str]) -> dict[str, int] | str:
+    """'40 30 30' (positional, optional trailing unspent) or '1:40 3:60 u:0'. Returns points or an error to show."""
+    toks = text.replace(",", " ").split()
+    pts: dict[str, int] = {}
+    if any(":" in t or "=" in t for t in toks):
+        for t in toks:
+            k, _, v = t.replace("=", ":").partition(":")
+            if not v.isdigit(): return f"Couldn't read '{t}'."
+            if k.lower() in ("u", "unspent"): key = "_unspent"
+            elif k.isdigit() and 1 <= int(k) <= len(ids): key = ids[int(k) - 1]
+            else: return f"There's no item {k}."
+            pts[key] = pts.get(key, 0) + int(v)
+    else:
+        if not all(t.isdigit() for t in toks) or len(toks) not in (len(ids), len(ids) + 1):
+            return f"Send {len(ids)} whole numbers (or {len(ids) + 1} to leave some unspent)."
+        pts = {k: int(v) for k, v in zip(ids + ["_unspent"], toks)}
+    pts = {k: v for k, v in pts.items() if v}
+    if sum(pts.values()) != 100:
+        return f"Those add up to {sum(pts.values())}, not 100."
+    return pts
+
+
+async def ballot_text(update: Update, m: dict, d: dict, text: str) -> None:
+    pts = parse_points(text, d["ids"])
+    if isinstance(pts, str):
+        await update.message.reply_text(pts + " Try again, or /cancel."); return
+    d["points"] = pts; set_state(update.effective_user.id, "b_confirm", d)
+    names = dict(zip(d["ids"], d["titles"])) | {"_unspent": "left unspent"}
+    await update.message.reply_text("Your ballot:\n" + "\n".join(f"{v:>3}  {names[k]}" for k, v in pts.items()),
+                                    reply_markup=yes_no("bc", "Submit", "Cancel"))
+
+
+async def ballot_button(update: Update, m: dict, ans: str, d: dict) -> None:
+    reply = update.callback_query.message.reply_text
+    clear_state(update.effective_user.id)
+    if ans != "y":
+        await reply("Dropped. Nothing was saved."); return
+    try:
+        b = core.submit_ballot(con, d["round_id"], m["id"], d["points"])
+    except core.PBError as e:
+        await reply(err_text(e)); return
+    await reply("Ballot saved." + (" (This replaces your earlier one.)" if b["revision"] > 1 else "") + " You can change it with /ballot until ballots close.")
+
+
+# --- rank -------------------------------------------------------------------
+def plan_lines(rnd: dict, plan: dict) -> list[str]:
+    titles = {p["id"]: p["title"] for p in core.eligible_proposals(con, rnd["id"])}
+    amts = db.j(plan["amounts"], {})
+    return [f"  {titles.get(k, k)}: {rupees(v)}" for k, v in sorted(amts.items(), key=lambda kv: -kv[1]) if v > 0] or ["  (funds nothing)"]
+
+
+async def start_rank(update: Update, m: dict, node: dict, rnd: dict) -> None:
+    plans = core.plans_of(con, rnd["id"])
+    lines = [f"{node['name']}: four ways to spend {rupees(core.spendable_budget(con, rnd))}."]
+    for pl in plans:
+        lines += [f"\n{RULE_NAMES.get(pl['rule'], pl['rule'])}" + ("" if pl["valid"] else " (not valid)")] + plan_lines(rnd, pl)
+    rec = core.receipt_for(con, rnd["id"], m["id"])
+    if rec:
+        tot = sum(rec.values()) or 1; titles = {p["id"]: p["title"] for p in core.eligible_proposals(con, rnd["id"])}
+        lines.append("\nUnder Equal Shares your share went to: " + ", ".join(f"{titles.get(k, k)} {v * 100 // tot}%" for k, v in sorted(rec.items(), key=lambda kv: -kv[1])))
+    lines.append("\nTap the plans from best to worst.")
+    d = {"round_id": rnd["id"], "plans": {pl["id"]: RULE_NAMES.get(pl["rule"], pl["rule"]) for pl in plans}, "order": []}
+    set_state(update.effective_user.id, "r_pick", d)
+    await update.effective_message.reply_text("\n".join(lines), reply_markup=rank_keyboard(d))
+
+
+def rank_keyboard(d: dict) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([[InlineKeyboardButton(name, callback_data=f"rk:{pid}")] for pid, name in d["plans"].items() if pid not in d["order"]])
+
+
+async def rank_button(update: Update, m: dict, key: str, val: str, d: dict) -> None:
+    tg, reply = update.effective_user.id, update.callback_query.message.reply_text
+    if key == "rk":
+        if val not in d["plans"] or val in d["order"]: return
+        d["order"].append(val)
+        so_far = "\n".join(f"{i}. {d['plans'][p]}" for i, p in enumerate(d["order"], 1))
+        if len(d["order"]) < len(d["plans"]):
+            set_state(tg, "r_pick", d)
+            await reply(f"{so_far}\n\nNext?", reply_markup=rank_keyboard(d)); return
+        set_state(tg, "r_confirm", d)
+        await reply(f"Your ranking:\n{so_far}", reply_markup=yes_no("rc", "Submit", "Start over"))
+    elif key == "rc":
+        if val != "y":
+            d["order"] = []; set_state(tg, "r_pick", d)
+            await reply("From the top: which plan is best?", reply_markup=rank_keyboard(d)); return
+        clear_state(tg)
+        try:
+            core.submit_ranking(con, d["round_id"], m["id"], d["order"])
+        except core.PBError as e:
+            await reply(err_text(e)); return
+        await reply("Ranking saved. You can change it with /rank until the winner is picked.")
+
+
+# --- approve (no typed input, so no stored state: the plan id rides in the button) ------------------
+async def start_approve(update: Update, m: dict, node: dict, rnd: dict) -> None:
+    plan = db.row(con.execute("SELECT * FROM plans WHERE id=?", (rnd["winner_plan_id"],)).fetchone())
+    eligible = len(core.active_members(con, node["id"]))
+    need = -(-node["ratify_pct"] * eligible // 100)
+    text = (f"{node['name']}: the winning plan is {RULE_NAMES.get(plan['rule'], plan['rule'])}.\n" + "\n".join(plan_lines(rnd, plan))
+            + f"\n\nIt is funded only if {need} of {eligible} members ({node['ratify_pct']}%) approve. Not answering counts as not approving.")
+    kb = InlineKeyboardMarkup([[InlineKeyboardButton("Approve", callback_data=f"ra:{plan['id']}:approve"),
+                                InlineKeyboardButton("Reject", callback_data=f"ra:{plan['id']}:reject")]])
+    await update.effective_message.reply_text(text, reply_markup=kb)
+
+
+async def approve_button(update: Update, m: dict, plan_id: str, verdict: str) -> None:
+    reply = update.callback_query.message.reply_text
+    rnd = db.row(con.execute("SELECT r.* FROM rounds r JOIN plans p ON p.round_id=r.id WHERE p.id=?", (plan_id,)).fetchone())
+    if not rnd or rnd["winner_plan_id"] != plan_id:
+        await reply("That plan is no longer the one up for approval. Send /approve again."); return
+    try:
+        core.submit_ratification(con, rnd["id"], m["id"], plan_id, verdict)
+    except core.PBError as e:
+        await reply(err_text(e)); return
+    await reply(("Approved." if verdict == "approve" else "Rejected.") + " You can change your answer with /approve until approval closes.")
+
+
+# --- dispatch ---------------------------------------------------------------
 async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     q = update.callback_query; await q.answer()
     m = member_for(update)
-    if q.data.startswith("paid:"):
-        if not m or not db.row(con.execute("SELECT 1 FROM memberships WHERE member_id=? AND role='treasurer' AND status='active'", (m["id"],)).fetchone()):
+    if not m:
+        return
+    key, _, val = q.data.partition(":")
+    if key == "paid":
+        if not db.row(con.execute("SELECT 1 FROM memberships WHERE member_id=? AND role='treasurer' AND status='active'", (m["id"],)).fetchone()):
             return
-        ctx.user_data["awaiting_ref"] = q.data[5:]
-        await q.message.reply_text("Reply with the UPI/IMPS reference number.")
+        set_state(update.effective_user.id, "t_ref", {"payout_id": val})
+        await q.message.reply_text("Reply with the UPI/IMPS reference number."); return
+    if key == "go":
+        cmd, _, node_id = val.partition(":")
+        if cmd in STAGES: await begin(update, ctx, cmd, node_id)
+        return
+    if key == "ra":
+        plan_id, _, verdict = val.partition(":")
+        await approve_button(update, m, plan_id, verdict); return
+    state, d = get_state(update.effective_user.id)
+    expects = {"pl": "p_lead", "pc": "p_confirm", "bc": "b_confirm", "rk": "r_pick", "rc": "r_confirm"}
+    if not state or expects.get(key) != state:
+        await q.message.reply_text("That question has expired. Start again with the command."); return
+    if key in ("pl", "pc"): await propose_button(update, m, key, val, d)
+    elif key == "bc": await ballot_button(update, m, val, d)
+    else: await rank_button(update, m, key, val, d)
 
 
 async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
-    pid = ctx.user_data.pop("awaiting_ref", None)
-    if pid:
-        core.mark_paid(con, pid, update.message.text.strip())
+    tg = update.effective_user.id
+    text = (update.message.text or "").strip()
+    state, d = get_state(tg)
+    m = member_for(update)
+    if not state or not m:
+        await update.message.reply_text("Try /status, /propose, /ballot, /rank or /approve."); return
+    if state == "t_ref":
+        clear_state(tg)
+        core.mark_paid(con, d["payout_id"], text)
         await update.message.reply_text("Recorded. It's on the ledger.")
+    elif state.startswith("p_") and state not in ("p_lead", "p_confirm"):
+        await propose_text(update, m, state, d, text)
+    elif state == "b_points":
+        await ballot_text(update, m, d, text)
+    else:
+        await update.message.reply_text("Use the buttons above, or /cancel.")
 
 
 async def notify(app: Application, node_id: str, text: str) -> int:
@@ -159,6 +481,11 @@ def build() -> Application:
     app.add_handler(CommandHandler("me", me))
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("payouts", payouts))
+    app.add_handler(CommandHandler("propose", cmd_propose))
+    app.add_handler(CommandHandler("ballot", cmd_ballot))
+    app.add_handler(CommandHandler("rank", cmd_rank))
+    app.add_handler(CommandHandler("approve", cmd_approve))
+    app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
     return app

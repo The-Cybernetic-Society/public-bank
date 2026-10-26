@@ -395,9 +395,9 @@ def advance(node_id: str, request: Request, step: str = Form(...)):
 
 
 ANNOUNCE = {
-    "freeze": "Proposals are frozen in {node}. Ballots are open: split 100 points across the items.\n{url}",
-    "compute": "The plans for {node} are ready. See where your equal share went and rank the candidates.\n{url}",
-    "winner": "A winning plan was picked for {node}. Please approve or reject it; 60% of members must approve before any money moves.\n{url}",
+    "freeze": "Proposals are frozen in {node}. Ballots are open: split 100 points across the items. Send /ballot here.\n{url}",
+    "compute": "The plans for {node} are ready. See where your equal share went and rank the candidates. Send /rank here.\n{url}",
+    "winner": "A winning plan was picked for {node}. Please approve or reject it; 60% of members must approve before any money moves. Send /approve here.\n{url}",
     "close": "The round in {node} is decided. Open the page for the result.\n{url}",
 }
 

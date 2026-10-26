@@ -184,6 +184,13 @@ CREATE TABLE IF NOT EXISTS tokens (
   used_at       BIGINT
 );
 
+CREATE TABLE IF NOT EXISTS bot_state (
+  telegram_id   BIGINT PRIMARY KEY,              -- a resident part-way through a bot conversation
+  state         TEXT NOT NULL,                   -- the question the bot asked last
+  data          TEXT NOT NULL DEFAULT '{}',      -- JSON answers so far, deleted when the conversation ends
+  updated_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS idempotency (
   key           TEXT PRIMARY KEY,
   response      TEXT NOT NULL,
