@@ -10,7 +10,7 @@ gcloud config set project "$PROJECT"
 gcloud services enable run.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
 
 # Postgres (smallest shared-core instance)
-gcloud sql instances create publicbank --database-version=POSTGRES_16 --tier=db-f1-micro --region="$REGION" --storage-size=10 || true
+gcloud sql instances create publicbank --database-version=POSTGRES_16 --edition=ENTERPRISE --tier=db-f1-micro --region="$REGION" --storage-size=10 --storage-type=HDD || true
 gcloud sql databases create publicbank --instance=publicbank || true
 gcloud sql users create pb --instance=publicbank --password="$DBPASS"
 CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
