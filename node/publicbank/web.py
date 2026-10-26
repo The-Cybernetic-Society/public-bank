@@ -100,6 +100,40 @@ def esc(s: Any) -> str:
 # ----------------------------------------------------------------------------
 # join and sign-in
 # ----------------------------------------------------------------------------
+@app.get("/j/{token}/poster.png")
+def poster(token: str):
+    """A printable A5-ish poster for a join link: QR + node name. Public, but the token is the secret."""
+    try:
+        t = core.read_token(con, token, "join")
+    except core.PBError:
+        raise HTTPException(404)
+    node = core.get_node(con, t["node_id"])
+    parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
+    import io
+    import qrcode
+    from PIL import Image, ImageDraw, ImageFont
+    from fastapi.responses import Response
+    url = f"{BASE_URL}/j/{token}"
+    q = qrcode.make(url, border=2).convert("RGB").resize((900, 900))
+    img = Image.new("RGB", (1240, 1754), "white")   # A5 at 150 dpi
+    img.paste(q, (170, 120))
+    d = ImageDraw.Draw(img)
+    try:
+        big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 64)
+        med = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 40)
+    except OSError:
+        big = med = ImageFont.load_default()
+    y = 1070
+    for line, f in [(parent["name"] if parent else "", med), (node["name"], big), ("", med),
+                    ("Scan to join your budget round.", med), ("Propose · vote · approve.", med),
+                    ("Money moves only after 60% of members approve.", med), ("", med), (BASE_URL.replace("https://", "").replace("http://", ""), med)]:
+        if line:
+            d.text((120, y), line, fill="black", font=f)
+        y += 70 if f is big else 56
+    buf = io.BytesIO(); img.save(buf, "PNG")
+    return Response(buf.getvalue(), media_type="image/png")
+
+
 @app.get("/j/{token}")
 def join(token: str, request: Request):
     """A join link from a poster or the bot: creates/links the member and a pending membership in the node."""

@@ -30,3 +30,10 @@ gcloud run deploy publicbank --source . --region="$REGION" --allow-unauthenticat
 # Custom domain → prints the DNS record to add
 gcloud beta run domain-mappings create --service=publicbank --domain="${BASE_URL#https://}" --region="$REGION" || true
 echo; echo "PB_APP_TOKEN (for the mini-app registration):"; gcloud secrets versions access latest --secret=PB_APP_TOKEN; echo
+
+# A one-off job for seeding (same image, same secrets, Cloud SQL attached). Execute with:
+#   gcloud run jobs execute publicbank-seed --region=$REGION --wait --args="--village,goa-2026,--name,Edge City Goa 2026,--residency,A,--residency,B,--budget-per-residency,100000,--levy,20,--treasurer-telegram,<id>"
+IMAGE=$(gcloud run services describe publicbank --region="$REGION" --format='value(spec.template.spec.containers[0].image)')
+gcloud run jobs create publicbank-seed --image="$IMAGE" --region="$REGION" --set-cloudsql-instances="$CONN" \
+  --command=python --args="-m,publicbank.setup_village,--help" \
+  --set-env-vars="PB_BASE_URL=${BASE_URL}" --set-secrets="DATABASE_URL=DATABASE_URL:latest" || true

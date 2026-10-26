@@ -4,7 +4,7 @@ link per residency (print as QR posters with --qr).
 
     python -m publicbank.setup_village --village goa-2026 --name "Edge City Goa 2026" \
         --residency "Residency A" --residency "Residency B" \
-        --budget-per-residency 100000 --levy 20 --treasurer-telegram 123456789 --qr out/
+        --budget-per-residency 100000 --levy 20 --treasurer-telegram 123456789
 
 Budgets are rupees on the command line and stored as paise. The levy is the % of each residency pot
 that goes up to the village pool when its round opens; the pool spends what it receives plus
@@ -62,20 +62,16 @@ def main() -> None:
         links.append((r, nid, url))
         print(f"{r:30s} {nid:40s} {url}")
 
-    if a.qr:
+    print()
+    for r, nid, url in links:
+        print(f"poster: {url}/poster.png")
+
+    if a.qr:   # optional local PNGs; the service also serves each poster at <join url>/poster.png
         import qrcode
-        from PIL import Image, ImageDraw
         os.makedirs(a.qr, exist_ok=True)
         for r, nid, url in links:
-            q = qrcode.make(url).convert("RGB").resize((600, 600))
-            img = Image.new("RGB", (700, 820), "white")
-            img.paste(q, (50, 40))
-            d = ImageDraw.Draw(img)
-            d.text((50, 660), f"{a.name}", fill="black")
-            d.text((50, 690), f"{r} · budget round", fill="black")
-            d.text((50, 740), "Scan to join. Propose, vote, approve. Money moves only after 60% approve.", fill="black")
-            img.save(os.path.join(a.qr, f"{slug(r)}.png"))
-        print(f"posters in {a.qr}/")
+            qrcode.make(url).save(os.path.join(a.qr, f"{slug(r)}.png"))
+        print(f"QR codes in {a.qr}/")
 
 
 if __name__ == "__main__":
