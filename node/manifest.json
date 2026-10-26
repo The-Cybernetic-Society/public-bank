@@ -5,8 +5,13 @@
   "version": "0.1.0",
   "description": "Your residency's budget, decided by its members: propose, offer, split 100 points, approve the plan. Your agent can draft on your behalf; you approve every step.",
   "homepage": "https://github.com/The-Cybernetic-Society/public-bank",
-  "owner": { "org": "The-Cybernetic-Society" },
-  "credit": { "role": "product", "name": "The Cybernetic Society" },
+  "owner": {
+    "org": "The-Cybernetic-Society"
+  },
+  "credit": {
+    "role": "product",
+    "name": "The Cybernetic Society"
+  },
   "visibility": "sandbox",
   "permissions": [
     {
@@ -22,19 +27,92 @@
   ],
   "service": {
     "kind": "mcp",
-    "baseUrl": "https://publicbank.example.org/mcp",
-    "auth": { "mode": "app-token", "secretRef": "PUBLICBANK_APP_TOKEN" }
+    "baseUrl": "https://PUBLIC_URL_AFTER_DEPLOY/mcp",
+    "auth": {
+      "mode": "app-token",
+      "secretRef": "PUBLICBANK_APP_TOKEN"
+    }
   },
   "operations": [
-    { "name": "publicbank.status",  "class": "read",  "target": { "tool": "publicbank_status" },  "maxRequestBytes": 4096,  "maxResponseBytes": 65536, "timeoutMs": 10000, "framing": "data" },
-    { "name": "publicbank.propose", "class": "write", "target": { "tool": "publicbank_propose" }, "maxRequestBytes": 8192,  "maxResponseBytes": 4096,  "timeoutMs": 10000, "framing": "data" },
-    { "name": "publicbank.lead",    "class": "write", "target": { "tool": "publicbank_lead" },    "maxRequestBytes": 2048,  "maxResponseBytes": 4096,  "timeoutMs": 10000, "framing": "data" },
-    { "name": "publicbank.offer",   "class": "write", "target": { "tool": "publicbank_offer" },   "maxRequestBytes": 4096,  "maxResponseBytes": 4096,  "timeoutMs": 10000, "framing": "data" },
-    { "name": "publicbank.ballot",  "class": "write", "target": { "tool": "publicbank_ballot" },  "maxRequestBytes": 8192,  "maxResponseBytes": 4096,  "timeoutMs": 10000, "framing": "data" },
-    { "name": "publicbank.approve", "class": "write", "target": { "tool": "publicbank_approve" }, "maxRequestBytes": 2048,  "maxResponseBytes": 4096,  "timeoutMs": 10000, "framing": "data" }
+    {
+      "name": "publicbank.status",
+      "class": "read",
+      "target": {
+        "tool": "publicbank_status"
+      },
+      "maxRequestBytes": 4096,
+      "maxResponseBytes": 65536,
+      "timeoutMs": 10000,
+      "framing": "data"
+    },
+    {
+      "name": "publicbank.propose",
+      "class": "write",
+      "target": {
+        "tool": "publicbank_propose"
+      },
+      "maxRequestBytes": 8192,
+      "maxResponseBytes": 4096,
+      "timeoutMs": 10000,
+      "framing": "data"
+    },
+    {
+      "name": "publicbank.lead",
+      "class": "write",
+      "target": {
+        "tool": "publicbank_lead"
+      },
+      "maxRequestBytes": 2048,
+      "maxResponseBytes": 4096,
+      "timeoutMs": 10000,
+      "framing": "data"
+    },
+    {
+      "name": "publicbank.offer",
+      "class": "write",
+      "target": {
+        "tool": "publicbank_offer"
+      },
+      "maxRequestBytes": 4096,
+      "maxResponseBytes": 4096,
+      "timeoutMs": 10000,
+      "framing": "data"
+    },
+    {
+      "name": "publicbank.ballot",
+      "class": "write",
+      "target": {
+        "tool": "publicbank_ballot"
+      },
+      "maxRequestBytes": 8192,
+      "maxResponseBytes": 4096,
+      "timeoutMs": 10000,
+      "framing": "data"
+    },
+    {
+      "name": "publicbank.approve",
+      "class": "write",
+      "target": {
+        "tool": "publicbank_approve"
+      },
+      "maxRequestBytes": 2048,
+      "maxResponseBytes": 4096,
+      "timeoutMs": 10000,
+      "framing": "data"
+    }
   ],
-  "data": { "context": { "maxEntries": 2, "ceiling": "village" } },
+  "data": {
+    "context": {
+      "maxEntries": 2,
+      "ceiling": "village"
+    }
+  },
   "skills": [
-    { "name": "publicbank", "version": "0.1.0", "sha256": "TO_BE_PINNED_AT_REVIEW", "path": "skills/publicbank/SKILL.md" }
+    {
+      "name": "publicbank",
+      "version": "0.1.0",
+      "sha256": "387b68246435d4628e2d13bacffa95608e04f3b3ecde1c50c9dff01ca6ab7411",
+      "path": "skills/publicbank/SKILL.md"
+    }
   ]
 }

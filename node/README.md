@@ -37,14 +37,20 @@ python -m publicbank.setup_village --village goa-2026 --name "Edge City Goa 2026
   --residency "Residency A" --residency "Residency B" \
   --budget-per-residency 100000 --levy 20 --treasurer-telegram <your tg id> --qr out/
 
-uvicorn publicbank.main:app --host 0.0.0.0 --port 8000     # web + /mcp + bot polling
+PB_BOT_POLLING=1 uvicorn publicbank.main:app --port 8000   # web + /mcp + bot (polling locally)
 ```
+
+Locally the store is SQLite. In production set `DATABASE_URL` (Postgres) and the same schema is created
+there; nothing else changes. The bot runs on a webhook (`/tg/<secret>`, registered at startup from
+`PB_BASE_URL`), so the service is stateless and can restart or scale without missing updates.
 
 `out/*.png` are posters: one QR per residency. Scanning opens `/j/<token>`, which creates a pending
 membership and hands off to the bot. The coordinator approves on `/c/<node>`; from then on the
 resident is notified in Telegram when ballots, plans and approval open.
 
-Deploy: `fly launch` (fly.toml included, Mumbai region, 1 GB volume at /data) or Railway (Procfile).
+Deploy (Railway): new project from this repo → add a Postgres plugin (sets `DATABASE_URL`) → set the
+variables from `.env.example` → add the custom domain and point `PB_BASE_URL` at it. `railway.json`
+has the start command and health check. Seed with `railway run python -m publicbank.setup_village …`.
 
 ## Round, step by step
 
@@ -79,6 +85,8 @@ every level.
 python tests/test_round.py   # core: 12 members, 6 proposals, 4 plans, Schulze, ratification, payouts, levy
 python tests/test_web.py     # web: join → propose → ballot → plans → rank → approve → treasury
 python tests/test_bot.py     # bot: deep-link join, login link, payout queue with upi://, paid ref
+python tests/test_webhook.py # webhook: secret + header checked, update dispatched
+# same suites against Postgres: DATABASE_URL=postgresql://... python tests/test_round.py
 ```
 
 ## Hard rules in code
