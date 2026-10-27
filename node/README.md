@@ -28,6 +28,7 @@ read; nothing about a resident enters the system except what they or their coord
 ## Run
 
 ```bash
+python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env && edit .env
 set -a; . ./.env; set +a
