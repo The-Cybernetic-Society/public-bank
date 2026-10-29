@@ -130,7 +130,9 @@ async def payouts(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         text = f"{x['title']} · {rupees(x['amount_paise'])} · {x['kind']}\nto: {pa or 'no UPI id yet'}\nremark: {note}"
         kb = [[InlineKeyboardButton("Mark paid", callback_data=f"paid:{x['id']}")]]
         if pa:
-            kb.insert(0, [InlineKeyboardButton("Pay in UPI app", url=core.upi_link(pa, x["amount_paise"], note))])
+            # Telegram allows only http(s)/tg URLs on buttons, so the button opens our /pay page, which hands off to upi://
+            tok = core.mint_token(con, "login", member_id=m["id"])
+            kb.insert(0, [InlineKeyboardButton("Pay in UPI app", url=f"{BASE_URL}/l/{tok}?next=/pay/{x['id']}")])
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb))
 
 

@@ -204,7 +204,7 @@ async def run():
     text, kb = msg.replies[0]
     assert "Chai" in text and "asha@upi" in text
     buttons = [b for row_ in kb.inline_keyboard for b in row_]
-    assert any(b.url and b.url.startswith("upi://pay?pa=asha%40upi") for b in buttons), [b.url for b in buttons]
+    assert any(b.url and "/l/" in b.url and "?next=/pay/" in b.url for b in buttons), [b.url for b in buttons]   # https button → /pay page → upi:// (Telegram refuses upi:// on buttons)
     paid_btn = next(b for b in buttons if b.callback_data)
     cq = SimpleNamespace(data=paid_btn.callback_data, message=msg)
     async def answer(): pass
@@ -222,7 +222,7 @@ async def run():
     await bot.payouts(u, ctx())
     assert msg.replies[0][0] == "Treasurer only."
     await conversations()
-    print("BOT OK · join · login link · approve · payout queue with upi:// · paid ref recorded · propose/ballot/rank/approve in-bot")
+    print("BOT OK · join · login link · approve · payout queue → /pay link · paid ref recorded · propose/ballot/rank/approve in-bot")
 
 
 asyncio.run(run())

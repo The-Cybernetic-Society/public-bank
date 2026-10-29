@@ -500,6 +500,26 @@ def treasury(request: Request):
     return page("Treasury · payout queue", body)
 
 
+@app.get("/pay/{payout_id}")
+def pay(payout_id: str, request: Request):
+    """The treasurer's hand-off to their UPI app: a page with the upi:// link, which also tries to open it at once.
+    Chat apps refuse upi:// on buttons, so the bots link here instead."""
+    m = _require(request)
+    if not db.row(con.execute("SELECT 1 FROM memberships WHERE member_id=? AND role='treasurer' AND status='active'", (m["id"],)).fetchone()): raise HTTPException(403)
+    x = next((q for q in core.payout_queue(con) if q["id"] == payout_id), None)
+    if not x: raise HTTPException(404)
+    pa = x["payee_upi"] or x["lead_upi"]
+    if not pa:
+        return page("No UPI id yet", f"<p>{esc(x['title'])} · {_rupees(x['amount_paise'])}. The payee hasn't given a UPI id. <a href='/treasury'>Treasury</a></p>")
+    note = f"{x['round_id']} {x['title']}"
+    link = core.upi_link(pa, x["amount_paise"], note)
+    body = (f"<p><b>{esc(x['title'])}</b> · {_rupees(x['amount_paise'])} · {esc(x['kind'])}</p><p>to <code>{esc(pa)}</code></p>"
+            f"<p><a href='{esc(link)}'><button>Open UPI app</button></a></p>"
+            f"<p class=muted>If nothing opens, copy the id above into your UPI app and pay {_rupees(x['amount_paise'])}. Then tap \"Mark paid\" in the bot or on the <a href='/treasury'>treasury page</a> and enter the reference.</p>"
+            f"<script>setTimeout(function(){{location.href={json.dumps(link)}}},400)</script>")
+    return page("Pay", body)
+
+
 @app.post("/treasury/paid")
 def paid(request: Request, payout_id: str = Form(...), reference: str = Form(...)):
     m = _require(request)

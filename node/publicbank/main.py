@@ -28,6 +28,7 @@ from .mcp_server import app as mcp_app
 from .web import app as web_app
 
 log = logging.getLogger("publicbank")
+logging.getLogger("httpx").setLevel(logging.WARNING)   # its INFO lines carry the full request URL, bot token included
 BASE_URL = os.environ.get("PB_BASE_URL", "http://localhost:8000").rstrip("/")
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 HOOK_SECRET = hashlib.sha256(("hook:" + BOT_TOKEN).encode()).hexdigest()[:32] if BOT_TOKEN else ""

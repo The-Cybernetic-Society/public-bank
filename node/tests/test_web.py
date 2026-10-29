@@ -46,6 +46,8 @@ assert C.post("/c/goa-2026/res-a/advance", data={"step": "close"}).status_code =
 d = db.row(con.execute("SELECT * FROM decisions").fetchone()); assert d["verdict"] == "ratified" and d["approvals"] == 5 and d["eligible"] == 8
 T = client(tre["id"]); assert "upi://pay?pa=lead0%40upi" in T.get("/treasury").text
 pid = db.row(con.execute("SELECT id FROM payouts LIMIT 1").fetchone())["id"]
+pp = T.get(f"/pay/{pid}"); assert pp.status_code == 200 and "upi://pay?pa=lead" in pp.text and "Open UPI app" in pp.text, pp.text[-400:]
+assert resid[0].get(f"/pay/{pid}").status_code == 403 and T.get("/pay/nope").status_code == 404
 assert T.post("/treasury/paid", data={"payout_id": pid, "reference": "UPI123"}).status_code == 303
 ex = client().get("/export/goa-2026/res-a").json(); assert ex["node"]["members"] == 8 and ex["tallies"][0]["approvals"] == 5
 assert resid[0].get("/treasury").status_code == 403 and client().get("/me").status_code == 401
