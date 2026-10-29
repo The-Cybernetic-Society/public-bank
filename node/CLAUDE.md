@@ -104,7 +104,7 @@ secrets in Secret Manager: `DATABASE_URL`, `PB_SECRET`, `PB_APP_TOKEN`, `TELEGRA
 Bot: `@cybernetic_society_bot`. Treasurer Telegram id is in the seed command history.
 
 ```bash
-# deploy (from node/)
+# deploy: `sh node/deploy.sh` (the same command, with --source as the absolute path to node/)
 CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
 gcloud run deploy publicbank --source . --region=asia-southeast1 --allow-unauthenticated \
   --add-cloudsql-instances="$CONN" --min-instances=1 --max-instances=3 --memory=512Mi \
