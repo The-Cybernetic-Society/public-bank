@@ -118,3 +118,14 @@ print("APPLY OK · landing · form → node + card · same phone updates · hone
 r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone" in r.text and "919876543210" in r.text
 assert client().get("/c/commons/applications.csv").status_code == 401 and O.get("/c/commons/applications.csv").status_code == 403
 print("APPLY OK · csv")
+
+# rupees in Indian grouping; a matching pool's board shows the ceiling and the rule before any money is in
+from publicbank.convo import rupees  # noqa: E402
+assert rupees(500000 * 100) == "₹5,00,000" and rupees(18000 * 100) == "₹18,000" and rupees(12345678 * 100) == "₹1,23,45,678" and rupees(500) == "₹5" and rupees(0) == "₹0"
+rnd = core.open_round(con, "commons", 500000 * 100)
+bt = client().get("/b/commons").text
+assert "up to ₹5,00,000" in bt and "5×" in bt and "Nothing in yet" in bt, bt[:800]
+core.contribute(con, a["node_id"], 1000 * 100, member_id=owner_id)
+bt = client().get("/b/commons").text
+assert "₹6,000" in bt and "= ₹1,000 from 1 nodes + match 5× (up to ₹5,00,000)" in bt, bt[:900]
+print("APPLY OK · rupees · board ceiling")

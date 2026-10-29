@@ -76,7 +76,8 @@ def _require(request: Request) -> dict:
 
 
 def _rupees(p: int) -> str:
-    return f"₹{p // 100:,}"
+    from .convo import rupees
+    return rupees(p)
 
 
 # ----------------------------------------------------------------------------
@@ -672,13 +673,21 @@ def board(node_id: str):
         body += "<p class=big>No round open</p>"
     else:
         st = rnd["status"]
-        body += f"<p><span class=stage>{esc(STAGE_WORDS.get(st, st))}</span> &nbsp; <span class=big>{_rupees(core.spendable_budget(con, rnd))}</span>"
-        if kids:
-            inn = core.contributions_in(con, rnd["id"])
-            body += f" <span class=muted>= {_rupees(inn)} from {len({c['from_node_id'] for c in db.rows(con.execute('SELECT from_node_id FROM contributions WHERE to_round_id=?', (rnd['id'],)).fetchall())})} nodes"
-            body += f" + match {node['match_pct']}%" if node.get("match_pct") else ""
-            body += "</span>"
-        body += "</p>"
+        spend = core.spendable_budget(con, rnd)
+        inn = core.contributions_in(con, rnd["id"]) if kids else 0
+        n_in = len({c['from_node_id'] for c in db.rows(con.execute('SELECT from_node_id FROM contributions WHERE to_round_id=?', (rnd['id'],)).fetchall())}) if kids else 0
+        if kids and node.get("match_pct") and not inn:
+            # a matching pool before anyone has put money in: show the ceiling and the rule, not a zero
+            times = f"{node['match_pct'] / 100:g}×"
+            body += (f"<p><span class=stage>{esc(STAGE_WORDS.get(st, st))}</span> &nbsp; <span class=big>up to {_rupees(rnd['budget_paise'])}</span> "
+                     f"<span class=muted>· the pot matches what businesses put in, {times}. Nothing in yet.</span></p>")
+        else:
+            body += f"<p><span class=stage>{esc(STAGE_WORDS.get(st, st))}</span> &nbsp; <span class=big>{_rupees(spend)}</span>"
+            if kids:
+                body += f" <span class=muted>= {_rupees(inn)} from {n_in} nodes"
+                body += f" + match {node['match_pct'] / 100:g}× (up to {_rupees(rnd['budget_paise'])})" if node.get("match_pct") else ""
+                body += "</span>"
+            body += "</p>"
     if kids:
         contributed = {}
         if rnd:

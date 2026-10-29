@@ -40,7 +40,17 @@ STAGES = {"propose": ("proposals", "propose"), "ballot": ("ballots", "vote on"),
 
 
 def rupees(p: int) -> str:
-    return f"₹{p // 100:,}"
+    """Indian grouping: ₹5,00,000 not ₹500,000."""
+    n = abs(p) // 100
+    s = str(n)
+    if len(s) > 3:
+        head, tail = s[:-3], s[-3:]
+        parts = []
+        while len(head) > 2:
+            parts.insert(0, head[-2:]); head = head[:-2]
+        if head: parts.insert(0, head)
+        s = ",".join(parts) + "," + tail
+    return ("-" if p < 0 else "") + "₹" + s
 
 
 def err_text(e: core.PBError) -> str:
