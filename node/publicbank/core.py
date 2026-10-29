@@ -718,3 +718,95 @@ def export_node(con, node_id: str) -> dict[str, Any]:
         out["contributions"].append({"id": c["id"], "from": c["from_node_id"], "to": c["to_node_id"], "round": c["round_id"],
                                      "to_round": c.get("to_round_id"), "amount": c["amount_paise"]})
     return out
+
+
+# ----------------------------------------------------------------------------
+# applications: a business registers itself from the public form, before anyone is verified
+# ----------------------------------------------------------------------------
+def normalize_phone(s: str) -> str:
+    """Digits only; a bare ten-digit Indian mobile gets the country code. '' when it can't be a phone number."""
+    d = "".join(ch for ch in str(s) if ch.isdigit())
+    if len(d) == 10 and d[0] in "6789":
+        d = "91" + d
+    if d.startswith("0") and len(d) == 11:
+        d = "91" + d[1:]
+    return d if 10 <= len(d) <= 15 else ""
+
+
+def unique_node_id(con, base: str) -> str:
+    nid, n = base, 2
+    while con.execute("SELECT 1 FROM nodes WHERE id=?", (nid,)).fetchone():
+        nid = f"{base}-{n}"; n += 1
+    return nid
+
+
+def slugify(s: str) -> str:
+    import re
+    return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "business"
+
+
+def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, about: str = "", team_size: int | None = None,
+          need: str = "", share: str = "", contribute: str = "", consent: bool = False, token_ttl: int = 30 * 86400) -> dict:
+    """Register a business under a pool from the public form. Makes the business node and an owner's card
+    (a `join_coord` token). The same phone applying again updates its application instead of making a second
+    node. Nobody is a member yet: the applicant becomes the coordinator when they open the card."""
+    pool = get_node(con, pool_id)
+    business = " ".join(business.split())[:80]
+    applicant = " ".join(applicant.split())[:80]
+    ph = normalize_phone(phone)
+    if len(business) < 2 or len(applicant) < 2 or not ph:
+        raise PBError("bad_application")
+    if role not in ("owner", "manager", "staff"):
+        role = "staff"
+    ts = max(1, min(int(team_size or 1), 500))
+    fields = (about.strip()[:200], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
+              1 if consent else 0)
+    cur = row(con.execute("SELECT * FROM applications WHERE pool_id=? AND phone=?", (pool_id, ph)).fetchone())
+    if cur and cur["status"] == "new":
+        with tx(con):
+            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,team_size=?,need=?,share=?,contribute=?,consent=?,updated_at=? WHERE id=?",
+                        (business, applicant, role, *fields, now(), cur["id"]))
+            con.execute("UPDATE nodes SET name=? WHERE id=?", (business, cur["node_id"]))
+        return row(con.execute("SELECT * FROM applications WHERE id=?", (cur["id"],)).fetchone())
+    if cur:   # already joined: a second form from the same phone is a new need at most, not a new business
+        if need.strip():
+            m = row(con.execute("SELECT member_id FROM memberships WHERE node_id=? AND role='coordinator' AND status='active' LIMIT 1", (cur["node_id"],)).fetchone())
+            if m:
+                add_need(con, cur["node_id"], m["member_id"], need.strip()[:500])
+        return cur
+    nid = unique_node_id(con, f"{pool['id']}/{slugify(business)}")
+    create_node(con, nid, business, kind="group", parent_id=pool["id"])
+    for t in rows(con.execute("SELECT member_id FROM memberships WHERE node_id=? AND role='treasurer' AND status='active'", (pool["id"],)).fetchall()):
+        join_node(con, nid, t["member_id"], role="treasurer", auto_active=True)
+    tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
+    aid = new_id("a_")
+    with tx(con):
+        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,team_size,need,share,contribute,consent,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, tok, "new", now(), now()))
+    return row(con.execute("SELECT * FROM applications WHERE id=?", (aid,)).fetchone())
+
+
+def applications_of(con, pool_id: str, status: str | None = None) -> list[dict]:
+    q, args = "SELECT * FROM applications WHERE pool_id=?", [pool_id]
+    if status:
+        q += " AND status=?"; args.append(status)
+    return rows(con.execute(q + " ORDER BY created_at DESC", args).fetchall())
+
+
+def claim_application(con, node_id: str, member_id: str) -> dict | None:
+    """The owner opened their card: name the member after the applicant if they have no name yet, record the
+    application's need as the node's first need, and mark the application joined. Idempotent."""
+    a = row(con.execute("SELECT * FROM applications WHERE node_id=?", (node_id,)).fetchone())
+    if not a:
+        return None
+    if a["status"] == "new":
+        with tx(con):
+            con.execute("UPDATE applications SET status='joined', updated_at=? WHERE id=?", (now(), a["id"]))
+            con.execute("UPDATE members SET display=COALESCE(display,?) WHERE id=?", (a["applicant"], member_id))
+        if a["need"]:
+            add_need(con, node_id, member_id, a["need"])
+    return row(con.execute("SELECT * FROM applications WHERE id=?", (a["id"],)).fetchone())
+
+
+def has_need(con, node_id: str) -> bool:
+    return bool(con.execute("SELECT 1 FROM needs WHERE node_id=? LIMIT 1", (node_id,)).fetchone())

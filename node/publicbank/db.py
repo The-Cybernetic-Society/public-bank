@@ -192,6 +192,26 @@ CREATE TABLE IF NOT EXISTS needs (
   created_at    BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS applications (
+  id            TEXT PRIMARY KEY,
+  pool_id       TEXT NOT NULL REFERENCES nodes(id),
+  node_id       TEXT REFERENCES nodes(id),      -- the business node made for it
+  business      TEXT NOT NULL,
+  applicant     TEXT NOT NULL,                  -- the person who filled the form
+  role          TEXT NOT NULL,                  -- owner | manager | staff
+  phone         TEXT NOT NULL,                  -- WhatsApp number as typed, digits; never exported, never shown publicly
+  about         TEXT,                           -- what the business does and where
+  team_size     BIGINT,
+  need          TEXT,                           -- one thing to buy or run together; copied into `needs` when the owner joins
+  share         TEXT,
+  contribute    TEXT,                           -- yes | maybe | no: would put in a small amount
+  consent       BIGINT NOT NULL DEFAULT 0,      -- anonymised research
+  token         TEXT,                           -- the join_coord token minted for the owner
+  status        TEXT NOT NULL DEFAULT 'new',    -- new | joined (the owner tapped the card)
+  created_at    BIGINT NOT NULL,
+  updated_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS tokens (
   token         TEXT PRIMARY KEY,
   kind          TEXT NOT NULL,                   -- join | ballot | ratify | login

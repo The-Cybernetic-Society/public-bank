@@ -38,6 +38,14 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `/c/<node>` coordinator (approve members, advance round → DMs everyone), `/treasury`, `/export/<node>`,
   `/b/<node>` the public live board (no identities; 15 s refresh). `/n/<pool>` shows a child member the pool
   round with lead and co-sign buttons.
+  The front door: `/` lists the pools; `/apply/<pool>` is the public registration form (business, person, role,
+  WhatsApp number, what/where, team size, one need, what they'd share, would they chip in, research consent). A
+  submit makes the business node, an `applications` row and a `join_coord` card; the same phone again updates.
+  `/c/<pool>` shows the treasurer every application with a "Send card" link (wa.me to the owner with the card
+  prefilled, the manual bridge until the Meta number is live). Opening a card on the web (`/j/<join_coord>`)
+  makes the opener coordinator, copies the form's need into `needs` (`core.claim_application`), shows the pool
+  charter to accept (`POST /n/<node>/charter`) and a `join_team` link that joins staff at once (a plain `join`
+  link still needs approval). Pages share one paper theme (`CSS`, `PB_BRAND`), light and dark.
 - `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
   texts, the ballot prompt, receipts. Add shared wording here, not in a bot.
 - `publicbank/whatsapp.py` — WhatsApp (Meta Cloud API) for nodes whose members live on WhatsApp (the Goan
@@ -65,8 +73,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{db,round,web,bot,webhook,whatsapp,pool}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all seven before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all eight before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
   to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)
@@ -75,7 +83,7 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   Edge City's team said so explicitly (consent terms). A resident's EdgeOS token is used once, for
   `/humans/me`, and dropped.
 - The MCP side never reads an agent's memory/context. Every write is confirmed by the human (see SKILL.md).
-- Exports carry no names, Telegram ids, EdgeOS ids or UPI ids.
+- Exports carry no names, Telegram ids, EdgeOS ids, UPI ids or phone numbers; `applications` never leaves `/c/<pool>`.
 - Approval counts eligible members, not voters. Points sum to 100. Amounts are paise.
 - No function in core trusts a caller-supplied identity; transports verify, core receives `member_id`.
 - Payouts are purchases or reimbursements against receipts, paid by a person tapping a link. The
@@ -112,8 +120,9 @@ gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=pu
 Deployed 29 Oct 2026: revision publicbank-00008 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim; `PB_WA_*` and
 `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
-at https://bank.cyberneticsutra.com/b/goa-biz-demo. Re-point the job (`--command=sh --args="-c,<cmd>"`) to
-`publicbank.setup_businesses` when seeding the real businesses.
+at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool is made once with
+`python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --match-pct 500 --treasurer-telegram <id>`
+(no `--business`: businesses register themselves at `/apply/goa-business-commons`).
 
 Gotchas met: pass `--source` as the ABSOLUTE path to `node/` (a `cd node && gcloud run deploy --source .` once
 uploaded the repo root, found no Dockerfile, and Buildpacks failed); `gcloud --args` rejects repeated items (hence `sh -c`); `<` in a placeholder breaks `sh`;

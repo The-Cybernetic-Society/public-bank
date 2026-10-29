@@ -5,9 +5,15 @@ transport or to the database beyond what it is handed.
 """
 from __future__ import annotations
 
+import os
 import re
 
 from . import core, db
+
+CHARTER = os.environ.get("PB_WA_CHARTER", (
+    "One business, one vote. Each business puts a small amount into the shared pot every round and the pot "
+    "matches it. Money moves only after 60% of businesses approve the plan, and every rupee is a purchase or "
+    "a reimbursement against a receipt. Anyone can check the decision record."))
 
 RULE_NAMES = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Help the least served"}
 ERRORS = {

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.parse
 from typing import Any
 
 import httpx
@@ -81,16 +82,32 @@ def _rupees(p: int) -> str:
 # ----------------------------------------------------------------------------
 # minimal HTML
 # ----------------------------------------------------------------------------
-CSS = """<style>:root{color-scheme:light dark}body{font:16px/1.5 system-ui,sans-serif;max-width:640px;margin:0 auto;padding:16px}
-h1{font-size:22px}h2{font-size:17px;margin-top:28px}.card{border:1px solid #8884;border-radius:8px;padding:12px;margin:10px 0}
-input,textarea,select,button{font:inherit;padding:8px;border:1px solid #8886;border-radius:6px;width:100%;box-sizing:border-box;margin:4px 0}
-button{background:#0b6e4f;color:#fff;border:0;cursor:pointer}.muted{color:#777;font-size:14px}.row{display:flex;gap:8px;align-items:center}
-.row input{width:90px}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-top:1px solid #8884;text-align:left}
-.bad{color:#b00}.ok{color:#0b6e4f}</style>"""
+CSS = """<style>:root{color-scheme:light dark;--paper:#f4eddc;--ink:#1b1713;--muted:#6f675b;--line:#1b171340;--soft:#ffffff55;--accent:#0b6e4f}
+@media(prefers-color-scheme:dark){:root{--paper:#16130f;--ink:#efe7d6;--muted:#a69d8c;--line:#efe7d640;--soft:#ffffff0d}}
+body{font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:640px;margin:0 auto;padding:20px 16px 56px;background:var(--paper);color:var(--ink)}
+h1,h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-weight:600;letter-spacing:-.01em}
+h1{font-size:32px;line-height:1.12;margin:6px 0 14px}h2{font-size:21px;margin:30px 0 8px}
+.brand{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand a{color:inherit;text-decoration:none}a{color:var(--ink)}
+.card{border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin:10px 0;background:var(--soft)}
+label{display:block;margin-top:16px;font-weight:600}.hint{display:block;font-weight:400;color:var(--muted);font-size:14px;line-height:1.4}
+input,textarea,select,button{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:4px;width:100%;box-sizing:border-box;margin:6px 0;background:var(--soft);color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+button{background:var(--ink);color:var(--paper);border:1px solid var(--ink);box-shadow:3px 3px 0 var(--accent);cursor:pointer;font-weight:600;margin-top:14px}
+button.quiet{background:transparent;color:var(--ink);box-shadow:none;margin-top:6px}
+.choice{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.choice label{flex:1 1 0;box-sizing:border-box;margin:0;border:1px solid var(--line);border-radius:4px;padding:10px 6px;text-align:center;font-weight:500;background:var(--soft);white-space:nowrap}
+.choice input{width:auto;margin:0 6px 0 0;vertical-align:middle}.choice label:has(input:checked){border-color:var(--ink);box-shadow:2px 2px 0 var(--accent)}
+.muted{color:var(--muted);font-size:14px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+.bad{color:#b3261e}.ok{color:var(--accent)}.hp{position:absolute;left:-9999px}</style>"""
+
+
+BRAND = os.environ.get("PB_BRAND", "The Cybernetic Society")
 
 
 def page(title: str, body: str) -> HTMLResponse:
-    return HTMLResponse(f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>{CSS}<h1>{title}</h1>{body}")
+    return HTMLResponse(f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>{CSS}"
+                        f"<p class=brand><a href='/'>{esc(BRAND)}</a></p><h1>{title}</h1>{body}")
 
 
 def esc(s: Any) -> str:
@@ -104,7 +121,7 @@ def esc(s: Any) -> str:
 def poster(token: str, via: str = ""):
     """A printable A5-ish poster for a join link: QR + node name. Public, but the token is the secret."""
     t = None
-    for kind in ("join", "join_coord"):
+    for kind in ("join", "join_coord", "join_team"):
         try:
             t = core.read_token(con, token, kind); break
         except core.PBError:
@@ -144,9 +161,13 @@ def poster(token: str, via: str = ""):
 @app.get("/j/{token}")
 def join(token: str, request: Request):
     """A join link from a poster or the bot: creates/links the member and a pending membership in the node."""
-    try:
-        t = core.read_token(con, token, "join")
-    except core.PBError:
+    t = None
+    for kind in ("join", "join_coord", "join_team"):
+        try:
+            t = core.read_token(con, token, kind); break
+        except core.PBError:
+            pass
+    if not t:
         return page("Link expired", "<p>Ask your coordinator for a fresh link.</p>")
     m = _member(request)
     if not m:
@@ -155,8 +176,19 @@ def join(token: str, request: Request):
         with db.tx(con):
             con.execute("INSERT INTO members (id,verified_by,created_at) VALUES (?,?,?)", (mid, "deeplink", db.now()))
         m = db.row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
-    core.join_node(con, t["node_id"], m["id"])
     node = core.get_node(con, t["node_id"])
+    if t["kind"] == "join_coord":
+        # an owner's card: whoever opens it runs this business. The card went to the phone the business gave us.
+        core.join_node(con, node["id"], m["id"], role="coordinator", auto_active=True)
+        core.claim_application(con, node["id"], m["id"])
+        return _set_session(_coordinator_welcome(node, m, request), m["id"])
+    if core.is_role(con, node["id"], m["id"], ("coordinator", "treasurer")):
+        return _set_session(_coordinator_welcome(node, m, request), m["id"])
+    if t["kind"] == "join_team":   # the owner handed this link out themselves: in at once
+        core.join_node(con, t["node_id"], m["id"], auto_active=True)
+        body = f"<p>You're in: <b>{esc(node['name'])}</b>. When there's something to propose, vote on or approve, it's at <a href='/n/{esc(node['id'])}'>your node's page</a>.</p>"
+        return _set_session(page("Welcome", body), m["id"])
+    core.join_node(con, t["node_id"], m["id"])
     body = f"<p>You've asked to join <b>{esc(node['name'])}</b>. The coordinator will confirm you; then you can propose and vote.</p>"
     if BOT_USERNAME:
         body += f"<p><a href='https://t.me/{BOT_USERNAME}?start=j_{esc(token)}'>Open the Telegram bot</a> to get notified when it's your turn.</p>"
@@ -166,6 +198,38 @@ def join(token: str, request: Request):
     if EDGEOS_APP_KEY:
         body += "<p class=muted>Or <a href='/signin'>sign in with Edge City</a> to verify you're a resident.</p>"
     return _set_session(page("Welcome", body), m["id"])
+
+
+def _coordinator_welcome(node: dict, m: dict, request: Request) -> HTMLResponse:
+    """What an owner sees after opening their card: their team link, the pool's charter to accept, their pages."""
+    from . import convo
+    base = str(request.base_url).rstrip("/")
+    tok = core.mint_token(con, "join_team", node_id=node["id"], ttl=core.TOKEN_TTL_JOIN)
+    body = f"<p>You run <b>{esc(node['name'])}</b> here: you decide who is in, and you cast its vote.</p>"
+    parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
+    if parent and not node.get("charter_at"):
+        body += (f"<div class=card><h2 style='margin-top:0'>{esc(parent['name'])} works like this</h2><p>{esc(convo.CHARTER)}</p>"
+                 f"<form method=post action='/n/{esc(node['id'])}/charter'><button>Join {esc(parent['name'])} with {esc(node['name'])}</button></form></div>")
+    elif parent:
+        body += f"<p class=ok>{esc(node['name'])} is in {esc(parent['name'])}.</p>"
+    link = f"{base}/j/{tok}"
+    if os.environ.get("PB_WA_NUMBER"):
+        from . import whatsapp
+        link = whatsapp.join_link(tok)
+    body += (f"<h2>Your team</h2><p>Share this with the people who work with you, so they can vote too. Anyone who opens it joins "
+             f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
+             f"<p><a href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></p>")
+    body += f"<h2>Next</h2><p><a href='/me'>Your nodes</a> · <a href='/c/{esc(node['id'])}'>Coordinate</a>" + (f" · <a href='/b/{esc(parent['id'])}'>Live board</a>" if parent else "") + "</p>"
+    return page(f"Welcome, {esc(m.get('display') or 'coordinator')}", body)
+
+
+@app.post("/n/{node_id:path}/charter")
+def accept_charter(node_id: str, request: Request):
+    m = _require(request)
+    if not core.is_role(con, node_id, m["id"], ("coordinator",)): raise HTTPException(403)
+    with db.tx(con):
+        con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
+    return RedirectResponse(f"/c/{node_id}", status_code=303)
 
 
 @app.get("/l/{token}")
@@ -413,14 +477,39 @@ def coordinate(node_id: str, request: Request):
         body += f"<h2>Round {esc(rnd['id'])}: {esc(rnd['status'])}</h2>"
         if nxt:
             body += f"<form method=post action='/c/{esc(node_id)}/advance'><input type=hidden name=step value='{nxt[0]}'><button>{nxt[1]}</button></form>"
-    tok = core.mint_token(con, "join", node_id=node_id, ttl=core.TOKEN_TTL_JOIN)
+    node = core.get_node(con, node_id)
     base = str(request.base_url).rstrip("/")
+    if node.get("parent_id") and not node.get("charter_at") and core.is_role(con, node_id, m["id"], ("coordinator",)):
+        from . import convo
+        par = core.get_node(con, node["parent_id"])
+        body += (f"<div class=card><h2 style='margin-top:0'>{esc(par['name'])} works like this</h2><p>{esc(convo.CHARTER)}</p>"
+                 f"<form method=post action='/n/{esc(node_id)}/charter'><button>Join {esc(par['name'])} with {esc(node['name'])}</button></form></div>")
+    if not node.get("parent_id"):
+        apps = core.applications_of(con, node_id)
+        body += f"<h2>Registered businesses</h2><p class=muted>From <a href='/apply/{esc(node_id)}'>{esc(base)}/apply/{esc(node_id)}</a>. "
+        body += "“Send card” opens WhatsApp on your phone with the owner's join link ready to send.</p>"
+        if apps:
+            body += "<table><tr><th>Business</th><th>Who</th><th>Team</th><th>Need</th><th></th></tr>"
+            for a in apps:
+                link = f"{base}/j/{a['token']}"
+                if os.environ.get("PB_WA_NUMBER"):
+                    from . import whatsapp
+                    link = whatsapp.join_link(a["token"])
+                msg = f"Hi {a['applicant']}, welcome to {node['name']}. Open this to join as {a['business']}: {link}"
+                act = (f"<a href='https://wa.me/{esc(a['phone'])}?text={esc(urllib.parse.quote(msg))}'>Send card</a>" if a["status"] == "new"
+                       else "<span class=ok>joined</span>")
+                body += (f"<tr><td><b>{esc(a['business'])}</b><br><span class=muted>{esc(a['about'] or '')}</span></td><td>{esc(a['applicant'])}<br><span class=muted>{esc(a['role'])}"
+                         + (" · would chip in" if a["contribute"] == "yes" else "") + f"</span></td><td>{a['team_size'] or ''}</td><td>{esc(a['need'] or '')}</td><td>{act}</td></tr>")
+            body += "</table>"
+        else:
+            body += "<p class=muted>Nobody yet.</p>"
+    tok = core.mint_token(con, "join", node_id=node_id, ttl=core.TOKEN_TTL_JOIN)
     body += f"<h2>Join link (put this on the poster)</h2><p><code>{esc(base)}/j/{esc(tok)}</code></p>"
     if BOT_USERNAME: body += f"<p><code>https://t.me/{BOT_USERNAME}?start=j_{esc(tok)}</code></p>"
     if os.environ.get("PB_WA_NUMBER"):
         from . import whatsapp
         body += f"<p>WhatsApp: <code>{esc(whatsapp.join_link(tok))}</code> · <a href='/j/{esc(tok)}/poster.png?via=wa'>card</a></p>"
-    return page(f"Coordinate · {core.get_node(con, node_id)['name']}", body)
+    return page(f"Coordinate · {node['name']}", body)
 
 
 @app.post("/c/{node_id:path}/approve-member")
@@ -616,6 +705,101 @@ def board(node_id: str):
     body += f"<p class=muted><a href='/export/{esc(node_id)}'>Export</a> · the record anyone can check. No names, no account details.</p>"
     html = page(node["name"], body).body.decode()
     return HTMLResponse(html.replace("<title>", "<meta http-equiv=refresh content=15>" + BOARD_CSS + "<title>", 1))
+
+
+# ----------------------------------------------------------------------------
+# the front door: a pool's registration form, and the landing page
+# ----------------------------------------------------------------------------
+APPLY_INTRO = os.environ.get("PB_APPLY_INTRO", (
+    "A shared fund for things businesses can buy or run together: a delivery scooter for a lane, one software licence "
+    "for several shops, a cold store, a trainer. Each business says what it needs, similar needs are grouped, every "
+    "business gets one vote, and winning items are bought against receipts. Two minutes, one form per business."))
+
+
+def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLResponse:
+    v = v or {}
+    g = lambda k: esc(v.get(k, ""))  # noqa: E731
+    def radio(name, options, default=""):
+        cur = v.get(name, default)
+        return "<div class=choice>" + "".join(f"<label><input type=radio name={name} value={val}{' checked' if cur == val else ''}{' required' if i == 0 and name == 'role' else ''}>{lab}</label>" for i, (val, lab) in enumerate(options)) + "</div>"
+    body = f"<p>{esc(APPLY_INTRO)}</p>"
+    if error:
+        body += f"<p class=bad>{esc(error)}</p>"
+    body += f"""<form method=post action='/apply/{esc(pool['id'])}'>
+<input class=hp name=website tabindex=-1 autocomplete=off>
+<label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
+<label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
+<label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
+<label>WhatsApp number <span class=hint>We send your business's join link here. Never published.</span>
+<input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></label>
+<label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
+<input name=about required maxlength=200 value='{g('about')}'></label>
+<label>How many people work there, including you <input name=team_size type=number inputmode=numeric min=1 max=500 required value='{g('team_size') or 1}'></label>
+<label>One thing you would buy or run together with other businesses <span class=hint>A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
+<textarea name=need rows=3 required maxlength=500>{g('need')}</textarea></label>
+<label>What could you share with other businesses? <span class=hint>Optional. Equipment, space, a skill, a contact. Nothing is too small.</span>
+<textarea name=share rows=2 maxlength=300>{g('share')}</textarea></label>
+<label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')], 'maybe')}</label>
+<label style='font-weight:400'><input type=checkbox name=consent value=1 style='width:auto'{' checked' if v.get('consent') else ''}> You may use my answers, without my name or my business's name, for research.</label>
+<button>Register my business</button>
+</form>
+<p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
+    return page(pool["name"], body)
+
+
+def _pool_or_404(pool_id: str) -> dict:
+    try:
+        pool = core.get_node(con, pool_id)
+    except core.PBError:
+        raise HTTPException(404)
+    if pool.get("parent_id"):
+        raise HTTPException(404)
+    return pool
+
+
+@app.get("/apply/{pool_id:path}")
+def apply_get(pool_id: str):
+    return _apply_form(_pool_or_404(pool_id))
+
+
+@app.post("/apply/{pool_id:path}")
+def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""),
+               about: str = Form(""), team_size: str = Form(""), need: str = Form(""), share: str = Form(""), contribute: str = Form(""),
+               consent: str = Form(""), website: str = Form("")):
+    pool = _pool_or_404(pool_id)
+    v = dict(business=business, applicant=applicant, role=role, phone=phone, about=about, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
+    if website:   # a bot filled the hidden field: say thanks, keep nothing
+        return page("Thank you", "<p>We'll be in touch.</p>")
+    if not core.normalize_phone(phone):
+        return _apply_form(pool, v, "That doesn't look like a WhatsApp number. Ten digits, or with the country code.")
+    try:
+        a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, about=about,
+                       team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent))
+    except core.PBError:
+        return _apply_form(pool, v, "Check the business name and your name.")
+    body = f"<p><b>{esc(a['business'])}</b> is registered in {esc(pool['name'])}.</p>"
+    if os.environ.get("PB_WA_NUMBER") and a["status"] == "new":
+        from . import whatsapp
+        body += (f"<p>One tap to finish: open WhatsApp and send the message that appears. That makes you the person who runs "
+                 f"{esc(a['business'])} here.</p><form action='{esc(whatsapp.join_link(a['token']))}'><button>Open WhatsApp</button></form>")
+    else:
+        body += f"<p>We'll WhatsApp the number ending in <b>{esc(a['phone'][-4:])}</b> with your business's join link. Open it and you're set up as the person who runs {esc(a['business'])} here; you'll get a link to share with your team.</p>"
+    body += f"<p class=muted>Change something? Fill the form again from the same number and it updates. <a href='/b/{esc(pool['id'])}'>Live board</a></p>"
+    return page(f"Thanks, {esc(a['applicant'].split()[0])}", body)
+
+
+@app.get("/")
+def home():
+    pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
+    body = ("<p>A treasury a community runs together. Say what you need, spread 100 points across the proposals, approve the "
+            "plan, and watch every rupee on a public board. Nothing moves without the group's approval.</p>")
+    for p in pools:
+        n = len(core.children(con, p["id"]))
+        body += (f"<div class=card><b>{esc(p['name'])}</b>" + (f" <span class=muted>· {n} nodes</span>" if n else "")
+                 + f"<br><a href='/b/{esc(p['id'])}'>Live board</a> · <a href='/apply/{esc(p['id'])}'>Register a business</a></div>")
+    if not pools:
+        body += "<p class=muted>Nothing is running here yet.</p>"
+    return page("Public Bank", body)
 
 
 # ----------------------------------------------------------------------------

@@ -40,6 +40,9 @@ def main() -> None:
     ap.add_argument("--base-url", default=os.environ.get("PB_BASE_URL", "http://localhost:8000"))
     ap.add_argument("--wa-number", default=os.environ.get("PB_WA_NUMBER", ""), help="the WhatsApp number people message, digits")
     ap.add_argument("--csv", help="write name,node,link,card to this file")
+    ap.add_argument("--pool-vote", choices=("members", "nodes"), default="nodes", help="who votes in the pool round (new pools only)")
+    ap.add_argument("--cosign-min", type=int, default=2, help="businesses that must back a proposal before it is on the ballot (new pools only)")
+    ap.add_argument("--match-pct", type=int, default=0, help="the pot matches contributions at this percent, e.g. 500 = 5x (new pools only)")
     a = ap.parse_args()
 
     names = list(a.business)
@@ -55,7 +58,7 @@ def main() -> None:
     try:
         pool = core.get_node(con, a.pool)
     except core.PBError:
-        pool = core.create_node(con, a.pool, a.name, kind="pool")
+        pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote=a.pool_vote, cosign_min=a.cosign_min, match_pct=a.match_pct)
 
     treasurer = None
     if a.treasurer_telegram:
@@ -78,6 +81,7 @@ def main() -> None:
         print(f"{n:32s} {nid:48s} {rows[-1][2]}")
 
     print()
+    print(f"register on the web: {base}/apply/{a.pool}")
     print(f"generic link for businesses not on the list: https://wa.me/{number}?text=JOIN" if number else "set --wa-number for a generic JOIN link")
     if a.csv:
         with open(a.csv, "w", newline="", encoding="utf-8") as f:

@@ -37,7 +37,7 @@ import urllib.parse
 
 import httpx
 
-from . import core, db
+from . import convo, core, db
 from .convo import (NEXT_STEP, RULE_NAMES, STAGES, advanceable, ballot_prompt, coordinated, cosignable, err_text, parse_points, parse_rupees,
                     plan_lines, proposal_summary, receipt_line, rounds_at, rupees)
 
@@ -51,10 +51,7 @@ VERIFY_TOKEN = os.environ.get("PB_WA_VERIFY_TOKEN", "")  # webhook subscription 
 APP_SECRET = os.environ.get("PB_WA_APP_SECRET", "")     # signs every webhook body (X-Hub-Signature-256)
 POOL = os.environ.get("PB_WA_POOL", "")                  # node id a self-registered business joins under
 TEMPLATE = os.environ.get("PB_WA_TEMPLATE", "")          # approved template name with one {{1}} body parameter
-CHARTER = os.environ.get("PB_WA_CHARTER", (
-    "One business, one vote. Each business puts a small amount into the shared pot every round and the pot "
-    "matches it. Money moves only after 60% of businesses approve the plan, and every rupee is a purchase or "
-    "a reimbursement against a receipt. Anyone can check the decision record."))
+CHARTER = convo.CHARTER
 WINDOW = 24 * 3600
 STATE_TTL = 24 * 3600
 con = db.connect()
@@ -346,7 +343,7 @@ def menu(phone: str, m: dict | None) -> None:
 def do_join(phone: str, name: str | None, m: dict | None, code: str) -> None:
     if code:
         tok = None
-        for kind in ("join_coord", "join"):
+        for kind in ("join_coord", "join_team", "join"):
             try:
                 tok = core.read_token(con, code, kind); break
             except core.PBError:
@@ -357,6 +354,7 @@ def do_join(phone: str, name: str | None, m: dict | None, code: str) -> None:
         node = core.get_node(con, tok["node_id"])
         if tok["kind"] == "join_coord":
             core.join_node(con, node["id"], m["id"], role="coordinator", auto_active=True)
+            core.claim_application(con, node["id"], m["id"])   # a business that registered on the web form
             sender.text(phone, f"You're the coordinator for {node['name']}. You decide who's in, and you freeze the list and move the round along.")
             if node.get("parent_id") and not node.get("charter_at"):
                 ask_charter(phone, node)
@@ -381,11 +379,6 @@ def do_join(phone: str, name: str | None, m: dict | None, code: str) -> None:
     sender.text(phone, "Welcome. What's your business called? (This becomes your node's name.)")
 
 
-def _unique_node_id(base: str) -> str:
-    nid, n = base, 2
-    while con.execute("SELECT 1 FROM nodes WHERE id=?", (nid,)).fetchone():
-        nid = f"{base}-{n}"; n += 1
-    return nid
 
 
 def finish_self_join(phone: str, name: str | None, m: dict | None, text: str) -> None:
@@ -394,7 +387,7 @@ def finish_self_join(phone: str, name: str | None, m: dict | None, text: str) ->
         sender.text(phone, "Send the business's name."); return
     m = ensure_member(phone, name, m)
     slug = re.sub(r"[^a-z0-9]+", "-", biz.lower()).strip("-") or "business"
-    node = core.create_node(con, _unique_node_id(f"{POOL}/{slug}"), biz, kind="group", parent_id=POOL)
+    node = core.create_node(con, core.unique_node_id(con, f"{POOL}/{slug}"), biz, kind="group", parent_id=POOL)
     core.join_node(con, node["id"], m["id"], role="coordinator", auto_active=True)
     clear_state(phone)
     sender.text(phone, f"Created {biz}. You're its coordinator.")
@@ -417,6 +410,8 @@ def charter_answer(phone: str, m: dict, node_id: str, ans: str) -> None:
         con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
     sender.text(phone, f"Accepted. {node['name']} is in {core.get_node(con, node['parent_id'])['name']}.")
     send_staff_link(phone, node)
+    if core.has_need(con, node_id):   # the form already asked
+        return
     set_state(phone, "n_text", {"node_id": node_id})
     sender.text(phone, "One more thing: what's one thing your business needs right now? One line. Similar needs across businesses become shared proposals. (Reply SKIP to pass.)")
 
