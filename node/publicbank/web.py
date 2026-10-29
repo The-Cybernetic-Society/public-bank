@@ -674,9 +674,9 @@ def board(node_id: str):
     else:
         st = rnd["status"]
         spend = core.spendable_budget(con, rnd)
-        inn = core.contributions_in(con, rnd["id"]) if kids else 0
-        n_in = len({c['from_node_id'] for c in db.rows(con.execute('SELECT from_node_id FROM contributions WHERE to_round_id=?', (rnd['id'],)).fetchall())}) if kids else 0
-        if kids and node.get("match_pct") and not inn:
+        inn = core.contributions_in(con, rnd["id"])
+        n_in = len({c['from_node_id'] for c in db.rows(con.execute('SELECT from_node_id FROM contributions WHERE to_round_id=?', (rnd['id'],)).fetchall())})
+        if node.get("match_pct") and not inn:
             # a matching pool before anyone has put money in: show the ceiling and the rule, not a zero
             times = f"{node['match_pct'] / 100:g}×"
             body += (f"<p><span class=stage>{esc(STAGE_WORDS.get(st, st))}</span> &nbsp; <span class=big>up to {_rupees(rnd['budget_paise'])}</span> "

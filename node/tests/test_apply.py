@@ -129,3 +129,6 @@ core.contribute(con, a["node_id"], 1000 * 100, member_id=owner_id)
 bt = client().get("/b/commons").text
 assert "₹6,000" in bt and "= ₹1,000 from 1 nodes + match 5× (up to ₹5,00,000)" in bt, bt[:900]
 print("APPLY OK · rupees · board ceiling")
+core.create_node(con, "empty-pool", "Empty Pool", kind="pool", match_pct=500); core.open_round(con, "empty-pool", 500000 * 100)
+assert "up to ₹5,00,000" in client().get("/b/empty-pool").text   # even before any business exists
+print("APPLY OK · empty matching pool")
