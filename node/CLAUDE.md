@@ -109,7 +109,7 @@ gcloud run jobs execute publicbank-seed --region=asia-southeast1 --wait
 gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed' --limit=30 --format='value(textPayload)' --freshness=10m
 ```
 
-Deployed 29 Oct 2026: revision publicbank-00007 (federation + WhatsApp adapter + /pay hand-off; `PB_WA_*` and
+Deployed 29 Oct 2026: revision publicbank-00008 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim; `PB_WA_*` and
 `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
 at https://bank.cyberneticsutra.com/b/goa-biz-demo. Re-point the job (`--command=sh --args="-c,<cmd>"`) to
