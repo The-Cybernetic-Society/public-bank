@@ -74,6 +74,21 @@ itself (needs `PB_WA_POOL`). From then on the round runs in chat: `STATUS`, `PRO
 Replies inside a member's 24-hour window are free text; a round announcement outside it goes as the
 approved template named by `PB_WA_TEMPLATE`.
 
+## A federation of businesses (the pool round)
+
+A pool node with children runs its own round. Any member of a child may propose; in a pool with `cosign_min`,
+that many children must co-sign (their coordinators, on the page or by replying COSIGN) before a proposal
+reaches the ballot. With `pool_vote='nodes'` each child casts one ballot, through its coordinator. Children
+put money in with `CONTRIBUTE 500`; a pool with `match_pct` matches it (500 = 5x) up to its own pot, which is
+then the pool's spendable budget. Ratification is per child at the child's own threshold, and the pool's
+decision passes only when every child that accepted the charter passes. The export carries the per-child
+tallies. The twin (`python -m publicbank.twin --pool <id>`) turns recorded needs into draft proposals.
+
+The **live board** at `/b/<node>` is public and read-only: stage, pot, contributions, needs, proposals with
+their backers, ballots in, plans, approval per node, the decision and the ledger, refreshing every 15 s.
+No names, phone numbers or UPI ids appear on it. `python -m publicbank.demo --stage paid` builds a six-business
+rehearsal in whatever database the service uses.
+
 ## Round, step by step
 
 1. **Proposals.** Anyone active in the node proposes: title, text, ideal ₹, minimum ₹, and whether they

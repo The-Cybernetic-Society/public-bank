@@ -1,0 +1,163 @@
+"""A federation round in core: three businesses under a matching pool, co-contributions and the match, proposals
+from staff and owners, co-signing by two nodes, one ballot per business cast by its coordinator, plans, a
+winner, ratification business by business (one failing blocks the pool), then the positive path to payouts
+and an export with per-child tallies."""
+import os
+import sys
+import tempfile
+
+os.environ["PB_DB"] = os.path.join(tempfile.mkdtemp(), "p.sqlite")
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from publicbank import core, db  # noqa: E402
+
+con = db.connect()
+
+
+def person(tag: str) -> dict:
+    return core.upsert_member(con, verified_by="whatsapp", wa_phone="9190000" + tag, display=tag)
+
+
+def business(nid: str, name: str, staff: int) -> tuple[dict, list[dict]]:
+    core.create_node(con, nid, name, kind="group", parent_id="pool")
+    with db.tx(con): con.execute("UPDATE nodes SET charter_at=? WHERE id=?", (db.now(), nid))
+    owner = person(nid[-1] + "0")
+    core.join_node(con, nid, owner["id"], role="coordinator", auto_active=True)
+    team = []
+    for i in range(1, staff + 1):
+        p = person(nid[-1] + str(i)); core.join_node(con, nid, p["id"], auto_active=True); team.append(p)
+    return owner, team
+
+
+# the pool: one business one vote, two co-signers per proposal, the pot matches contributions 5x up to ₹1,00,000
+pool = core.create_node(con, "pool", "Goa Business Pool", kind="pool", pool_vote="nodes", cosign_min=2, match_pct=500)
+tre = core.upsert_member(con, verified_by="coordinator", telegram_id=1, display="treasurer")
+core.join_node(con, "pool", tre["id"], role="treasurer", auto_active=True)
+a_owner, a_team = business("pool/a", "Tailors", 2)     # 3 members
+b_owner, b_team = business("pool/b", "Cafe", 1)        # 2 members
+c_owner, c_team = business("pool/c", "Pharmacy", 2)    # 3 members
+rnd = core.open_round(con, "pool", 100000 * 100)
+
+# contributions: ₹500 each, matched 5x → ₹1,500 + ₹7,500 = ₹9,000 spendable
+for nid, owner in (("pool/a", a_owner), ("pool/b", b_owner), ("pool/c", c_owner)):
+    core.contribute(con, nid, 500 * 100, member_id=owner["id"])
+try:
+    core.contribute(con, "pool/a", 500 * 100, member_id=a_team[0]["id"]); raise AssertionError("staff contributed")
+except core.PBError as e:
+    assert e.code == "not_coordinator"
+assert core.contributions_in(con, rnd["id"]) == 1500 * 100
+assert core.spendable_budget(con, rnd) == 9000 * 100, core.spendable_budget(con, rnd)
+# the match is capped at the pool's pot
+with db.tx(con): con.execute("UPDATE rounds SET budget_paise=? WHERE id=?", (2000 * 100, rnd["id"]))
+assert core.spendable_budget(con, core.get_round(con, rnd["id"])) == 3500 * 100
+with db.tx(con): con.execute("UPDATE rounds SET budget_paise=? WHERE id=?", (100000 * 100, rnd["id"]))
+
+# proposals: staff of A proposes and leads; it is a draft until two businesses co-sign
+p1 = core.add_proposal(con, rnd["id"], a_team[0]["id"], title="Shared delivery scooter", text="For the lane.", ideal_paise=6000 * 100, min_paise=4000 * 100, lead_id=a_team[0]["id"])
+assert p1["status"] == "draft" and db.j(p1["cosign_nodes"], []) == []
+try:
+    core.cosign_proposal(con, p1["id"], "pool/a", a_team[1]["id"]); raise AssertionError("staff co-signed")
+except core.PBError as e:
+    assert e.code == "not_coordinator"
+p1 = core.cosign_proposal(con, p1["id"], "pool/a", a_owner["id"])
+assert p1["status"] == "draft"
+p1 = core.cosign_proposal(con, p1["id"], "pool/b", b_owner["id"])
+assert p1["status"] == "eligible" and db.j(p1["cosign_nodes"], []) == ["pool/a", "pool/b"]
+# an owner's own proposal carries their node's signature; a lead from another node's coordinator adds theirs
+p2 = core.add_proposal(con, rnd["id"], b_owner["id"], title="Billing software, one licence", text="GST billing.", ideal_paise=3000 * 100, min_paise=0)
+assert p2["status"] == "draft" and db.j(p2["cosign_nodes"], []) == ["pool/b"]
+p2 = core.lead_proposal(con, p2["id"], c_owner["id"])
+assert p2["status"] == "eligible" and db.j(p2["cosign_nodes"], []) == ["pool/b", "pool/c"]
+# a stranger
+stranger = person("99")
+try:
+    core.add_proposal(con, rnd["id"], stranger["id"], title="x", text="y", ideal_paise=100, lead_id=stranger["id"]); raise AssertionError("stranger proposed")
+except core.PBError as e:
+    assert e.code == "not_a_member"
+
+# ballots: one per business, by its coordinator
+core.freeze_proposals(con, rnd["id"])
+try:
+    core.submit_ballot(con, rnd["id"], a_team[0]["id"], {p1["id"]: 100}); raise AssertionError("staff voted in a nodes pool")
+except core.PBError as e:
+    assert e.code == "node_votes_by_coordinator"
+assert {v["id"] for v in core.voters(con, rnd)} == {a_owner["id"], b_owner["id"], c_owner["id"]}
+core.submit_ballot(con, rnd["id"], a_owner["id"], {p1["id"]: 80, p2["id"]: 20})
+core.submit_ballot(con, rnd["id"], b_owner["id"], {p1["id"]: 30, p2["id"]: 70})
+core.submit_ballot(con, rnd["id"], c_owner["id"], {p2["id"]: 100})
+assert len(core.ballots_of(con, rnd["id"])) == 3
+plans = core.compute_plans(con, rnd["id"])
+assert any(p["valid"] for p in plans)
+core.submit_ranking(con, rnd["id"], a_owner["id"], [p["id"] for p in plans])          # a child's coordinator ranks in the pool round
+core.submit_ranking(con, rnd["id"], c_team[0]["id"], [p["id"] for p in reversed(plans)])  # and so does a child's staff member
+try:
+    core.submit_ranking(con, rnd["id"], stranger["id"], [p["id"] for p in plans]); raise AssertionError("stranger ranked")
+except core.PBError as e:
+    assert e.code == "not_a_member"
+core.pick_winner(con, rnd["id"])
+rnd = core.get_round(con, rnd["id"])
+win = rnd["winner_plan_id"]
+assert sum(db.j(next(p for p in plans if p["id"] == win)["amounts"], {}).values()) == 9000 * 100
+
+# ratification per business: A 2 of 3 (ok), B 1 of 2 (50% < 60%: fails), C 2 of 3 (ok) → the pool fails
+for m in (a_owner, a_team[0], b_owner, c_owner, c_team[0]):
+    core.submit_ratification(con, rnd["id"], m["id"], win, "approve")
+core.submit_ratification(con, rnd["id"], c_team[1]["id"], win, "reject")
+t = core.ratification_tally(con, rnd["id"], win)
+assert t["rule"] == "every_child_ratifies" and not t["ok"] and t["detail"]["pool/b"]["ok"] is False and t["detail"]["pool/a"]["ok"], t
+# B's second member approves → every child passes
+core.submit_ratification(con, rnd["id"], b_team[0]["id"], win, "approve")
+dec = core.close_ratification(con, rnd["id"], win)
+assert dec["verdict"] == "ratified" and dec["eligible"] == 8 and dec["approvals"] == 6 and dec["rejections"] == 1, dec
+detail = db.j(dec["detail"], {})
+assert set(detail) == {"pool/a", "pool/b", "pool/c"} and detail["pool/c"] == {"name": "Pharmacy", "eligible": 3, "approvals": 2, "rejections": 1, "pct": 60, "ok": True}
+q = core.payout_queue(con, rnd["id"])
+assert q and sum(x["amount_paise"] for x in q) == 9000 * 100 and {x["payee_member_id"] for x in q} <= {a_team[0]["id"], c_owner["id"]}
+
+# export: per-child tallies, charter fields, contributions into the round, no identities
+ex = core.export_node(con, "pool")
+assert ex["node"]["pool_vote"] == "nodes" and ex["node"]["match_pct"] == 500 and len(ex["node"]["children"]) == 3
+assert ex["tallies"][0]["children"]["pool/b"] == {"eligible": 2, "approvals": 2, "rejections": 0, "pct": 60, "ok": True}
+assert sum(c["amount"] for c in ex["contributions"] if c["to_round"] == rnd["id"]) == 1500 * 100
+assert "wa_phone" not in str(ex) and "9190000" not in str(ex)
+
+# advance() walks a plain node's round the same way the web button does
+core.create_node(con, "solo", "Solo", kind="group")
+s_m = [person("s" + str(i)) for i in range(3)]
+for m in s_m: core.join_node(con, "solo", m["id"], auto_active=True)
+r2 = core.open_round(con, "solo", 1000 * 100)
+core.add_proposal(con, r2["id"], s_m[0]["id"], title="Tea", text="Tea.", ideal_paise=1000 * 100, lead_id=s_m[0]["id"])
+assert core.advance(con, r2["id"]) == "freeze"
+for m in s_m: core.submit_ballot(con, r2["id"], m["id"], {core.eligible_proposals(con, r2["id"])[0]["id"]: 100})
+assert core.advance(con, r2["id"]) == "compute" and core.advance(con, r2["id"]) == "winner"
+r2 = core.get_round(con, r2["id"])
+for m in s_m[:2]: core.submit_ratification(con, r2["id"], m["id"], r2["winner_plan_id"], "approve")
+assert core.advance(con, r2["id"]) == "close" and core.get_round(con, r2["id"])["status"] == "ratified"
+try:
+    core.advance(con, r2["id"]); raise AssertionError("advanced past the end")
+except core.PBError as e:
+    assert e.code == "wrong_stage"
+
+# needs: recorded per business, listed across the pool
+core.add_need(con, "pool/a", a_owner["id"], "A scooter for deliveries, customers keep asking")
+core.add_need(con, "pool/b", b_owner["id"], "Someone to deliver lunch orders on the lane")
+assert [n["node_name"] for n in core.needs_of(con, "pool")] == ["Tailors", "Cafe"]
+assert core.needs_of(con, "pool/a", include_children=False)[0]["text"].startswith("A scooter")
+
+# the twin (plain path, no API key): two delivery needs from two businesses become one draft; the lone need does not
+os.environ.pop("ANTHROPIC_API_KEY", None)
+from publicbank import twin  # noqa: E402
+core.create_node(con, "pool2", "Pool 2", kind="pool", cosign_min=2)
+for nid, who, text in (("pool2/x", "x0", "A scooter for deliveries to customers"), ("pool2/y", "y0", "Delivery person for lunch orders, customers ask for delivery"), ("pool2/z", "z0", "A bigger fridge for the season")):
+    core.create_node(con, nid, nid[-1].upper(), parent_id="pool2")
+    pm = person(who); core.join_node(con, nid, pm["id"], role="coordinator", auto_active=True); core.add_need(con, nid, pm["id"], text)
+r3 = core.open_round(con, "pool2", 10000 * 100)
+dry = twin.draft_from_needs(con, "pool2", dry_run=True)
+assert len(dry) == 1 and dry[0]["needs"] == 2 and dry[0]["ideal_paise"] == 2 * twin.DEFAULT_IDEAL_RUPEES * 100, dry
+assert all(n["status"] == "open" for n in core.needs_of(con, "pool2"))   # a dry run marks nothing
+made = twin.draft_from_needs(con, "pool2")
+assert len(made) == 1 and made[0]["status"] == "draft" and made[0]["source"] == "twin" and "- X: A scooter" in made[0]["text"] and "- Y: Delivery" in made[0]["text"], made[0]["text"]
+assert [n["text"][:8] for n in core.needs_of(con, "pool2")] == ["A bigger"]   # only the fridge is still open
+assert twin.draft_from_needs(con, "pool2") == []   # nothing left to group
+
+print("POOL OK · twin plain clustering · match 5x capped · cosign ×2 · one ballot per business · per-child ratification (one child blocks) · payouts · export with child tallies · advance · needs")

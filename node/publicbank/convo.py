@@ -19,6 +19,16 @@ ERRORS = {
     "points_must_sum_100": "Points must add up to 100.",
     "unknown_proposal": "The list changed since you started. Start your ballot again.",
     "ranking_must_list_every_plan": "The plans changed since you started. Start your ranking again.",
+    "node_votes_by_coordinator": "In this pool each business votes once, through its coordinator. Ask yours to send VOTE.",
+    "not_coordinator": "Only a coordinator can do that.",
+    "not_a_child": "That business isn't in this pool.",
+    "no_open_round": "No round is open right now.",
+    "wrong_stage": "The round isn't at that stage.",
+    "no_proposals": "Nothing is on the list yet, so the round can't move on.",
+    "no_ballots": "No ballots are in yet, so the plans can't be computed.",
+    "no_valid_plan": "No plan can spend the pot validly. Check the minimums against the budget.",
+    "no_parent": "This node isn't in a pool.",
+    "bad_amounts": "That amount doesn't work.",
 }
 STAGES = {"propose": ("proposals", "propose"), "ballot": ("ballots", "vote on"), "rank": ("plans", "rank"), "approve": ("ratifying", "approve")}
 
@@ -91,10 +101,52 @@ def receipt_line(con, rnd: dict, member_id: str) -> str | None:
 
 
 def rounds_at(con, member_id: str, stage: str) -> list[tuple[dict, dict]]:
-    """(node, round) for each node where the member is active and the current round is at `stage`."""
-    out = []
+    """(node, round) for each node where the member takes part, own nodes first then their pools, whose current
+    round is at `stage`. Whether they may act there (a `nodes` pool votes through coordinators) is core's call."""
+    out, seen = [], set()
     for x in db.rows(con.execute("SELECT node_id FROM memberships WHERE member_id=? AND status='active' ORDER BY node_id", (member_id,)).fetchall()):
-        rnd = core.current_round(con, x["node_id"])
-        if rnd and rnd["status"] == stage:
-            out.append((core.get_node(con, x["node_id"]), rnd))
+        node = core.get_node(con, x["node_id"])
+        for nid in (node["id"], node.get("parent_id")):
+            if not nid or nid in seen:
+                continue
+            seen.add(nid)
+            rnd = core.current_round(con, nid)
+            if rnd and rnd["status"] == stage:
+                out.append((core.get_node(con, nid), rnd))
     return out
+
+
+def coordinated(con, member_id: str) -> list[dict]:
+    """Nodes this member coordinates (or holds the treasury of), own nodes first then pools."""
+    return db.rows(con.execute("SELECT n.* FROM nodes n JOIN memberships ms ON ms.node_id=n.id WHERE ms.member_id=? AND ms.role IN ('coordinator','treasurer') AND ms.status='active' ORDER BY n.parent_id IS NULL, n.id", (member_id,)).fetchall())
+
+
+def cosignable(con, member_id: str) -> list[tuple[dict, dict, list[dict]]]:
+    """(pool, round, proposals my node has not signed) for each pool whose round is taking proposals and where
+    this member coordinates a child."""
+    out = []
+    for node in coordinated(con, member_id):
+        if not node.get("parent_id") or not core.is_role(con, node["id"], member_id, ("coordinator",)):
+            continue
+        rnd = core.current_round(con, node["parent_id"])
+        if not rnd or rnd["status"] != "proposals":
+            continue
+        props = [p for p in db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd["id"],)).fetchall())
+                 if node["id"] not in db.j(p["cosign_nodes"], [])]
+        if props:
+            out.append((core.get_node(con, node["parent_id"]), rnd, props))
+    return out
+
+
+def advanceable(con, member_id: str) -> list[tuple[dict, dict]]:
+    """(node, round) the member may move on: nodes they coordinate whose round is at a stage with a next step."""
+    out = []
+    for node in coordinated(con, member_id):
+        rnd = core.current_round(con, node["id"])
+        if rnd and rnd["status"] in ("proposals", "ballots", "plans", "ratifying"):
+            out.append((node, rnd))
+    return out
+
+
+NEXT_STEP = {"proposals": "freeze the list and open ballots", "ballots": "close ballots and compute the plans",
+             "plans": "close ranking and pick the winner", "ratifying": "close approval and decide"}

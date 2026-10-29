@@ -14,6 +14,10 @@ Outside that window a notification must be an approved template (PB_WA_TEMPLATE,
   STATUS        the member's nodes and stages, plus a one-tap link to the web page
   PROPOSE, VOTE, RANK, APPROVE   the round, as conversations; ballots and ranking also offer the web page
   LINK          coordinator: a fresh link to forward to staff
+  NEED <text>   one thing the business needs (the twin drafts proposals from these); asked once after the charter
+  COSIGN        coordinator: put the business behind a proposal in the pool's round
+  CONTRIBUTE N  coordinator: record the business's ₹N co-contribution to the pool's round
+  NEXT          coordinator: move a round to its next stage (what the web page's button does)
   PAYOUTS       treasurer: the queue, each item with a "Mark paid" button → reference
   MENU, CANCEL
 
@@ -34,7 +38,8 @@ import urllib.parse
 import httpx
 
 from . import core, db
-from .convo import STAGES, ballot_prompt, err_text, parse_points, parse_rupees, plan_lines, proposal_summary, receipt_line, rounds_at, rupees, RULE_NAMES
+from .convo import (NEXT_STEP, RULE_NAMES, STAGES, advanceable, ballot_prompt, coordinated, cosignable, err_text, parse_points, parse_rupees,
+                    plan_lines, proposal_summary, receipt_line, rounds_at, rupees)
 
 log = logging.getLogger("publicbank.wa")
 BASE_URL = os.environ.get("PB_BASE_URL", "http://localhost:8000").rstrip("/")
@@ -252,6 +257,14 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
         return staff_link(phone, m)
     if w == "payouts":
         return payouts(phone, m)
+    if w == "need":
+        return need(phone, m, rest.strip())
+    if w == "cosign":
+        return cosign(phone, m)
+    if w in ("contribute", "pledge"):
+        return contribute(phone, m, rest.strip())
+    if w == "next":
+        return nxt(phone, m)
     if w in COMMANDS:
         return begin(phone, m, COMMANDS[w])
     state, d = get_state(phone)
@@ -261,6 +274,11 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
         return finish_self_join(phone, name, m, text)
     if not m:
         return menu(phone, m)
+    if state == "n_text":
+        clear_state(phone)
+        if text.lower() == "skip":
+            sender.text(phone, "No problem. Reply NEED and a line any time."); return
+        return need(phone, m, text, d.get("node_id"))
     if state == "t_ref":
         clear_state(phone)
         core.mark_paid(con, d["payout_id"], text)
@@ -293,6 +311,10 @@ def on_button(phone: str, name: str | None, m: dict | None, bid: str) -> None:
         if not is_treasurer(m): return
         set_state(phone, "t_ref", {"payout_id": val})
         sender.text(phone, "Reply with the UPI/IMPS reference number."); return
+    if key == "cs":
+        return cosign_pick(phone, m, val)
+    if key == "nx":
+        return nxt(phone, m, val)
     state, d = get_state(phone)
     expects = {"pl": "p_lead", "pc": "p_confirm", "bc": "b_confirm", "rk": "r_pick", "rc": "r_confirm"}
     if not state or expects.get(key) != state:
@@ -308,8 +330,11 @@ def menu(phone: str, m: dict | None) -> None:
                     + (" To register a new business, reply JOIN." if POOL else "")); return
     rows = [("cmd:status", "Status", "Where each round is"), ("cmd:propose", "Propose", "Put something on the list"),
             ("cmd:vote", "Vote", "Split 100 points"), ("cmd:rank", "Rank", "Order the plans"), ("cmd:approve", "Approve", "Approve or reject the plan")]
+    rows.append(("cmd:need", "Need", "One thing your business needs"))
     if db.row(con.execute("SELECT 1 FROM memberships WHERE member_id=? AND role='coordinator' AND status='active'", (m["id"],)).fetchone()):
         rows.append(("cmd:link", "Team link", "A link to forward to your team"))
+        if cosignable(con, m["id"]): rows.append(("cmd:cosign", "Co-sign", "Back a proposal in the pool"))
+    if advanceable(con, m["id"]): rows.append(("cmd:next", "Next stage", "Move your round on"))
     if is_treasurer(m):
         rows.append(("cmd:payouts", "Payouts", "What's waiting to be paid"))
     sender.list(phone, "What would you like to do?", "Choose", rows)
@@ -392,6 +417,8 @@ def charter_answer(phone: str, m: dict, node_id: str, ans: str) -> None:
         con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
     sender.text(phone, f"Accepted. {node['name']} is in {core.get_node(con, node['parent_id'])['name']}.")
     send_staff_link(phone, node)
+    set_state(phone, "n_text", {"node_id": node_id})
+    sender.text(phone, "One more thing: what's one thing your business needs right now? One line. Similar needs across businesses become shared proposals. (Reply SKIP to pass.)")
 
 
 def send_staff_link(phone: str, node: dict) -> None:
@@ -439,6 +466,9 @@ def begin(phone: str, m: dict | None, cmd: str, node_id: str | None = None) -> N
         return menu(phone, m)
     stage, verb = STAGES[cmd]
     found = [(n, r) for n, r in rounds_at(con, m["id"], stage) if node_id in (None, n["id"])]
+    if cmd == "ballot" and found and not any(core.can_ballot(con, r, m["id"]) for _, r in found):
+        sender.text(phone, err_text(core.PBError("node_votes_by_coordinator"))); return
+    found = [(n, r) for n, r in found if cmd != "ballot" or core.can_ballot(con, r, m["id"])]
     if not found:
         sender.text(phone, f"Nothing to {verb} right now. Reply STATUS to see where each round is."); return
     if len(found) > 1:
@@ -592,6 +622,91 @@ def approve_button(phone: str, m: dict, plan_id: str, verdict: str) -> None:
     except core.PBError as e:
         sender.text(phone, err_text(e)); return
     sender.text(phone, ("Approved." if verdict == "approve" else "Rejected.") + " Reply APPROVE to change your answer until approval closes.")
+
+
+# --- needs, co-signing, contributions, next ----------------------------------
+def need(phone: str, m: dict | None, text: str, node_id: str | None = None) -> None:
+    if not m:
+        return menu(phone, m)
+    if not text:
+        mine = db.rows(con.execute("SELECT node_id FROM memberships WHERE member_id=? AND status='active' ORDER BY node_id", (m["id"],)).fetchall())
+        if not mine:
+            return menu(phone, m)
+        set_state(phone, "n_text", {"node_id": mine[0]["node_id"]})
+        sender.text(phone, "What's one thing your business needs? One line."); return
+    if not node_id:
+        r = db.row(con.execute("SELECT node_id FROM memberships WHERE member_id=? AND status='active' ORDER BY node_id LIMIT 1", (m["id"],)).fetchone())
+        if not r:
+            return menu(phone, m)
+        node_id = r["node_id"]
+    try:
+        core.add_need(con, node_id, m["id"], text)
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    sender.text(phone, "Noted. When the round opens, similar needs across businesses show up as draft proposals you can lead or back.")
+
+
+def cosign(phone: str, m: dict | None) -> None:
+    if not m:
+        return menu(phone, m)
+    opts = cosignable(con, m["id"])
+    if not opts:
+        sender.text(phone, "Nothing to co-sign right now: either no pool round is taking proposals, or your business has backed everything on the list."); return
+    pool, rnd, props = opts[0]
+    sender.list(phone, f"{pool['name']}: which proposal does your business back? Needs {pool.get('cosign_min') or 1} nodes to reach the ballot.", "Pick",
+                [(f"cs:{p['id']}", p["title"], f"ideal {rupees(p['ideal_paise'])}" + ("" if p["lead_id"] else " · no lead yet")) for p in props])
+
+
+def cosign_pick(phone: str, m: dict, pid: str) -> None:
+    try:
+        p = core.get_proposal(con, pid)
+        rnd = core.get_round(con, p["round_id"])
+        via = core.require_in_tree(con, rnd["node_id"], m["id"])
+        p = core.cosign_proposal(con, pid, via["id"], m["id"])
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    n = len(db.j(p["cosign_nodes"], []))
+    need_n = core.get_node(con, rnd["node_id"]).get("cosign_min") or 0
+    sender.text(phone, f"Co-signed. \"{p['title']}\" is backed by {n} node{'s' if n != 1 else ''}" + (f" of the {need_n} it needs" if need_n else "")
+                + (", and it's on the ballot." if p["status"] == "eligible" else (". It still needs a lead." if not p["lead_id"] else ".")))
+
+
+def contribute(phone: str, m: dict | None, amount: str) -> None:
+    if not m:
+        return menu(phone, m)
+    mine = [n for n in coordinated(con, m["id"]) if n.get("parent_id")]
+    if not mine:
+        sender.text(phone, "Only a business's coordinator records its contribution."); return
+    v = parse_rupees(amount)
+    if not v:
+        sender.text(phone, "Reply CONTRIBUTE and the amount in rupees, e.g. CONTRIBUTE 500."); return
+    node = mine[0]
+    try:
+        core.contribute(con, node["id"], v * 100, member_id=m["id"])
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    rnd = core.current_round(con, node["parent_id"])
+    sender.text(phone, f"Recorded: {node['name']} puts {rupees(v * 100)} into this round. The pool can now spend {rupees(core.spendable_budget(con, rnd))}. "
+                       "Pay your share to the vendor when the item is bought; the treasurer pays the matched part.")
+
+
+def nxt(phone: str, m: dict | None, node_id: str | None = None) -> None:
+    if not m:
+        return menu(phone, m)
+    opts = [(n, r) for n, r in advanceable(con, m["id"]) if node_id in (None, n["id"])]
+    if not opts:
+        sender.text(phone, "Nothing to move on right now."); return
+    if len(opts) > 1:
+        sender.list(phone, "Which round?", "Choose", [(f"nx:{n['id']}", n["name"], NEXT_STEP[r["status"]]) for n, r in opts]); return
+    node, rnd = opts[0]
+    try:
+        step = core.advance(con, rnd["id"])
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    from . import web
+    web._announce(node["id"], step)
+    rnd = core.get_round(con, rnd["id"])
+    sender.text(phone, f"Done: {NEXT_STEP.get(rnd['status'], 'the round is ' + rnd['status'])}." if rnd["status"] in NEXT_STEP else f"Done. The round is {rnd['status']}.")
 
 
 # --- treasurer --------------------------------------------------------------

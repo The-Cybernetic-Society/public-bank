@@ -253,14 +253,35 @@ def me(request: Request):
 @app.get("/n/{node_id:path}")
 def node_page(node_id: str, request: Request):
     m = _require(request)
-    core.require_active(con, node_id, m["id"])
+    via = core.require_in_tree(con, node_id, m["id"])
     node = core.get_node(con, node_id); rnd = core.current_round(con, node_id)
+    kids = core.children(con, node_id)
     if not rnd:
         return page(node["name"], "<p>No open round.</p>")
     props = core.eligible_proposals(con, rnd["id"])
-    body = f"<p class=muted>Round {esc(rnd['id'])} · budget {_rupees(core.spendable_budget(con, rnd))} · stage: <b>{esc(rnd['status'])}</b></p>"
+    body = f"<p class=muted>Round {esc(rnd['id'])} · budget {_rupees(core.spendable_budget(con, rnd))} · stage: <b>{esc(rnd['status'])}</b>"
+    if kids:
+        body += f" · {len(kids)} nodes, contributions in {_rupees(core.contributions_in(con, rnd['id']))}" + (f", matched {node['match_pct']}%" if node.get("match_pct") else "")
+        body += f" · {'one vote per node' if node.get('pool_vote') == 'nodes' else 'every member votes'}"
+        if via["id"] != node_id: body += f" · you take part through <b>{esc(via['name'])}</b>"
+    body += f" · <a href='/b/{esc(node_id)}'>live board</a></p>"
     if rnd["status"] == "proposals":
-        body += "<h2>Proposals so far</h2>" + "".join(f"<div class=card><b>{esc(p['title'])}</b> · ideal {_rupees(p['ideal_paise'])}, min {_rupees(p['min_paise'])}<br><span class=muted>{esc(p['text'][:200])}</span></div>" for p in props)
+        signer = kids and via["id"] != node_id and core.is_role(con, via["id"], m["id"], ("coordinator",))
+        allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY status, created_at", (rnd["id"],)).fetchall())
+        names = {k["id"]: k["name"] for k in kids}
+        body += "<h2>Proposals so far</h2>"
+        for p in allp:
+            signs = db.j(p["cosign_nodes"], [])
+            body += f"<div class=card><b>{esc(p['title'])}</b> · ideal {_rupees(p['ideal_paise'])}, min {_rupees(p['min_paise'])}"
+            if p["status"] == "draft": body += " · <span class=muted>draft" + (": needs a lead" if not p["lead_id"] else "") + (f", {len(signs)} of {node['cosign_min']} nodes" if kids and node.get("cosign_min") else "") + "</span>"
+            if p["source"] == "twin": body += " · <span class=muted>suggested from your needs</span>"
+            body += f"<br><span class=muted>{esc(p['text'][:200])}</span>"
+            if kids and signs: body += "<br><span class=muted>backed by: " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
+            acts = ""
+            if not p["lead_id"]: acts += f"<form method=post action='/n/{esc(node_id)}/lead' style='display:inline'><input type=hidden name=pid value='{esc(p['id'])}'><button style='width:auto'>I'll lead this</button></form> "
+            if signer and via["id"] not in signs: acts += f"<form method=post action='/n/{esc(node_id)}/cosign' style='display:inline'><input type=hidden name=pid value='{esc(p['id'])}'><button style='width:auto'>Co-sign for {esc(via['name'])}</button></form>"
+            if acts: body += "<div>" + acts + "</div>"
+            body += "</div>"
         body += f"""<h2>Propose something</h2><form method=post action='/n/{esc(node_id)}/propose'>
         <input name=title placeholder='What (e.g. water filter for the hall)' required maxlength=120>
         <textarea name=text placeholder='Who it's for, why, what it needs' rows=3 required></textarea>
@@ -292,7 +313,7 @@ def node_page(node_id: str, request: Request):
                 body += f"<select name='r{i}'>" + "".join(f"<option value='{esc(pl['id'])}'>{esc(pl['rule'])}</option>" for pl in plans) + "</select>"
             body += "<button>Submit ranking</button></form>"
         if rnd["status"] == "ratifying":
-            body += f"<h2>Approve the winning plan ({esc(next((p['rule'] for p in plans if p['id']==rnd['winner_plan_id']), '?'))})?</h2><form method=post action='/n/{esc(node_id)}/approve'><button name=verdict value=approve>Approve</button><button name=verdict value=reject style='background:#b00'>Reject</button></form><p class=muted>Funding happens only if at least {node['ratify_pct']}% of all members approve.</p>"
+            body += f"<h2>Approve the winning plan ({esc(next((p['rule'] for p in plans if p['id']==rnd['winner_plan_id']), '?'))})?</h2><form method=post action='/n/{esc(node_id)}/approve'><button name=verdict value=approve>Approve</button><button name=verdict value=reject style='background:#b00'>Reject</button></form><p class=muted>{'Funding happens only when every node in the pool approves at its own threshold.' if kids else f"Funding happens only if at least {node['ratify_pct']}% of all members approve."}</p>"
         if rnd["status"] in ("ratified", "paid"):
             d = db.row(con.execute("SELECT * FROM decisions WHERE round_id=? ORDER BY decided_at DESC LIMIT 1", (rnd["id"],)).fetchone())
             body += f"<p class=ok>Ratified: {d['approvals']} of {d['eligible']} approved.</p>" if d else ""
@@ -313,6 +334,23 @@ def propose(node_id: str, request: Request, title: str = Form(...), text: str = 
         core.add_proposal(con, rnd["id"], m["id"], title=title, text=text, ideal_paise=ideal * 100, min_paise=min * 100, lead_id=m["id"] if lead else None)
     except core.PBError as e:
         raise HTTPException(400, e.code)
+    return RedirectResponse(f"/n/{node_id}", status_code=303)
+
+
+@app.post("/n/{node_id:path}/lead")
+def lead(node_id: str, request: Request, pid: str = Form(...)):
+    m = _require(request)
+    try: core.lead_proposal(con, pid, m["id"])
+    except core.PBError as e: raise HTTPException(400, e.code)
+    return RedirectResponse(f"/n/{node_id}", status_code=303)
+
+
+@app.post("/n/{node_id:path}/cosign")
+def cosign(node_id: str, request: Request, pid: str = Form(...)):
+    m = _require(request)
+    via = core.require_in_tree(con, node_id, m["id"])
+    try: core.cosign_proposal(con, pid, via["id"], m["id"])
+    except core.PBError as e: raise HTTPException(400, e.code)
     return RedirectResponse(f"/n/{node_id}", status_code=303)
 
 
@@ -394,18 +432,16 @@ def approve_member(node_id: str, request: Request, member_id: str = Form(...)):
 
 
 @app.post("/c/{node_id:path}/advance")
-def advance(node_id: str, request: Request, step: str = Form(...)):
+def advance(node_id: str, request: Request, step: str = Form("")):
     m = _require(request)
     if not core.is_role(con, node_id, m["id"], ("coordinator", "treasurer")): raise HTTPException(403)
     rnd = core.current_round(con, node_id)
+    if not rnd: raise HTTPException(400, "no_open_round")
     try:
-        if step == "freeze": core.freeze_proposals(con, rnd["id"])
-        elif step == "compute": core.compute_plans(con, rnd["id"])
-        elif step == "winner": core.pick_winner(con, rnd["id"])
-        elif step == "close": core.close_ratification(con, rnd["id"], rnd["winner_plan_id"])
+        done = core.advance(con, rnd["id"])
     except core.PBError as e:
         raise HTTPException(400, e.code)
-    _announce(node_id, step)
+    _announce(node_id, done)
     return RedirectResponse(f"/c/{node_id}", status_code=303)
 
 
@@ -470,6 +506,96 @@ def paid(request: Request, payout_id: str = Form(...), reference: str = Form(...
     if not db.row(con.execute("SELECT 1 FROM memberships WHERE member_id=? AND role='treasurer' AND status='active'", (m["id"],)).fetchone()): raise HTTPException(403)
     core.mark_paid(con, payout_id, reference)
     return RedirectResponse("/treasury", status_code=303)
+
+
+# ----------------------------------------------------------------------------
+# the live board: one public, read-only page per node, for a projector or a phone
+# ----------------------------------------------------------------------------
+BOARD_CSS = "<style>body{max-width:960px;font-size:18px}h1{font-size:30px}h2{font-size:21px}td,th{font-size:16px}.big{font-size:40px;font-weight:700}.stage{display:inline-block;padding:4px 12px;border-radius:999px;background:#0b6e4f;color:#fff;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}}</style>"
+STAGE_WORDS = {"proposals": "Proposals open", "ballots": "Voting", "plans": "Plans ready, ranking", "ratifying": "Approval",
+               "ratified": "Approved", "failed": "Not approved", "paid": "Paid out", "closed": "Closed"}
+
+
+@app.get("/b/{node_id:path}")
+def board(node_id: str):
+    """Everything the room may see. No names, no ids, no UPI handles; the payer never appears."""
+    try:
+        node = core.get_node(con, node_id)
+    except core.PBError:
+        raise HTTPException(404)
+    kids = core.children(con, node_id)
+    rnd = core.current_round(con, node_id)
+    names = {k["id"]: k["name"] for k in kids}
+    body = ""
+    if node.get("parent_id"):
+        par = core.get_node(con, node["parent_id"])
+        body += f"<p class=muted>Part of <a href='/b/{esc(par['id'])}'>{esc(par['name'])}</a></p>"
+    if not rnd:
+        body += "<p class=big>No round open</p>"
+    else:
+        st = rnd["status"]
+        body += f"<p><span class=stage>{esc(STAGE_WORDS.get(st, st))}</span> &nbsp; <span class=big>{_rupees(core.spendable_budget(con, rnd))}</span>"
+        if kids:
+            inn = core.contributions_in(con, rnd["id"])
+            body += f" <span class=muted>= {_rupees(inn)} from {len({c['from_node_id'] for c in db.rows(con.execute('SELECT from_node_id FROM contributions WHERE to_round_id=?', (rnd['id'],)).fetchall())})} nodes"
+            body += f" + match {node['match_pct']}%" if node.get("match_pct") else ""
+            body += "</span>"
+        body += "</p>"
+    if kids:
+        contributed = {}
+        if rnd:
+            for c in db.rows(con.execute("SELECT from_node_id, SUM(amount_paise) AS a FROM contributions WHERE to_round_id=? GROUP BY from_node_id", (rnd["id"],)).fetchall()):
+                contributed[c["from_node_id"]] = c["a"]
+        body += f"<h2>{len(kids)} nodes · {'one vote each' if node.get('pool_vote') == 'nodes' else 'every member votes'}</h2><table><tr><th>Node</th><th>Members</th><th>In the pool</th><th>Contributed</th></tr>"
+        for k in kids:
+            body += f"<tr><td>{esc(k['name'])}</td><td>{len(core.active_members(con, k['id']))}</td><td>{'yes' if k.get('charter_at') else '—'}</td><td>{_rupees(contributed[k['id']]) if k['id'] in contributed else '—'}</td></tr>"
+        body += "</table>"
+    needs = core.needs_of(con, node_id) if (not rnd or rnd["status"] == "proposals") else []
+    if needs:
+        body += "<h2>What people said they need</h2>" + "".join(f"<div class=card>{esc(n['text'])} <span class=muted>· {esc(n['node_name'])}</span></div>" for n in needs[:30])
+    if rnd:
+        st = rnd["status"]
+        allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY status, created_at", (rnd["id"],)).fetchall())
+        if allp:
+            body += "<h2>Proposals</h2>"
+            for p in allp:
+                signs = db.j(p["cosign_nodes"], [])
+                body += f"<div class=card><b>{esc(p['title'])}</b> · ideal {_rupees(p['ideal_paise'])}, min {_rupees(p['min_paise'])}"
+                if p["status"] == "draft": body += " · <span class=muted>draft" + (", needs a lead" if not p["lead_id"] else "") + "</span>"
+                if p["source"] == "twin": body += " · <span class=muted>suggested from needs</span>"
+                if kids and signs: body += "<br><span class=muted>backed by " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
+                body += f"<br><span class=muted>{esc(p['text'][:240])}</span></div>"
+        if st in ("ballots",):
+            body += f"<h2>Ballots</h2><p class=big>{len(core.ballots_of(con, rnd['id']))} of {len(core.voters(con, rnd))}</p>"
+        if st in ("plans", "ratifying", "ratified", "failed", "paid"):
+            plans = core.plans_of(con, rnd["id"]); props = core.eligible_proposals(con, rnd["id"])
+            rule_names = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Least served"}
+            body += f"<h2>Plans</h2><p class=muted>{len(core.ballots_of(con, rnd['id']))} ballots" + (f" · {db.row(con.execute('SELECT COUNT(*) AS c FROM rankings WHERE round_id=?', (rnd['id'],)).fetchone())['c']} rankings" if st == "plans" else "") + "</p>"
+            body += "<table><tr><th>Item</th>" + "".join(f"<th>{esc(rule_names.get(p['rule'], p['rule']))}{' ★' if p['id'] == rnd['winner_plan_id'] else ''}</th>" for p in plans) + "</tr>"
+            for p in props:
+                body += f"<tr><td>{esc(p['title'])}</td>" + "".join(f"<td>{_rupees(db.j(pl['amounts'], {}).get(p['id'], 0))}</td>" for pl in plans) + "</tr>"
+            body += "</table>"
+        if st == "ratifying":
+            t = core.ratification_tally(con, rnd["id"], rnd["winner_plan_id"])
+            body += f"<h2>Approval</h2><p class=big>{t['approvals']} of {t['eligible']}</p>"
+            if t["detail"]:
+                body += "<table><tr><th>Node</th><th>Approved</th><th>Of</th><th>Needs</th><th></th></tr>" + "".join(
+                    f"<tr><td>{esc(d['name'])}</td><td>{d['approvals']}</td><td>{d['eligible']}</td><td>{d['pct']}%</td><td>{'✓' if d['ok'] else '…'}</td></tr>" for d in t["detail"].values()) + "</table>"
+            else:
+                body += f"<p class=muted>Needs {t['pct']}% of {t['eligible']} to approve. Not answering is not approving.</p>"
+        if st in ("ratified", "failed", "paid"):
+            d = db.row(con.execute("SELECT * FROM decisions WHERE round_id=? ORDER BY decided_at DESC LIMIT 1", (rnd["id"],)).fetchone())
+            if d:
+                body += f"<h2>Decision</h2><p class='{'ok' if d['verdict'] == 'ratified' else 'bad'} big'>{esc(d['verdict'])}</p><p class=muted>{d['approvals']} of {d['eligible']} approved · {esc(d['rule'])}</p>"
+                det = db.j(d.get("detail"), {}) or {}
+                if det:
+                    body += "<table><tr><th>Node</th><th>Approved</th><th>Of</th><th></th></tr>" + "".join(f"<tr><td>{esc(v['name'])}</td><td>{v['approvals']}</td><td>{v['eligible']}</td><td>{'✓' if v['ok'] else '✗'}</td></tr>" for v in det.values()) + "</table>"
+            q = db.rows(con.execute("SELECT p.status, p.amount_paise, p.reference, pr.title FROM payouts p JOIN proposals pr ON pr.id=p.proposal_id WHERE p.round_id=? ORDER BY p.created_at", (rnd["id"],)).fetchall())
+            if q:
+                body += "<h2>Ledger</h2><table><tr><th>Item</th><th>Amount</th><th>Status</th><th>Reference</th></tr>" + "".join(f"<tr><td>{esc(x['title'])}</td><td>{_rupees(x['amount_paise'])}</td><td>{esc(x['status'])}</td><td>{esc(x['reference'] or '')}</td></tr>" for x in q) + "</table>"
+    body += f"<p class=muted><a href='/export/{esc(node_id)}'>Export</a> · the record anyone can check. No names, no account details.</p>"
+    html = page(node["name"], body).body.decode()
+    return HTMLResponse(html.replace("<title>", "<meta http-equiv=refresh content=15>" + BOARD_CSS + "<title>", 1))
 
 
 # ----------------------------------------------------------------------------

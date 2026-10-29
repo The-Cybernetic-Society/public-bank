@@ -19,6 +19,12 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 ## Layout
 
 - `publicbank/core.py` — every operation, transport-agnostic. All business rules live here. `PBError(code)`.
+  Federation: a member acts in a pool's round through the child they belong to (`node_in_tree`,
+  `require_in_tree`); `cosign_proposal` + `nodes.cosign_min` gate eligibility; `pool_vote='nodes'` means one
+  ballot per child by its coordinator (`can_ballot`, `voters`); `ratification_tally`/`close_ratification` pass
+  a pool only when every charter-accepted child passes at its own `ratify_pct` (per-child `decisions.detail`);
+  `contribute` records a child's money into the parent's round and `spendable_budget` applies `match_pct`
+  (contributions + match, capped at the pool's pot); `advance` is the coordinator's one button; `needs`/`add_need`.
 - `publicbank/db.py` — schema + SQLite/Postgres shim. `DATABASE_URL` set → Postgres (prod); else SQLite.
   Money is integer paise. All ints are BIGINT (Telegram ids overflow int32). New columns go in `MIGRATIONS`
   (tried on every connect, ignored if present) as well as in `SCHEMA`.
@@ -26,7 +32,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   don't fork its semantics). Core clamps the budget to Σideal before calling it (rollover note).
 - `publicbank/web.py` — FastAPI pages: `/j/<token>` join, `/j/<token>/poster.png`, `/l/<token>` login
   from bot, `/signin` (EdgeOS third-party auth; hidden until `EDGEOS_APP_KEY`), `/me`, `/n/<node>` resident,
-  `/c/<node>` coordinator (approve members, advance round → DMs everyone), `/treasury`, `/export/<node>`.
+  `/c/<node>` coordinator (approve members, advance round → DMs everyone), `/treasury`, `/export/<node>`,
+  `/b/<node>` the public live board (no identities; 15 s refresh). `/n/<pool>` shows a child member the pool
+  round with lead and co-sign buttons.
 - `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
   texts, the ballot prompt, receipts. Add shared wording here, not in a bot.
 - `publicbank/whatsapp.py` — WhatsApp (Meta Cloud API) for nodes whose members live on WhatsApp (the Goan
@@ -38,6 +46,10 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   Free replies only inside the 24h window; otherwise the `PB_WA_TEMPLATE` template. Webhook `/wa` in main.py
   (GET handshake, POST signed with `PB_WA_APP_SECRET`), de-duplicated by message id via `idempotency`.
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
+- `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
+  `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
+  to the plain path. Only need texts and business names go out. Drafts have no lead and no signatures.
+- `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
   `/propose`, `/ballot`, `/rank`, `/approve`, `/cancel`. Conversation state is a row in `bot_state`
@@ -50,8 +62,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{round,web,bot,webhook,whatsapp}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all five before any deploy. They also run against Postgres with `DATABASE_URL` set.
+- `tests/test_{round,web,bot,webhook,whatsapp,pool}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all six before any deploy. They also run against Postgres with `DATABASE_URL` set.
 
 ## Hard rules (do not relax)
 
@@ -104,8 +116,10 @@ from Ground Floor's programme, each business a node (owner = coordinator, staff 
 vote in the pool), joined on WhatsApp, run in November through GCCI sessions. The pool is funded by the
 treasurer as a match on small business co-contributions; business money never enters the treasurer's
 account (each pays its share to the vendor). Strategy, contacts and open questions:
-`../../NOTES/edge-city-handoff-2026-10-28.md` (outside git). Build order: WhatsApp adapter (done 29 Oct) →
-pool-round flow across nodes → seed the businesses + match rule → the twin (needs → draft proposals) → live board.
+`../../NOTES/edge-city-handoff-2026-10-28.md` (outside git). Built 29 Oct: WhatsApp adapter, pool round across
+nodes (co-sign, one vote per node, per-child ratification, contributions + match), needs + twin, live board,
+coordinator NEXT in both bots, demo seed. Next: Meta business number + templates (human setup), deploy, seed the
+real businesses from Ground Floor's list, a guard at freeze for minimums above the pot, the Postgres run of the suites.
 
 ## Priorities (as of 26 Oct 2026, six days of the popup left; superseded above, kept for context)
 

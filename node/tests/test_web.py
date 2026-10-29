@@ -49,4 +49,19 @@ pid = db.row(con.execute("SELECT id FROM payouts LIMIT 1").fetchone())["id"]
 assert T.post("/treasury/paid", data={"payout_id": pid, "reference": "UPI123"}).status_code == 303
 ex = client().get("/export/goa-2026/res-a").json(); assert ex["node"]["members"] == 8 and ex["tallies"][0]["approvals"] == 5
 assert resid[0].get("/treasury").status_code == 403 and client().get("/me").status_code == 401
-print("WEB OK · stage:", core.get_round(con, rnd["id"])["status"], "· decision", d["verdict"], d["approvals"], "/", d["eligible"], "· levy ₹", ex["contributions"][0]["amount"] // 100)
+# the live board is public and shows the decision and the ledger, never a UPI id or a name
+b = client().get("/b/goa-2026/res-a"); assert b.status_code == 200 and "Approved" in b.text and "UPI123" in b.text and "lead0@upi" not in b.text and "http-equiv=refresh" in b.text
+assert client().get("/b/nope").status_code == 404
+# a pool round on the web: a child member sees the parent's page, leads a draft, co-signs as coordinator
+with db.tx(con): con.execute("UPDATE nodes SET pool_vote='nodes', cosign_min=2 WHERE id='goa-2026'")
+core.create_node(con, "goa-2026/res-b", "Residency B", parent_id="goa-2026")
+cb = core.upsert_member(con, verified_by="coordinator", telegram_id=3); core.join_node(con, "goa-2026/res-b", cb["id"], role="coordinator", auto_active=True)
+prnd = core.open_round(con, "goa-2026", 50_000 * 100)
+dft = core.add_twin_draft(con, prnd["id"], title="Shared bus", text="One bus for both.", ideal_paise=20_000 * 100)
+r = resid[0].get("/n/goa-2026"); assert r.status_code == 200 and "you take part through <b>Residency A</b>" in r.text and "I'll lead this" in r.text and "Co-sign" not in r.text
+assert resid[0].post("/n/goa-2026/lead", data={"pid": dft["id"]}).status_code == 303
+assert "Co-sign for Residency A" in C.get("/n/goa-2026").text
+assert C.post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303 and client(cb["id"]).post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303
+assert core.get_proposal(con, dft["id"])["status"] == "eligible"
+pb = client().get("/b/goa-2026"); assert "2 nodes" in pb.text and "backed by Residency A, Residency B" in pb.text and "suggested from needs" in pb.text
+print("WEB OK · board · pool page: lead + cosign ·", "stage:", core.get_round(con, rnd["id"])["status"], "· decision", d["verdict"], d["approvals"], "/", d["eligible"], "· levy ₹", ex["contributions"][0]["amount"] // 100)

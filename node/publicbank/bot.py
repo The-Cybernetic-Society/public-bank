@@ -36,6 +36,7 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler, Cont
 from . import core, db
 from .convo import ERRORS, RULE_NAMES, STAGES, err_text, parse_points, parse_rupees, proposal_summary, rupees  # noqa: F401
 from . import convo
+from .convo import NEXT_STEP, advanceable
 
 log = logging.getLogger("publicbank.bot")
 BASE_URL = os.environ.get("PB_BASE_URL", "http://localhost:8000").rstrip("/")
@@ -174,6 +175,9 @@ async def begin(update: Update, ctx: ContextTypes.DEFAULT_TYPE, cmd: str, node_i
         await msg.reply_text("I don't know you yet. Scan a residency QR code to join."); return
     stage, verb = STAGES[cmd]
     found = [(n, r) for n, r in rounds_at(m, stage) if node_id in (None, n["id"])]
+    if cmd == "ballot" and found and not any(core.can_ballot(con, r, m["id"]) for _, r in found):
+        await msg.reply_text(err_text(core.PBError("node_votes_by_coordinator"))); return
+    found = [(n, r) for n, r in found if cmd != "ballot" or core.can_ballot(con, r, m["id"])]
     if not found:
         await msg.reply_text(f"Nothing to {verb} right now. /status shows where each round is."); return
     if len(found) > 1:
@@ -187,6 +191,29 @@ async def cmd_propose(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: a
 async def cmd_ballot(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "ballot")
 async def cmd_rank(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "rank")
 async def cmd_approve(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None: await begin(update, ctx, "approve")
+
+
+async def nxt(update: Update, ctx: ContextTypes.DEFAULT_TYPE, node_id: str | None = None) -> None:
+    """/next: a coordinator moves their round to its next stage, as the web page's button does."""
+    msg = update.effective_message
+    m = member_for(update)
+    if not m:
+        await msg.reply_text("I don't know you yet."); return
+    opts = [(n, r) for n, r in advanceable(con, m["id"]) if node_id in (None, n["id"])]
+    if not opts:
+        await msg.reply_text("Nothing to move on right now."); return
+    if len(opts) > 1:
+        kb = [[InlineKeyboardButton(f"{n['name']}: {NEXT_STEP[r['status']]}", callback_data=f"nx:{n['id']}")] for n, r in opts]
+        await msg.reply_text("Which round?", reply_markup=InlineKeyboardMarkup(kb)); return
+    node, rnd = opts[0]
+    try:
+        step = core.advance(con, rnd["id"])
+    except core.PBError as e:
+        await msg.reply_text(err_text(e)); return
+    from . import web
+    web._announce(node["id"], step)
+    rnd = core.get_round(con, rnd["id"])
+    await msg.reply_text(f"Done. {node['name']} is now at: {rnd['status']}.")
 
 
 async def cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
@@ -373,6 +400,8 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         cmd, _, node_id = val.partition(":")
         if cmd in STAGES: await begin(update, ctx, cmd, node_id)
         return
+    if key == "nx":
+        await nxt(update, ctx, val); return
     if key == "ra":
         plan_id, _, verdict = val.partition(":")
         await approve_button(update, m, plan_id, verdict); return
@@ -426,6 +455,7 @@ def build() -> Application:
     app.add_handler(CommandHandler("ballot", cmd_ballot))
     app.add_handler(CommandHandler("rank", cmd_rank))
     app.add_handler(CommandHandler("approve", cmd_approve))
+    app.add_handler(CommandHandler("next", nxt))
     app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))

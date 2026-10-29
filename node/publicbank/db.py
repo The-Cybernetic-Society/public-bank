@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS nodes (
   ratify_pct    BIGINT NOT NULL DEFAULT 60,
   allocation_rule TEXT NOT NULL DEFAULT 'mes',
   charter_at    BIGINT,                      -- when this node's coordinator accepted its parent's charter
+  pool_vote     TEXT NOT NULL DEFAULT 'members',  -- in this node's rounds: 'members' (everyone in the tree) | 'nodes' (one ballot per child, by its coordinator)
+  match_pct     BIGINT NOT NULL DEFAULT 0,  -- >0: this node's pot matches children's contributions by this % (500 = 5x), capped at the pot
+  cosign_min    BIGINT NOT NULL DEFAULT 0,  -- child nodes that must co-sign a proposal in this node's round before it is eligible
   created_at    BIGINT NOT NULL
 );
 
@@ -151,6 +154,7 @@ CREATE TABLE IF NOT EXISTS decisions (
   rejections    BIGINT NOT NULL,
   eligible      BIGINT NOT NULL,
   ballot_hash   TEXT NOT NULL,                   -- sha256 over the canonical ballot set
+  detail        TEXT,                            -- JSON per-child tallies for a pool round: {child_id: {eligible, approvals, rejections, ok}}
   decided_at    BIGINT NOT NULL
 );
 
@@ -173,8 +177,18 @@ CREATE TABLE IF NOT EXISTS contributions (
   id            TEXT PRIMARY KEY,
   from_node_id  TEXT NOT NULL REFERENCES nodes(id),
   to_node_id    TEXT NOT NULL REFERENCES nodes(id),
-  round_id      TEXT REFERENCES rounds(id),
+  round_id      TEXT REFERENCES rounds(id),      -- the child's round the money left (a levy), if any
+  to_round_id   TEXT REFERENCES rounds(id),      -- the parent's round the money arrived in
   amount_paise  BIGINT NOT NULL,
+  created_at    BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS needs (
+  id            TEXT PRIMARY KEY,
+  node_id       TEXT NOT NULL REFERENCES nodes(id),
+  member_id     TEXT NOT NULL REFERENCES members(id),
+  text          TEXT NOT NULL,                   -- one thing this business/group needs, in its own words
+  status        TEXT NOT NULL DEFAULT 'open',    -- open | drafted (the twin turned it into a draft proposal)
   created_at    BIGINT NOT NULL
 );
 
@@ -217,6 +231,11 @@ MIGRATIONS = [
     "ALTER TABLE members ADD COLUMN wa_opt_in_at BIGINT",
     "ALTER TABLE members ADD COLUMN wa_last_in_at BIGINT",
     "ALTER TABLE nodes ADD COLUMN charter_at BIGINT",
+    "ALTER TABLE nodes ADD COLUMN pool_vote TEXT NOT NULL DEFAULT 'members'",
+    "ALTER TABLE nodes ADD COLUMN match_pct BIGINT NOT NULL DEFAULT 0",
+    "ALTER TABLE nodes ADD COLUMN cosign_min BIGINT NOT NULL DEFAULT 0",
+    "ALTER TABLE contributions ADD COLUMN to_round_id TEXT REFERENCES rounds(id)",
+    "ALTER TABLE decisions ADD COLUMN detail TEXT",
 ]
 
 

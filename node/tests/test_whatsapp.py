@@ -94,9 +94,13 @@ assert core.get_node(con, "goa-biz/tailors")["charter_at"] is None
 r = say(OWNER, "link")
 assert r[1] == "buttons" and ids(r[3])[0] == "ch:goa-biz/tailors:y"
 r = tap(OWNER, "ch:goa-biz/tailors:y")
-assert r[1] == "text" and "wa.me/911234567890?text=JOIN%20" in r[2], r
+assert r[1] == "text" and "one thing your business needs" in r[2], r   # the needs question comes after the team link
+link_msg = [x for x in sent if x[0] == OWNER and "wa.me/911234567890?text=JOIN%20" in (x[2] or "")][-1]
 assert core.get_node(con, "goa-biz/tailors")["charter_at"]
-staff_tok = r[2].split("JOIN%20", 1)[1].split()[0]
+staff_tok = link_msg[2].split("JOIN%20", 1)[1].split()[0]
+r = say(OWNER, "A scooter for deliveries, customers keep asking")
+assert "Noted" in r[2], r
+assert core.needs_of(con, "goa-biz")[0]["text"].startswith("A scooter") and core.needs_of(con, "goa-biz")[0]["node_name"] == "Mandrem Tailors"
 
 # staff tap the forwarded link: active at once; the owner is told
 r = say(STAFF1, f"JOIN {staff_tok}", name="Sunil")
@@ -120,6 +124,10 @@ assert cafe["name"] == "Sea Breeze Café" and cafe["parent_id"] == "goa-biz"
 assert core.is_role(con, cafe["id"], whatsapp.member_for(CAFE)["id"], ("coordinator",))
 tap(CAFE, f"ch:{cafe['id']}:y")
 assert core.get_node(con, cafe["id"])["charter_at"]
+say(CAFE, "skip")
+assert "NEED and a line" in last(CAFE)[2]
+say(CAFE, "NEED Someone to deliver lunch orders to customers on the lane")
+assert len(core.needs_of(con, "goa-biz")) == 2
 # a second business with the same name gets a distinct id
 say(STRANGER, "JOIN"); say(STRANGER, "Sea Breeze Cafe")
 assert core.get_node(con, "goa-biz/sea-breeze-cafe")["name"] == "Sea Breeze Cafe"   # 'caf' vs 'cafe': distinct ids, no clash
@@ -207,6 +215,53 @@ kinds = {s[0]: s[1] for s in sent[before:]}
 assert kinds[OWNER] == "text" and kinds[STAFF1] == "text" and kinds[STAFF2] == "template", kinds
 assert [s_ for s_ in sent[before:] if s_[0] == STAFF2][0][3] == ["Ballots are open."]
 
+# --- the pool's round on WhatsApp: contributions, twin drafts, co-signing, next ---------------------------
+from publicbank import twin  # noqa: E402
+with db.tx(con): con.execute("UPDATE nodes SET pool_vote='nodes', cosign_min=2, match_pct=500 WHERE id='goa-biz'")
+prnd = core.open_round(con, "goa-biz", 100000 * 100)
+assert "Only a business's coordinator" in say(STAFF1, "contribute 500")[2]
+assert "e.g. CONTRIBUTE 500" in say(OWNER, "contribute lots")[2]
+r = say(OWNER, "contribute 500")
+assert "puts ₹500 into this round" in r[2] and "can now spend ₹3,000" in r[2], r
+say(CAFE, "CONTRIBUTE 500")
+assert core.spendable_budget(con, core.get_round(con, prnd["id"])) == 6000 * 100
+drafts = twin.draft_from_needs(con, "goa-biz")
+assert len(drafts) == 1 and drafts[0]["source"] == "twin" and drafts[0]["status"] == "draft" and "deliver" in drafts[0]["text"].lower(), drafts
+assert all(n["status"] == "drafted" for n in core.needs_of(con, "goa-biz", status=None))
+assert "Nothing to co-sign" in say(STAFF1, "cosign")[2]   # staff can't; the menu hides it too
+r = say(OWNER, "menu")
+assert "cmd:cosign" in ids(r[3]) and "cmd:next" not in ids(r[3]), r
+r = say(OWNER, "cosign")
+assert r[1] == "list" and ids(r[3]) == [f"cs:{drafts[0]['id']}"] and "no lead yet" in r[3][0][2], r
+r = tap(OWNER, f"cs:{drafts[0]['id']}")
+assert "backed by 1 node of the 2 it needs" in r[2] and "still needs a lead" in r[2], r
+assert "Nothing to co-sign" in say(OWNER, "cosign")[2]   # already signed the only draft
+# the cafe's coordinator leads it, which adds the cafe's signature → eligible
+core.lead_proposal(con, drafts[0]["id"], whatsapp.member_for(CAFE)["id"])
+assert core.get_proposal(con, drafts[0]["id"])["status"] == "eligible"
+# the treasurer, on WhatsApp, moves the pool round on with NEXT (the tailors' round has no next step: it's ratified)
+TRE = "919000000007"
+with db.tx(con): con.execute("UPDATE members SET wa_phone=?, wa_last_in_at=? WHERE id=?", (TRE, db.now(), tre["id"]))
+r = say(TRE, "next")
+assert r[1] == "text" and "Done" in r[2] and "ballots" in r[2].lower(), r
+assert core.get_round(con, prnd["id"])["status"] == "ballots"
+assert "each business votes once" in say(STAFF1, "vote")[2]
+r = say(OWNER, "vote")
+assert r[1] == "text" and "Goa Business Pool" in r[2], r
+say(OWNER, "100"); assert "Ballot saved" in tap(OWNER, "bc:y")[2]
+say(CAFE, "vote"); say(CAFE, "100"); tap(CAFE, "bc:y")
+assert len(core.ballots_of(con, prnd["id"])) == 2 and {v["id"] for v in core.voters(con, prnd)} >= {owner["id"], whatsapp.member_for(CAFE)["id"]}
+assert "Done" in say(TRE, "next")[2]   # compute
+assert "Done" in say(TRE, "next")[2]   # winner → ratifying
+r = say(STAFF2, "approve")
+assert r[1] == "buttons" and ids(r[3])[0].startswith("ra:"), r
+prnd = core.get_round(con, prnd["id"])
+for ph in (OWNER, STAFF1, STAFF2, CAFE):
+    tap(ph, f"ra:{prnd['winner_plan_id']}:approve")
+assert "Done" in say(TRE, "next")[2]   # close
+dec = db.row(con.execute("SELECT * FROM decisions WHERE round_id=?", (prnd["id"],)).fetchone())
+assert dec["rule"] == "every_child_ratifies" and dec["verdict"] == "ratified", dec
+
 # --- the webhook: handshake, signature, de-duplication ----------------------------------------------------
 body = json.dumps(payload(STAFF1, text="status", mid="wamid.dup")).encode()
 sig = "sha256=" + hmac.new(b"app-secret", body, hashlib.sha256).hexdigest()
@@ -228,13 +283,16 @@ with TestClient(main.app) as c:
 
 # --- treasurer flow on WhatsApp --------------------------------------------------------------------------
 with db.tx(con): con.execute("UPDATE members SET wa_phone=?, wa_last_in_at=? WHERE id=?", ("919000000007", db.now(), tre["id"]))
-r = say("919000000007", "payouts")
-assert r[1] == "buttons" and ids(r[3])[0].startswith("paid:") and "upi://pay" in r[2], r
+before = len(sent)
+say("919000000007", "payouts")
+items = [x for x in sent[before:] if x[0] == "919000000007" and x[1] == "buttons"]
+assert len(items) >= 2 and all(ids(x[3])[0].startswith("paid:") for x in items), items   # the pool's payout and the tailors' payouts
+r = next(x for x in items if "upi://pay" in x[2])   # the lead with a UPI id gets a pay link; the one without is listed without one
 pid = ids(r[3])[0].split(":", 1)[1]
 tap("919000000007", f"paid:{pid}")
 assert "Recorded" in say("919000000007", "UTR123456789012")[2]
 assert db.row(con.execute("SELECT status, reference FROM payouts WHERE id=?", (pid,)).fetchone())["reference"] == "UTR123456789012"
 assert "Treasurer only" in say(STAFF1, "payouts")[2]
 
-print("WHATSAPP OK · owner card → coordinator + charter · staff link · self-registration · propose/vote/rank/approve in-chat · "
-      "window vs template · handshake, signature, dedupe · poster · treasurer paid ref")
+print("WHATSAPP OK · owner card → coordinator + charter + need · staff link · self-registration · propose/vote/rank/approve in-chat · "
+      "window vs template · pool: contribute, twin draft, cosign, next, one vote per business, every-child ratification · handshake, signature, dedupe · poster · treasurer paid ref")
