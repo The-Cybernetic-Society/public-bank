@@ -82,31 +82,35 @@ def _rupees(p: int) -> str:
 # ----------------------------------------------------------------------------
 # minimal HTML
 # ----------------------------------------------------------------------------
-CSS = """<style>:root{color-scheme:light dark;--paper:#f4eddc;--ink:#1b1713;--muted:#6f675b;--line:#1b171340;--soft:#ffffff55;--accent:#0b6e4f}
-@media(prefers-color-scheme:dark){:root{--paper:#16130f;--ink:#efe7d6;--muted:#a69d8c;--line:#efe7d640;--soft:#ffffff0d}}
-body{font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:640px;margin:0 auto;padding:20px 16px 56px;background:var(--paper);color:var(--ink)}
-h1,h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-weight:600;letter-spacing:-.01em}
-h1{font-size:32px;line-height:1.12;margin:6px 0 14px}h2{font-size:21px;margin:30px 0 8px}
-.brand{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.brand a{color:inherit;text-decoration:none}a{color:var(--ink)}
-.card{border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin:10px 0;background:var(--soft)}
-label{display:block;margin-top:16px;font-weight:600}.hint{display:block;font-weight:400;color:var(--muted);font-size:14px;line-height:1.4}
-input,textarea,select,button{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:4px;width:100%;box-sizing:border-box;margin:6px 0;background:var(--soft);color:var(--ink)}
-input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
-button{background:var(--ink);color:var(--paper);border:1px solid var(--ink);box-shadow:3px 3px 0 var(--accent);cursor:pointer;font-weight:600;margin-top:14px}
-button.quiet{background:transparent;color:var(--ink);box-shadow:none;margin-top:6px}
-.choice{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.choice label{flex:1 1 0;box-sizing:border-box;margin:0;border:1px solid var(--line);border-radius:4px;padding:10px 6px;text-align:center;font-weight:500;background:var(--soft);white-space:nowrap}
-.choice input{width:auto;margin:0 6px 0 0;vertical-align:middle}.choice label:has(input:checked){border-color:var(--ink);box-shadow:2px 2px 0 var(--accent)}
-.muted{color:var(--muted);font-size:14px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
-table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
-.bad{color:#b3261e}.ok{color:var(--accent)}.hp{position:absolute;left:-9999px}</style>"""
+FONTS = ('<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin>'
+         '<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Silkscreen&display=swap">')
+# The look of cyberneticsutra.com: paper, ink, Newsreader for words, Silkscreen for buttons, Plex Mono for numbers,
+# 2px ink borders with hard offset shadows. Light only, like the site.
+CSS = """<style>:root{--paper:#f3e9d6;--card:#fbf6e9;--ink:#20201d;--text:#534e41;--muted:#7a7465;--gold:#d9a33d;--line:#20201d33;--shadow:#20201d59}
+body{font:300 18px/1.6 Newsreader,Georgia,serif;background:var(--paper);color:var(--text);max-width:680px;margin:0 auto;padding:28px 20px 72px}
+h1{font:400 44px/1.05 Newsreader,Georgia,serif;letter-spacing:-.025em;color:var(--ink);margin:10px 0 18px}
+h2{font:400 26px/1.15 Newsreader,Georgia,serif;letter-spacing:-.015em;color:var(--ink);margin:36px 0 10px}
+.brand{font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--ink);margin:0 0 6px}.brand a{text-decoration:none;color:inherit}
+a{color:var(--ink)}b,strong{font-weight:500;color:var(--ink)}p{margin:10px 0}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:3px;box-shadow:6px 6px 0 #20201dcc;padding:16px 18px;margin:20px 0}
+label{display:block;margin-top:20px;font-weight:500;color:var(--ink)}.hint{display:block;font-weight:300;color:var(--muted);font-size:16px;line-height:1.4}
+input,textarea,select{font:400 17px "IBM Plex Mono",monospace;padding:11px 12px;border:2px solid var(--ink);border-radius:3px;width:100%;box-sizing:border-box;margin:8px 0 0;background:var(--card);color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:3px solid var(--gold);outline-offset:1px}
+button{font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);cursor:pointer;width:100%;box-sizing:border-box;margin-top:22px}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}button.quiet{box-shadow:none;margin-top:8px}
+.choice{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.choice label{flex:1 1 0;box-sizing:border-box;margin:0;border:2px solid var(--ink);border-radius:10px;padding:13px 6px;text-align:center;background:var(--card);box-shadow:3px 3px 0 var(--shadow);font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;white-space:nowrap;cursor:pointer}
+.choice input{position:absolute;opacity:0;width:0;height:0}.choice label:has(input:checked){background:var(--gold)}
+.muted{color:var(--muted);font-size:16px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
+code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px solid var(--line);padding:2px 6px;border-radius:3px}
+table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
+.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}</style>"""
 
 
 BRAND = os.environ.get("PB_BRAND", "The Cybernetic Society")
 
 
 def page(title: str, body: str) -> HTMLResponse:
-    return HTMLResponse(f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>{CSS}"
+    return HTMLResponse(f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>{FONTS}{CSS}"
                         f"<p class=brand><a href='/'>{esc(BRAND)}</a></p><h1>{title}</h1>{body}")
 
 
@@ -460,6 +464,22 @@ def approve(node_id: str, request: Request, verdict: str = Form(...)):
 # ----------------------------------------------------------------------------
 # coordinator and treasurer
 # ----------------------------------------------------------------------------
+@app.get("/c/{node_id:path}/applications.csv")
+def applications_csv(node_id: str, request: Request):
+    """Everything the form collected, for the treasurer only. Never public: it carries phone numbers."""
+    m = _require(request)
+    if not core.is_role(con, node_id, m["id"], ("coordinator", "treasurer")): raise HTTPException(403)
+    import csv
+    import io
+    from fastapi.responses import Response
+    buf = io.StringIO(); w = csv.writer(buf)
+    cols = ["business", "applicant", "role", "phone", "about", "team_size", "need", "share", "contribute", "consent", "status", "node_id", "created_at"]
+    w.writerow(cols)
+    for a in core.applications_of(con, node_id):
+        w.writerow([a.get(c, "") for c in cols])
+    return Response(buf.getvalue(), media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={node_id.replace('/', '-')}-registrations.csv"})
+
+
 @app.get("/c/{node_id:path}")
 def coordinate(node_id: str, request: Request):
     m = _require(request)
@@ -487,7 +507,7 @@ def coordinate(node_id: str, request: Request):
     if not node.get("parent_id"):
         apps = core.applications_of(con, node_id)
         body += f"<h2>Registered businesses</h2><p class=muted>From <a href='/apply/{esc(node_id)}'>{esc(base)}/apply/{esc(node_id)}</a>. "
-        body += "“Send card” opens WhatsApp on your phone with the owner's join link ready to send.</p>"
+        body += f"“Send card” opens WhatsApp on your phone with the owner's join link ready to send. <a href='/c/{esc(node_id)}/applications.csv'>Download CSV</a>.</p>"
         if apps:
             body += "<table><tr><th>Business</th><th>Who</th><th>Team</th><th>Need</th><th></th></tr>"
             for a in apps:
@@ -620,7 +640,16 @@ def paid(request: Request, payout_id: str = Form(...), reference: str = Form(...
 # ----------------------------------------------------------------------------
 # the live board: one public, read-only page per node, for a projector or a phone
 # ----------------------------------------------------------------------------
-BOARD_CSS = "<style>body{max-width:960px;font-size:18px}h1{font-size:30px}h2{font-size:21px}td,th{font-size:16px}.big{font-size:40px;font-weight:700}.stage{display:inline-block;padding:4px 12px;border-radius:999px;background:#0b6e4f;color:#fff;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}}</style>"
+BOARD_CSS = """<style>body{max-width:1040px;background:#07090d;color:#e8dfca;font:400 16px/1.5 "IBM Plex Mono",monospace;padding-top:24px}
+h1{color:#fbf6e9;font-size:40px}h2{color:#fbf6e9;font-size:22px;margin-top:30px}a{color:#e8dfca}b,strong{color:#fbf6e9}
+.bar{display:flex;align-items:center;gap:10px;background:#fbf6e9;color:#20201d;border:2px solid #20201d;border-radius:3px 3px 0 0;padding:8px 12px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase}
+.bar .sq{width:10px;height:10px;border:2px solid #20201d;background:#fbf6e9}.bar a{color:#20201d;text-decoration:none}
+.win{border:2px solid #20201d;border-top:0;background:#101720;padding:18px 22px 30px;box-shadow:6px 6px 0 #20201dcc;border-radius:0 0 3px 3px}
+.card{background:#0b1016;border:1px solid #2a3340;box-shadow:none;color:#e8dfca;padding:12px 14px;margin:12px 0}.card b{color:#fbf6e9}
+.stage{display:inline-block;padding:7px 14px;border-radius:10px;background:#d9a33d;color:#20201d;font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;vertical-align:middle}
+.big{font:400 44px/1.1 Newsreader,Georgia,serif;color:#fbf6e9;vertical-align:middle}.muted{color:#9a917f}
+table{color:#e8dfca}td,th{border-top:1px solid #2a3340}th{color:#9a917f}.ok{color:#86bcc1}.bad{color:#e0b2a9}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}body{padding:16px 12px}.win{padding:12px 12px 20px}}</style>"""
 STAGE_WORDS = {"proposals": "Proposals open", "ballots": "Voting", "plans": "Plans ready, ranking", "ratifying": "Approval",
                "ratified": "Approved", "failed": "Not approved", "paid": "Paid out", "closed": "Closed"}
 
@@ -704,7 +733,9 @@ def board(node_id: str):
                 body += "<h2>Ledger</h2><table><tr><th>Item</th><th>Amount</th><th>Status</th><th>Reference</th></tr>" + "".join(f"<tr><td>{esc(x['title'])}</td><td>{_rupees(x['amount_paise'])}</td><td>{esc(x['status'])}</td><td>{esc(x['reference'] or '')}</td></tr>" for x in q) + "</table>"
     body += f"<p class=muted><a href='/export/{esc(node_id)}'>Export</a> · the record anyone can check. No names, no account details.</p>"
     html = page(node["name"], body).body.decode()
-    return HTMLResponse(html.replace("<title>", "<meta http-equiv=refresh content=15>" + BOARD_CSS + "<title>", 1))
+    bar = f"<div class=bar><span class=sq></span><a href='/'>{esc(BRAND)}</a> &nbsp;·&nbsp; {esc(node['id'].rsplit('/', 1)[-1])}.log</div><div class=win>"
+    html = html.replace(f"<p class=brand><a href='/'>{esc(BRAND)}</a></p>", bar, 1) + "</div>"
+    return HTMLResponse(html.replace(CSS, CSS + BOARD_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=15><title>", 1))   # board styles after the page's, so they win
 
 
 # ----------------------------------------------------------------------------

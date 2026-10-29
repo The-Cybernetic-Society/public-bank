@@ -113,3 +113,8 @@ assert "9876543210" not in ex and "9123456789" not in ex and "Rekha" not in ex a
 assert "9876543210" not in client().get("/b/commons").text
 
 print("APPLY OK · landing · form → node + card · same phone updates · honeypot · bad number · treasurer sees businesses + Send card · card on web → coordinator, need kept, charter · team link · card on WhatsApp → need kept, not asked twice · export clean")
+
+# the CSV is the treasurer's, and only theirs
+r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone" in r.text and "919876543210" in r.text
+assert client().get("/c/commons/applications.csv").status_code == 401 and O.get("/c/commons/applications.csv").status_code == 403
+print("APPLY OK · csv")
