@@ -267,13 +267,46 @@ class _Row(dict):
         return self._vals[k] if isinstance(k, int) else dict.__getitem__(self, k)
 
 
+def _connection_lost(e: Exception) -> bool:
+    """A dropped server connection (not a SQL error): psycopg's OperationalError/InterfaceError with the server
+    gone, or a cursor on a closed connection."""
+    try:
+        import psycopg
+    except ImportError:
+        return False
+    if isinstance(e, psycopg.InterfaceError):
+        return True
+    if isinstance(e, psycopg.OperationalError):
+        msg = str(e).lower()
+        return any(k in msg for k in ("closed the connection", "connection unexpectedly", "consuming input failed",
+                                      "terminating connection", "connection is closed", "could not receive", "ssl syscall",
+                                      "no connection to the server", "connection reset", "broken pipe", "eof detected"))
+    return False
+
+
 class _PgConn:
     """Minimal shim so core/web/bot code written against sqlite3 (`?` placeholders, con.execute(...).fetchone())
     runs unchanged on Postgres. One connection, autocommit; tx() opens an explicit transaction."""
 
     def __init__(self, url: str):
+        self._url = url
+        self._in_tx = False
+        self._pg = self._open()
+
+    def _open(self):
         import psycopg
-        self._pg = psycopg.connect(url, autocommit=True)
+        # Cloud SQL (and the NAT in front of it) drops idle connections; keepalives hold them, and execute()
+        # reconnects once if one is dropped anyway.
+        return psycopg.connect(self._url, autocommit=True, keepalives=1, keepalives_idle=60,
+                               keepalives_interval=10, keepalives_count=3)
+
+    def _reconnect(self) -> None:
+        try:
+            self._pg.close()
+        except Exception:
+            pass
+        self._pg = self._open()
+        self._in_tx = False
 
     @staticmethod
     def _q(sql: str) -> str:
@@ -286,7 +319,22 @@ class _PgConn:
             q += " ON CONFLICT DO NOTHING"
         if q.strip().upper() == "BEGIN IMMEDIATE":
             q = "BEGIN"
-        cur.execute(q, params)
+        head = q.strip().upper()
+        try:
+            cur.execute(q, params)
+        except Exception as e:
+            if not _connection_lost(e):
+                raise
+            was_in_tx = self._in_tx
+            self._reconnect()
+            if was_in_tx and head not in ("ROLLBACK", "BEGIN"):
+                raise   # the transaction's earlier statements are gone; the caller's tx() rolls back and fails
+            cur = self._pg.cursor()
+            cur.execute(q, params)
+        if head == "BEGIN":
+            self._in_tx = True
+        elif head in ("COMMIT", "ROLLBACK"):
+            self._in_tx = False
         return _PgCursor(cur)
 
     def executescript(self, script: str) -> None:

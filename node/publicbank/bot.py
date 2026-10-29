@@ -461,7 +461,19 @@ def build() -> Application:
     app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
+    app.add_error_handler(on_error)
     return app
+
+
+async def on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """A handler raised. Log it with the update's shape (no text) and tell the person, instead of silence."""
+    log.exception("handler failed on %s", type(update).__name__, exc_info=context.error)
+    msg = getattr(update, "effective_message", None)
+    if msg is not None:
+        try:
+            await msg.reply_text("Something went wrong on our side. Please send that again.")
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

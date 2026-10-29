@@ -28,6 +28,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/db.py` — schema + SQLite/Postgres shim. `DATABASE_URL` set → Postgres (prod); else SQLite.
   Money is integer paise. All ints are BIGINT (Telegram ids overflow int32). New columns go in `MIGRATIONS`
   (tried on every connect, ignored if present) as well as in `SCHEMA`.
+  Every transport holds ONE module-level connection for the life of the instance; Cloud SQL drops idle ones, so
+  the Postgres shim uses TCP keepalives and reconnects+retries once on a dropped connection (never mid-`tx()`,
+  where it re-raises so the transaction fails whole). Before this, the bot went silent after an idle spell.
 - `publicbank/cns_allocate.py` — the allocator (shared with NYU's copy in `edge-city-nyu`; keep in sync,
   don't fork its semantics). Core clamps the budget to Σideal before calling it (rollover note).
 - `publicbank/web.py` — FastAPI pages: `/j/<token>` join, `/j/<token>/poster.png`, `/l/<token>` login
@@ -62,8 +65,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{round,web,bot,webhook,whatsapp,pool}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all six before any deploy. They also run against Postgres with `DATABASE_URL` set.
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all seven before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+  to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)
 
