@@ -91,26 +91,27 @@ def set_round_status(con, round_id: str, status: str) -> None:
 # members and tokens
 # ----------------------------------------------------------------------------
 def upsert_member(con, *, verified_by: str, telegram_id: int | None = None, edgeos_human_id: str | None = None,
-                  village_subject: str | None = None, display: str | None = None) -> dict:
+                  village_subject: str | None = None, wa_phone: str | None = None, display: str | None = None) -> dict:
     """Find a member by any linked identity, else create. Links a new identity to an existing member when
     the caller has already established both belong to the same person (e.g. signed in, then tapped the bot)."""
     q, args = [], []
     if telegram_id is not None: q.append("telegram_id=?"); args.append(telegram_id)
     if edgeos_human_id: q.append("edgeos_human_id=?"); args.append(edgeos_human_id)
     if village_subject: q.append("village_subject=?"); args.append(village_subject)
+    if wa_phone: q.append("wa_phone=?"); args.append(wa_phone)
     if not q:
         raise PBError("no_identity")
     r = row(con.execute(f"SELECT * FROM members WHERE {' OR '.join(q)}", args).fetchone())
     with tx(con):
         if r:
             con.execute("""UPDATE members SET telegram_id=COALESCE(?,telegram_id), edgeos_human_id=COALESCE(?,edgeos_human_id),
-                           village_subject=COALESCE(?,village_subject), display=COALESCE(?,display) WHERE id=?""",
-                        (telegram_id, edgeos_human_id, village_subject, display, r["id"]))
+                           village_subject=COALESCE(?,village_subject), wa_phone=COALESCE(?,wa_phone), display=COALESCE(?,display) WHERE id=?""",
+                        (telegram_id, edgeos_human_id, village_subject, wa_phone, display, r["id"]))
             mid = r["id"]
         else:
             mid = new_id("m_")
-            con.execute("INSERT INTO members (id,display,telegram_id,edgeos_human_id,village_subject,verified_by,created_at) VALUES (?,?,?,?,?,?,?)",
-                        (mid, display, telegram_id, edgeos_human_id, village_subject, verified_by, now()))
+            con.execute("INSERT INTO members (id,display,telegram_id,edgeos_human_id,village_subject,wa_phone,verified_by,created_at) VALUES (?,?,?,?,?,?,?,?)",
+                        (mid, display, telegram_id, edgeos_human_id, village_subject, wa_phone, verified_by, now()))
     return row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
 
 

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS nodes (
   ratify_rule   TEXT NOT NULL DEFAULT 'approval_60',
   ratify_pct    BIGINT NOT NULL DEFAULT 60,
   allocation_rule TEXT NOT NULL DEFAULT 'mes',
+  charter_at    BIGINT,                      -- when this node's coordinator accepted its parent's charter
   created_at    BIGINT NOT NULL
 );
 
@@ -59,7 +60,10 @@ CREATE TABLE IF NOT EXISTS members (
   edgeos_human_id TEXT UNIQUE,               -- if signed in with Edge City
   village_subject TEXT UNIQUE,               -- X-Village-Subject from the mini-app dispatcher, if used
   upi_id        TEXT,                        -- only for leads who receive payouts; never shown publicly
-  verified_by   TEXT NOT NULL,               -- deeplink | coordinator | edgeos_login | miniapp | world_id
+  wa_phone      TEXT UNIQUE,                 -- WhatsApp number (E.164 digits, no +), if that is how they joined
+  wa_opt_in_at  BIGINT,                      -- first inbound WhatsApp message (their opt-in)
+  wa_last_in_at BIGINT,                      -- last inbound WhatsApp message (24h free-reply window)
+  verified_by   TEXT NOT NULL,               -- deeplink | coordinator | edgeos_login | miniapp | whatsapp
   created_at    BIGINT NOT NULL
 );
 
@@ -191,12 +195,37 @@ CREATE TABLE IF NOT EXISTS bot_state (
   updated_at    BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS wa_state (
+  phone         TEXT PRIMARY KEY,              -- a WhatsApp member part-way through a conversation
+  state         TEXT NOT NULL,
+  data          TEXT NOT NULL DEFAULT '{}',
+  updated_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS idempotency (
   key           TEXT PRIMARY KEY,
   response      TEXT NOT NULL,
   created_at    BIGINT NOT NULL
 );
 """
+
+
+# Columns added after a database was first created. Each is tried once per connect and ignored if present
+# (neither engine has a portable ADD COLUMN IF NOT EXISTS that SQLite also accepts).
+MIGRATIONS = [
+    "ALTER TABLE members ADD COLUMN wa_phone TEXT UNIQUE",
+    "ALTER TABLE members ADD COLUMN wa_opt_in_at BIGINT",
+    "ALTER TABLE members ADD COLUMN wa_last_in_at BIGINT",
+    "ALTER TABLE nodes ADD COLUMN charter_at BIGINT",
+]
+
+
+def migrate(con) -> None:
+    for stmt in MIGRATIONS:
+        try:
+            con.execute(stmt)
+        except Exception:
+            pass
 
 
 def now() -> int:
@@ -269,10 +298,12 @@ def connect(path: str | None = None):
     if url and path is None:
         con = _PgConn(url)
         con.executescript(SCHEMA)
+        migrate(con)
         return con
     con = sqlite3.connect(path or DB_PATH, isolation_level=None, check_same_thread=False)
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    migrate(con)
     return con
 
 

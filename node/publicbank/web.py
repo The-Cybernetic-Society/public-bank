@@ -101,11 +101,15 @@ def esc(s: Any) -> str:
 # join and sign-in
 # ----------------------------------------------------------------------------
 @app.get("/j/{token}/poster.png")
-def poster(token: str):
+def poster(token: str, via: str = ""):
     """A printable A5-ish poster for a join link: QR + node name. Public, but the token is the secret."""
-    try:
-        t = core.read_token(con, token, "join")
-    except core.PBError:
+    t = None
+    for kind in ("join", "join_coord"):
+        try:
+            t = core.read_token(con, token, kind); break
+        except core.PBError:
+            pass
+    if not t:
         raise HTTPException(404)
     node = core.get_node(con, t["node_id"])
     parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
@@ -114,6 +118,9 @@ def poster(token: str):
     from PIL import Image, ImageDraw, ImageFont
     from fastapi.responses import Response
     url = f"{BASE_URL}/j/{token}"
+    if via == "wa":   # a WhatsApp card: the QR opens a chat with our number and the JOIN message prefilled
+        from . import whatsapp
+        url = whatsapp.join_link(token)
     q = qrcode.make(url, border=2).convert("RGB").resize((900, 900))
     img = Image.new("RGB", (1240, 1754), "white")   # A5 at 150 dpi
     img.paste(q, (170, 120))
@@ -125,7 +132,7 @@ def poster(token: str):
         big = med = ImageFont.load_default()
     y = 1070
     for line, f in [(parent["name"] if parent else "", med), (node["name"], big), ("", med),
-                    ("Scan to join your budget round.", med), ("Propose · vote · approve.", med),
+                    ("Scan to join on WhatsApp." if via == "wa" else "Scan to join your budget round.", med), ("Propose · vote · approve.", med),
                     ("Money moves only after 60% of members approve.", med), ("", med), (BASE_URL.replace("https://", "").replace("http://", ""), med)]:
         if line:
             d.text((120, y), line, fill="black", font=f)
@@ -153,19 +160,24 @@ def join(token: str, request: Request):
     body = f"<p>You've asked to join <b>{esc(node['name'])}</b>. The coordinator will confirm you; then you can propose and vote.</p>"
     if BOT_USERNAME:
         body += f"<p><a href='https://t.me/{BOT_USERNAME}?start=j_{esc(token)}'>Open the Telegram bot</a> to get notified when it's your turn.</p>"
+    if os.environ.get("PB_WA_NUMBER"):
+        from . import whatsapp
+        body += f"<p><a href='{esc(whatsapp.join_link(token))}'>Or join on WhatsApp</a>.</p>"
     if EDGEOS_APP_KEY:
         body += "<p class=muted>Or <a href='/signin'>sign in with Edge City</a> to verify you're a resident.</p>"
     return _set_session(page("Welcome", body), m["id"])
 
 
 @app.get("/l/{token}")
-def login_link(token: str):
-    """A one-tap login the bot sends: turns a short-lived login token into the signed session cookie."""
+def login_link(token: str, next: str = ""):
+    """A one-tap login the bots send: turns a short-lived login token into the signed session cookie.
+    `next` is an optional path on this site to land on (a node page, say) instead of /me."""
     try:
         t = core.read_token(con, token, "login", consume=True)
     except core.PBError:
         return page("Link expired", "<p>Ask the bot for a fresh link with /me.</p>")
-    return _set_session(RedirectResponse("/me", status_code=303), t["member_id"])
+    dest = next if next.startswith("/") and not next.startswith("//") else "/me"
+    return _set_session(RedirectResponse(dest, status_code=303), t["member_id"])
 
 
 @app.get("/signin")
@@ -367,6 +379,9 @@ def coordinate(node_id: str, request: Request):
     base = str(request.base_url).rstrip("/")
     body += f"<h2>Join link (put this on the poster)</h2><p><code>{esc(base)}/j/{esc(tok)}</code></p>"
     if BOT_USERNAME: body += f"<p><code>https://t.me/{BOT_USERNAME}?start=j_{esc(tok)}</code></p>"
+    if os.environ.get("PB_WA_NUMBER"):
+        from . import whatsapp
+        body += f"<p>WhatsApp: <code>{esc(whatsapp.join_link(tok))}</code> · <a href='/j/{esc(tok)}/poster.png?via=wa'>card</a></p>"
     return page(f"Coordinate · {core.get_node(con, node_id)['name']}", body)
 
 
@@ -394,32 +409,43 @@ def advance(node_id: str, request: Request, step: str = Form(...)):
     return RedirectResponse(f"/c/{node_id}", status_code=303)
 
 
+# (template, Telegram command, WhatsApp keyword); {cmd} becomes "Send /x here" or "Reply X here"
 ANNOUNCE = {
-    "freeze": "Proposals are frozen in {node}. Ballots are open: split 100 points across the items. Send /ballot here.\n{url}",
-    "compute": "The plans for {node} are ready. See where your equal share went and rank the candidates. Send /rank here.\n{url}",
-    "winner": "A winning plan was picked for {node}. Please approve or reject it; 60% of members must approve before any money moves. Send /approve here.\n{url}",
-    "close": "The round in {node} is decided. Open the page for the result.\n{url}",
+    "freeze": ("Proposals are frozen in {node}. Ballots are open: split 100 points across the items. {cmd}\n{url}", "/ballot", "VOTE"),
+    "compute": ("The plans for {node} are ready. See where your equal share went and rank the candidates. {cmd}\n{url}", "/rank", "RANK"),
+    "winner": ("A winning plan was picked for {node}. Please approve or reject it; 60% of members must approve before any money moves. {cmd}\n{url}", "/approve", "APPROVE"),
+    "close": ("The round in {node} is decided. Open the page for the result.{cmd}\n{url}", "", ""),
 }
 
 
 def _announce(node_id: str, step: str) -> None:
-    """Fire-and-forget DM to every linked member; a missing bot or a Telegram error never blocks the coordinator."""
-    tmpl = ANNOUNCE.get(step)
-    if not tmpl or not os.environ.get("TELEGRAM_BOT_TOKEN"):
+    """Fire-and-forget DM to every linked member on Telegram and WhatsApp; a missing bot or a send error never
+    blocks the coordinator."""
+    if step not in ANNOUNCE or not (os.environ.get("TELEGRAM_BOT_TOKEN") or os.environ.get("PB_WA_TOKEN")):
         return
+    tmpl, tg_cmd, wa_cmd = ANNOUNCE[step]
     node = core.get_node(con, node_id)
-    text = tmpl.format(node=node["name"], url=f"{BASE_URL}/n/{node_id}")
+    url = f"{BASE_URL}/n/{node_id}"
+    tg_text = tmpl.format(node=node["name"], url=url, cmd=f"Send {tg_cmd} here." if tg_cmd else "")
+    wa_text = tmpl.format(node=node["name"], url=url, cmd=f"Reply {wa_cmd} here." if wa_cmd else "")
     import threading
-    threading.Thread(target=_send_all, args=(node_id, text), daemon=True).start()
+    threading.Thread(target=_send_all, args=(node_id, tg_text, wa_text), daemon=True).start()
 
 
-def _send_all(node_id: str, text: str) -> None:
-    tok = os.environ["TELEGRAM_BOT_TOKEN"]
-    for mem in core.active_members(con, node_id):
-        if not mem["telegram_id"]:
-            continue
+def _send_all(node_id: str, tg_text: str, wa_text: str) -> None:
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if tok:
+        for mem in core.active_members(con, node_id):
+            if not mem["telegram_id"]:
+                continue
+            try:
+                httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": mem["telegram_id"], "text": tg_text}, timeout=10)
+            except Exception:
+                pass
+    if os.environ.get("PB_WA_TOKEN"):
+        from . import whatsapp
         try:
-            httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": mem["telegram_id"], "text": text}, timeout=10)
+            whatsapp.notify_node(node_id, wa_text)
         except Exception:
             pass
 

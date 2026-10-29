@@ -20,12 +20,24 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 
 - `publicbank/core.py` — every operation, transport-agnostic. All business rules live here. `PBError(code)`.
 - `publicbank/db.py` — schema + SQLite/Postgres shim. `DATABASE_URL` set → Postgres (prod); else SQLite.
-  Money is integer paise. All ints are BIGINT (Telegram ids overflow int32).
+  Money is integer paise. All ints are BIGINT (Telegram ids overflow int32). New columns go in `MIGRATIONS`
+  (tried on every connect, ignored if present) as well as in `SCHEMA`.
 - `publicbank/cns_allocate.py` — the allocator (shared with NYU's copy in `edge-city-nyu`; keep in sync,
   don't fork its semantics). Core clamps the budget to Σideal before calling it (rollover note).
 - `publicbank/web.py` — FastAPI pages: `/j/<token>` join, `/j/<token>/poster.png`, `/l/<token>` login
   from bot, `/signin` (EdgeOS third-party auth; hidden until `EDGEOS_APP_KEY`), `/me`, `/n/<node>` resident,
   `/c/<node>` coordinator (approve members, advance round → DMs everyone), `/treasury`, `/export/<node>`.
+- `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
+  texts, the ballot prompt, receipts. Add shared wording here, not in a bot.
+- `publicbank/whatsapp.py` — WhatsApp (Meta Cloud API) for nodes whose members live on WhatsApp (the Goan
+  business federation). Identity = the phone number WhatsApp verified (`verified_by='whatsapp'`). `JOIN <code>`
+  from an owner's card (`join_coord` token → coordinator, shown the parent's charter, `nodes.charter_at`) or a
+  forwarded team link (`join` token → active member at once); `JOIN` alone registers a new node under
+  `PB_WA_POOL`. Round as keyword conversations (STATUS/PROPOSE/VOTE/RANK/APPROVE/LINK/PAYOUTS/CANCEL), state in
+  `wa_state`, buttons and list messages carry what Telegram callbacks would. `sender` is swappable (tests).
+  Free replies only inside the 24h window; otherwise the `PB_WA_TEMPLATE` template. Webhook `/wa` in main.py
+  (GET handshake, POST signed with `PB_WA_APP_SECRET`), de-duplicated by message id via `idempotency`.
+- `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
   `/propose`, `/ballot`, `/rank`, `/approve`, `/cancel`. Conversation state is a row in `bot_state`
@@ -38,8 +50,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{round,web,bot,webhook}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all four before any deploy. They also run against Postgres with `DATABASE_URL` set.
+- `tests/test_{round,web,bot,webhook,whatsapp}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all five before any deploy. They also run against Postgres with `DATABASE_URL` set.
 
 ## Hard rules (do not relax)
 
@@ -85,7 +97,17 @@ Gotchas met: `gcloud --args` rejects repeated items (hence `sh -c`); `<` in a pl
 Cloud SQL needs `--edition=ENTERPRISE` for `db-f1-micro`; the compute service account needs
 `secretmanager.secretAccessor` + `cloudsql.client`; domain mapping needs the apex verified in Search Console.
 
-## Priorities (as of 26 Oct 2026, six days of the popup left)
+## Direction (as of 29 Oct 2026)
+
+The Edge City residencies are off the critical path. The deployment is a federation of ~40 Goan businesses
+from Ground Floor's programme, each business a node (owner = coordinator, staff = members, one node one
+vote in the pool), joined on WhatsApp, run in November through GCCI sessions. The pool is funded by the
+treasurer as a match on small business co-contributions; business money never enters the treasurer's
+account (each pays its share to the vendor). Strategy, contacts and open questions:
+`../../NOTES/edge-city-handoff-2026-10-28.md` (outside git). Build order: WhatsApp adapter (done 29 Oct) →
+pool-round flow across nodes → seed the businesses + match rule → the twin (needs → draft proposals) → live board.
+
+## Priorities (as of 26 Oct 2026, six days of the popup left; superseded above, kept for context)
 
 1. Get one real agent call through the mini-app: register manifest + URL + app token with Edge City's
    mini-app team (they have a Telegram support group). Expect the manifest to need adjusting to the shipped

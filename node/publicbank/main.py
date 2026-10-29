@@ -1,6 +1,7 @@
 """
-One process, stateless: the web app at /, the mini-app MCP endpoint at /mcp, and the Telegram bot
-fed by webhook at /tg/<secret> (set when TELEGRAM_BOT_TOKEN is present).
+One process, stateless: the web app at /, the mini-app MCP endpoint at /mcp, the Telegram bot fed by
+webhook at /tg/<secret> (set when TELEGRAM_BOT_TOKEN is present), and the WhatsApp webhook at /wa
+(GET: Meta's subscription handshake against PB_WA_VERIFY_TOKEN; POST: messages, signed with PB_WA_APP_SECRET).
 
     uvicorn publicbank.main:app --host 0.0.0.0 --port 8000
 
@@ -12,14 +13,17 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import json
 import logging
 import os
 
 from starlette.applications import Starlette
+from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 from starlette.routing import Mount, Route
 
+from . import whatsapp
 from .mcp_server import app as mcp_app
 from .web import app as web_app
 
@@ -69,6 +73,26 @@ async def telegram_hook(request: Request):
     return PlainTextResponse("ok")
 
 
+async def wa_verify(request: Request):
+    q = request.query_params
+    if q.get("hub.mode") == "subscribe" and whatsapp.VERIFY_TOKEN and q.get("hub.verify_token") == whatsapp.VERIFY_TOKEN:
+        return PlainTextResponse(q.get("hub.challenge", ""))
+    return PlainTextResponse("no", status_code=403)
+
+
+async def wa_hook(request: Request):
+    """Always 200 once the signature checks out: Meta retries anything else, and a handler error is ours to log."""
+    body = await request.body()
+    if not whatsapp.verify_signature(body, request.headers.get("X-Hub-Signature-256")):
+        return PlainTextResponse("no", status_code=403)
+    try:
+        payload = json.loads(body)
+    except ValueError:
+        return PlainTextResponse("ok")
+    await run_in_threadpool(whatsapp.handle_update, payload)
+    return PlainTextResponse("ok")
+
+
 async def _dispatch(scope, receive, send):
     """/mcp (exactly) goes to the MCP app, which answers at that path itself; everything else to the web app."""
     if scope["type"] == "http" and scope["path"].rstrip("/") == "/mcp":
@@ -77,4 +101,6 @@ async def _dispatch(scope, receive, send):
         await web_app(scope, receive, send)
 
 
-app = Starlette(routes=[Route("/tg/{secret}", telegram_hook, methods=["POST"]), Mount("/", app=_dispatch)], lifespan=lifespan)
+app = Starlette(routes=[Route("/tg/{secret}", telegram_hook, methods=["POST"]),
+                        Route("/wa", wa_verify, methods=["GET"]), Route("/wa", wa_hook, methods=["POST"]),
+                        Mount("/", app=_dispatch)], lifespan=lifespan)

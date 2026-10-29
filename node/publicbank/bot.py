@@ -34,15 +34,13 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
 
 from . import core, db
+from .convo import ERRORS, RULE_NAMES, STAGES, err_text, parse_points, parse_rupees, proposal_summary, rupees  # noqa: F401
+from . import convo
 
 log = logging.getLogger("publicbank.bot")
 BASE_URL = os.environ.get("PB_BASE_URL", "http://localhost:8000").rstrip("/")
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 con = db.connect()
-
-
-def rupees(p: int) -> str:
-    return f"₹{p // 100:,}"
 
 
 def member_for(update: Update) -> dict | None:
@@ -139,18 +137,6 @@ async def payouts(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 # conversations: one row per Telegram user in bot_state, so any instance can pick up the next message
 # ----------------------------------------------------------------------------
 STATE_TTL = 24 * 3600
-RULE_NAMES = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Help the least served"}
-ERRORS = {
-    "proposals_closed": "Proposals are closed for this round.",
-    "ballots_closed": "Ballots are closed for this round.",
-    "ranking_closed": "Ranking is closed for this round.",
-    "ratification_closed": "Approval is closed for this round.",
-    "not_a_member": "The coordinator hasn't confirmed you yet.",
-    "points_must_sum_100": "Points must add up to 100.",
-    "unknown_proposal": "The list changed since you started. Send /ballot again.",
-    "ranking_must_list_every_plan": "The plans changed since you started. Send /rank again.",
-}
-STAGES = {"propose": ("proposals", "propose"), "ballot": ("ballots", "vote on"), "rank": ("plans", "rank"), "approve": ("ratifying", "approve")}
 
 
 def get_state(tg_id: int) -> tuple[str | None, dict]:
@@ -172,27 +158,12 @@ def clear_state(tg_id: int) -> None:
         con.execute("DELETE FROM bot_state WHERE telegram_id=?", (tg_id,))
 
 
-def err_text(e: core.PBError) -> str:
-    return ERRORS.get(e.code, f"That didn't work ({e.code}{': ' + e.detail if e.detail else ''}).")
-
-
 def yes_no(prefix: str, yes: str, no: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton(yes, callback_data=f"{prefix}:y"), InlineKeyboardButton(no, callback_data=f"{prefix}:n")]])
 
 
-def parse_rupees(s: str) -> int | None:
-    s = re.sub(r"[₹,\s]|rs\.?|inr", "", s.lower())
-    return int(s) if s.isdigit() else None
-
-
 def rounds_at(m: dict, stage: str) -> list[tuple[dict, dict]]:
-    """(node, round) for each node where the member is active and the current round is at `stage`."""
-    out = []
-    for x in db.rows(con.execute("SELECT node_id FROM memberships WHERE member_id=? AND status='active' ORDER BY node_id", (m["id"],)).fetchall()):
-        rnd = core.current_round(con, x["node_id"])
-        if rnd and rnd["status"] == stage:
-            out.append((core.get_node(con, x["node_id"]), rnd))
-    return out
+    return convo.rounds_at(con, m["id"], stage)
 
 
 async def begin(update: Update, ctx: ContextTypes.DEFAULT_TYPE, cmd: str, node_id: str | None = None) -> None:
@@ -227,12 +198,6 @@ async def cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 async def start_propose(update: Update, m: dict, node: dict, rnd: dict) -> None:
     set_state(update.effective_user.id, "p_title", {"round_id": rnd["id"], "node": node["name"]})
     await update.effective_message.reply_text(f"A proposal for {node['name']}. What's it called? (/cancel to stop)")
-
-
-def proposal_summary(d: dict) -> str:
-    return (f"{d['title']}\n{d['text']}\n\nIdeal {rupees(d['ideal'] * 100)}, minimum {rupees(d['min'] * 100)}\n"
-            + ("You lead it: you buy or organise it and are reimbursed against receipts." if d["lead"]
-               else "No lead yet: it stays a draft, off the ballot, until someone agrees to lead it."))
 
 
 async def propose_text(update: Update, m: dict, state: str, d: dict, text: str) -> None:
@@ -299,28 +264,6 @@ async def start_ballot(update: Update, m: dict, node: dict, rnd: dict) -> None:
     await update.effective_message.reply_text("\n".join(lines))
 
 
-def parse_points(text: str, ids: list[str]) -> dict[str, int] | str:
-    """'40 30 30' (positional, optional trailing unspent) or '1:40 3:60 u:0'. Returns points or an error to show."""
-    toks = text.replace(",", " ").split()
-    pts: dict[str, int] = {}
-    if any(":" in t or "=" in t for t in toks):
-        for t in toks:
-            k, _, v = t.replace("=", ":").partition(":")
-            if not v.isdigit(): return f"Couldn't read '{t}'."
-            if k.lower() in ("u", "unspent"): key = "_unspent"
-            elif k.isdigit() and 1 <= int(k) <= len(ids): key = ids[int(k) - 1]
-            else: return f"There's no item {k}."
-            pts[key] = pts.get(key, 0) + int(v)
-    else:
-        if not all(t.isdigit() for t in toks) or len(toks) not in (len(ids), len(ids) + 1):
-            return f"Send {len(ids)} whole numbers (or {len(ids) + 1} to leave some unspent)."
-        pts = {k: int(v) for k, v in zip(ids + ["_unspent"], toks)}
-    pts = {k: v for k, v in pts.items() if v}
-    if sum(pts.values()) != 100:
-        return f"Those add up to {sum(pts.values())}, not 100."
-    return pts
-
-
 async def ballot_text(update: Update, m: dict, d: dict, text: str) -> None:
     pts = parse_points(text, d["ids"])
     if isinstance(pts, str):
@@ -345,9 +288,7 @@ async def ballot_button(update: Update, m: dict, ans: str, d: dict) -> None:
 
 # --- rank -------------------------------------------------------------------
 def plan_lines(rnd: dict, plan: dict) -> list[str]:
-    titles = {p["id"]: p["title"] for p in core.eligible_proposals(con, rnd["id"])}
-    amts = db.j(plan["amounts"], {})
-    return [f"  {titles.get(k, k)}: {rupees(v)}" for k, v in sorted(amts.items(), key=lambda kv: -kv[1]) if v > 0] or ["  (funds nothing)"]
+    return convo.plan_lines(con, rnd, plan)
 
 
 async def start_rank(update: Update, m: dict, node: dict, rnd: dict) -> None:

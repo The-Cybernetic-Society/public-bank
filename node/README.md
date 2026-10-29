@@ -17,12 +17,14 @@ and only by a person tapping a `upi://` link. The service never holds funds and 
 | Surface | For | Where |
 |---|---|---|
 | Telegram bot | residents (join via QR, get notified), treasurer (payout queue) | `publicbank/bot.py` |
+| WhatsApp | businesses and groups whose members live on WhatsApp: owner cards, team links, the round as chat | `publicbank/whatsapp.py` |
 | Web | propose, ballot, rank, approve, coordinator & treasury pages, export | `publicbank/web.py` |
 | MCP mini-app | residents' agents in Agent Village (confirmed writes only) | `publicbank/mcp_server.py`, `manifest.json`, `skills/publicbank/SKILL.md` |
 
 Identity is pluggable and recorded per member (`verified_by`): a join link / QR (`deeplink`), a
 coordinator's approval (`coordinator`), Edge City third-party sign-in (`edgeos_login`, enabled by
-`EDGEOS_APP_KEY`), or the mini-app dispatcher's `X-Village-Subject` (`miniapp`). No directory is ever
+`EDGEOS_APP_KEY`), the mini-app dispatcher's `X-Village-Subject` (`miniapp`), or the phone number
+WhatsApp verified (`whatsapp`). No directory is ever
 read; nothing about a resident enters the system except what they or their coordinator put there.
 
 ## Run
@@ -52,6 +54,25 @@ resident is notified in Telegram when ballots, plans and approval open.
 Deploy (GCP): `PROJECT=<id> TELEGRAM_BOT_TOKEN=<token> ./deploy-gcp.sh` creates Cloud SQL Postgres, secrets, the Cloud Run service (one warm instance) and the domain mapping. Updates: `gcloud run deploy publicbank --source . --region asia-southeast1`. Railway also works: `railway.json` is included.
 variables from `.env.example` → add the custom domain and point `PB_BASE_URL` at it. `railway.json`
 has the start command and health check. Seed with `railway run python -m publicbank.setup_village …`.
+
+## WhatsApp (businesses, self-help groups, wards)
+
+Set the `PB_WA_*` variables from `.env.example` (a Meta business app, a phone number not already on WhatsApp,
+the webhook at `https://<host>/wa`). Then seed a federation:
+
+```bash
+python -m publicbank.setup_businesses --pool goa-biz-2026 --name "Goa Business Pool" --list businesses.txt \
+    --treasurer-telegram <your tg id> --csv cards.csv
+```
+
+Each business gets an owner's card: a `wa.me` link (also a printable card at `/j/<token>/poster.png?via=wa`)
+that opens a chat with `JOIN <code>` prefilled. The first person to send it becomes that business's
+coordinator, is shown the pool's charter (`PB_WA_CHARTER`), and on accepting gets a link to forward to their
+team; anyone tapping that joins straight away. A business not on the list sends `JOIN` alone and names
+itself (needs `PB_WA_POOL`). From then on the round runs in chat: `STATUS`, `PROPOSE`, `VOTE`, `RANK`,
+`APPROVE`, with buttons for yes/no and a one-tap link to the web page for the ballot and the plans.
+Replies inside a member's 24-hour window are free text; a round announcement outside it goes as the
+approved template named by `PB_WA_TEMPLATE`.
 
 ## Round, step by step
 
@@ -87,6 +108,7 @@ python tests/test_round.py   # core: 12 members, 6 proposals, 4 plans, Schulze, 
 python tests/test_web.py     # web: join → propose → ballot → plans → rank → approve → treasury
 python tests/test_bot.py     # bot: deep-link join, login link, payout queue with upi://, paid ref
 python tests/test_webhook.py # webhook: secret + header checked, update dispatched
+python tests/test_whatsapp.py # WhatsApp: owner card → charter, team link, self-registration, the round in chat, templates, signature
 # same suites against Postgres: DATABASE_URL=postgresql://... python tests/test_round.py
 ```
 
