@@ -105,13 +105,14 @@ gcloud run jobs execute publicbank-seed --region=asia-southeast1 --wait
 gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed' --limit=30 --format='value(textPayload)' --freshness=10m
 ```
 
-Deployed 29 Oct 2026: revision publicbank-00006 (federation + WhatsApp adapter; `PB_WA_*` and
+Deployed 29 Oct 2026: revision publicbank-00007 (federation + WhatsApp adapter + /pay hand-off; `PB_WA_*` and
 `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
 at https://bank.cyberneticsutra.com/b/goa-biz-demo. Re-point the job (`--command=sh --args="-c,<cmd>"`) to
 `publicbank.setup_businesses` when seeding the real businesses.
 
-Gotchas met: `gcloud --args` rejects repeated items (hence `sh -c`); `<` in a placeholder breaks `sh`;
+Gotchas met: pass `--source` as the ABSOLUTE path to `node/` (a `cd node && gcloud run deploy --source .` once
+uploaded the repo root, found no Dockerfile, and Buildpacks failed); `gcloud --args` rejects repeated items (hence `sh -c`); `<` in a placeholder breaks `sh`;
 Cloud SQL needs `--edition=ENTERPRISE` for `db-f1-micro`; the compute service account needs
 `secretmanager.secretAccessor` + `cloudsql.client`; domain mapping needs the apex verified in Search Console.
 
