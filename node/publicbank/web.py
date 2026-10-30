@@ -105,7 +105,7 @@ button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}bu
 code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px solid var(--line);padding:2px 6px;border-radius:3px}
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
-.phone{display:flex;gap:8px}.phone select{width:36%;flex:0 0 auto;padding:11px 4px 11px 8px}.phone input{flex:1 1 auto;min-width:0}
+.phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}</style>"""
 
 
@@ -774,9 +774,6 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
 <label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
-<script>(function(){{var s=document.querySelector('select[name=cc]');if(!s)return;var o=[].slice.call(s.options);o.forEach(function(x){{x.dataset.short=x.textContent}});
-function long(){{o.forEach(function(x){{x.textContent=x.dataset.short+'  '+x.dataset.name}})}}function short(){{o.forEach(function(x){{x.textContent=x.dataset.short}})}}
-s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEventListener('blur',short);s.addEventListener('change',function(){{short();s.blur()}})}})()</script>
 <label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
 <label>What do you need help with most? <textarea name=challenge rows=2 required maxlength=500>{g('challenge')}</textarea></label>
@@ -786,7 +783,8 @@ s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEvent
 <label>What could you share with other businesses? <span class=hint>Equipment, space, a skill, a contact. Nothing is too small.</span>
 <textarea name=share rows=2 required maxlength=300>{g('share')}</textarea></label>
 <label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
-<div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
+<div class=phone><span class=cc><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><span class=ccv aria-hidden=true></span></span><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
+<script>(function(){{var s=document.querySelector('select[name=cc]'),v=document.querySelector('.ccv');if(!s||!v)return;function show(){{v.textContent=s.options[s.selectedIndex].dataset.short}}show();s.addEventListener('change',show)}})()</script>
 <button>Register my business</button>
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. By registering you agree to our <a href='/privacy'>privacy policy</a>.</p>"""
@@ -795,8 +793,8 @@ s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEvent
 
 def _country_options(selected: str) -> str:
     from .countries import COUNTRIES, flag
-    # closed: flag and prefix; open: the name too (the script below swaps the labels; without it, flag and prefix)
-    return "".join(f"<option value={iso} data-name='{esc(name)}'{' selected' if iso == selected else ''}>{flag(iso)} +{code}</option>" for iso, name, code in COUNTRIES)
+    # every option carries the full name; the closed box shows only flag and prefix through the .ccv overlay
+    return "".join(f"<option value={iso} data-short='{flag(iso)} +{code}'{' selected' if iso == selected else ''}>{flag(iso)} +{code} {esc(name)}</option>" for iso, name, code in COUNTRIES)
 
 
 # Short public names for node ids: /apply/goa and /b/goa instead of the full id. "goa=goa-business-commons,x=y".

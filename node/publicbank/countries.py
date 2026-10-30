@@ -41,7 +41,18 @@ COUNTRIES = [
     ("UG", "Uganda", "256"), ("UA", "Ukraine", "380"), ("AE", "United Arab Emirates", "971"), ("GB", "United Kingdom", "44"), ("US", "United States", "1"),
     ("UY", "Uruguay", "598"), ("UZ", "Uzbekistan", "998"), ("VU", "Vanuatu", "678"), ("VA", "Vatican City", "39"), ("VE", "Venezuela", "58"),
     ("VN", "Vietnam", "84"), ("YE", "Yemen", "967"), ("ZM", "Zambia", "260"), ("ZW", "Zimbabwe", "263"),
+    ("AC", "Ascension Island", "247"), ("AI", "Anguilla", "1"), ("AS", "American Samoa", "1"), ("AW", "Aruba", "297"), ("AX", "Åland Islands", "358"),
+    ("BL", "Saint Barthélemy", "590"), ("BM", "Bermuda", "1"), ("BQ", "Caribbean Netherlands", "599"), ("CC", "Cocos (Keeling) Islands", "61"), ("CK", "Cook Islands", "682"),
+    ("CW", "Curaçao", "599"), ("CX", "Christmas Island", "61"), ("EH", "Western Sahara", "212"), ("FK", "Falkland Islands", "500"), ("FO", "Faroe Islands", "298"),
+    ("GF", "French Guiana", "594"), ("GG", "Guernsey", "44"), ("GI", "Gibraltar", "350"), ("GL", "Greenland", "299"), ("GP", "Guadeloupe", "590"),
+    ("GU", "Guam", "1"), ("IM", "Isle of Man", "44"), ("IO", "British Indian Ocean Territory", "246"), ("JE", "Jersey", "44"), ("KY", "Cayman Islands", "1"),
+    ("MF", "Saint Martin", "590"), ("MP", "Northern Mariana Islands", "1"), ("MQ", "Martinique", "596"), ("MS", "Montserrat", "1"), ("NC", "New Caledonia", "687"),
+    ("NF", "Norfolk Island", "672"), ("NU", "Niue", "683"), ("PF", "French Polynesia", "689"), ("PM", "Saint Pierre and Miquelon", "508"), ("RE", "Réunion", "262"),
+    ("SH", "Saint Helena", "290"), ("SJ", "Svalbard and Jan Mayen", "47"), ("SX", "Sint Maarten", "1"), ("TA", "Tristan da Cunha", "290"), ("TC", "Turks and Caicos Islands", "1"),
+    ("TK", "Tokelau", "690"), ("VG", "British Virgin Islands", "1"), ("VI", "U.S. Virgin Islands", "1"), ("WF", "Wallis and Futuna", "681"), ("XK", "Kosovo", "383"), ("YT", "Mayotte", "262"),
 ]
+# India first, then everything else by name
+COUNTRIES = [COUNTRIES[0]] + sorted(COUNTRIES[1:], key=lambda c: c[1])
 DIAL = {iso: code for iso, _, code in COUNTRIES}
 
 
