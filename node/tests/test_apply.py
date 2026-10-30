@@ -46,7 +46,8 @@ a = apps[0]
 assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210"
 assert a["node_id"] == "commons/mandrem-tailors" and a["status"] == "joined"
 node = core.get_node(con, a["node_id"]); assert node["parent_id"] == "commons" and node["name"] == "Mandrem Tailors"
-assert core.is_role(con, a["node_id"], owner_id, ("coordinator",)) and core.is_role(con, a["node_id"], tre["id"], ("treasurer",))
+assert core.is_role(con, a["node_id"], owner_id, ("coordinator",)) and not core.is_role(con, a["node_id"], tre["id"], ("treasurer",))   # the treasurer is not a member of each business
+assert core.get_node(con, a["node_id"])["ratify_pct"] == 51
 assert db.row(con.execute("SELECT display, verified_by FROM members WHERE id=?", (owner_id,)).fetchone()) == {"display": "Rekha Naik", "verified_by": "web"}
 assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=False)] == ["A scooter for deliveries, customers keep asking"]
 # step 2: sliders; a stranger can't see them
@@ -64,7 +65,8 @@ r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" in r.text a
 import re  # noqa: E402
 team = re.search(r"/j/([A-Za-z0-9_-]+)", r.text).group(1)
 S = client(); r = S.get(f"/j/{team}"); assert r.status_code == 200 and "You're in" in r.text
-assert len(core.active_members(con, a["node_id"])) == 3   # owner, staff, treasurer
+assert len(core.active_members(con, a["node_id"])) == 2   # owner, staff
+assert client(tre["id"]).get(f"/c/{a['node_id']}").status_code == 200   # the pool's treasurer can still open each business's page
 # the same phone again: already registered, the new need is kept, no second business
 r = anon.post("/apply/commons", data=dict(form, need="A bigger shop sign"))
 assert r.status_code == 200 and "Already registered" in r.text and len(core.applications_of(con, "commons")) == 1
@@ -84,6 +86,18 @@ assert client().get("/c/commons").status_code == 401
 assert T.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 303
 assert core.applications_of(con, "commons", status="verified")[0]["id"] == a["id"] and "verified" in T.get("/c/commons").text
 assert R.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 403   # a business can't verify itself
+# only verified businesses count: the second business is registered and chartered but unverified, so it cannot cast the pool's ballot
+S3 = client(); S3.post("/apply/commons", data=dict(form, business="Lane Cafe", phone="+91 90000 11111", applicant="Joao"))
+pid2 = next(x["node_id"] for x in core.applications_of(con, "commons") if x["business"] == "Lane Cafe")
+S3.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
+assert {k["id"] for k in core.affected_children(con, "commons")} == {"commons/mandrem-tailors"}
+rc = core.open_round(con, "commons", 100000 * 100)
+assert {v["id"] for v in core.voters(con, rc)} == {owner_id}
+cafe_owner = web.signer.loads(S3.cookies.get("pb"))["m"]
+assert not core.can_ballot(con, rc, cafe_owner) and core.can_ballot(con, rc, owner_id)
+T.post("/c/commons/verify", data={"application_id": next(x["id"] for x in core.applications_of(con, "commons") if x["business"] == "Lane Cafe")})
+assert core.can_ballot(con, rc, cafe_owner) and len(core.voters(con, rc)) == 2
+with db.tx(con): con.execute("UPDATE rounds SET status='closed' WHERE id=?", (rc["id"],))
 b2 = next(x for x in core.applications_of(con, "commons") if x["node_id"] == "commons/mandrem-tailors-2")
 with db.tx(con): con.execute("UPDATE applications SET status='new' WHERE id=?", (b2["id"],))   # as if Sunil had closed the tab before step 2
 assert "Send card" in T.get("/c/commons").text and "/j/" + b2["token"] in __import__("urllib.parse").parse.unquote(T.get("/c/commons").text)
@@ -160,9 +174,7 @@ r = R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
 r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text and "I'll lead this" not in r.text
 # the second business backs it from its own last step
-S2 = client(); S2.post("/apply/commons", data=dict(form, business="Lane Cafe", phone="+91 90000 11111", applicant="Joao"))
-pid2 = core.applications_of(con, "commons")[0]["node_id"] if core.applications_of(con, "commons")[0]["business"] == "Lane Cafe" else next(x["node_id"] for x in core.applications_of(con, "commons") if x["business"] == "Lane Cafe")
-S2.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
+S2 = S3
 r = S2.get(f"/start/{pid2}/done"); assert "Back this" in r.text
 pid = re.search(r"name=pid value='([^']+)'", r.text).group(1)
 assert S2.post(f"/n/commons/cosign?next=/start/{pid2}/done", data={"pid": pid}).headers["location"] == f"/start/{pid2}/done"

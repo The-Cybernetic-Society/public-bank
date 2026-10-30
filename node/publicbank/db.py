@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS nodes (
   charter_at    BIGINT,                      -- when this node's coordinator accepted its parent's charter
   pool_vote     TEXT NOT NULL DEFAULT 'members',  -- in this node's rounds: 'members' (everyone in the tree) | 'nodes' (one ballot per child, by its coordinator)
   match_pct     BIGINT NOT NULL DEFAULT 0,  -- >0: this node's pot matches children's contributions by this % (500 = 5x), capped at the pot
-  cosign_min    BIGINT NOT NULL DEFAULT 0,  -- child nodes that must co-sign a proposal in this node's round before it is eligible
+  cosign_min    BIGINT NOT NULL DEFAULT 0,
+  pool_ratify   TEXT NOT NULL DEFAULT 'every', -- every: each child must pass | majority: more than half of the children that voted pass  -- child nodes that must co-sign a proposal in this node's round before it is eligible
   created_at    BIGINT NOT NULL
 );
 
@@ -90,6 +91,8 @@ CREATE TABLE IF NOT EXISTS proposals (
   lead_id       TEXT REFERENCES members(id),     -- must be set before the list freezes
   source        TEXT NOT NULL DEFAULT 'human',   -- human | agent | twin
   cosign_nodes  TEXT NOT NULL DEFAULT '[]',      -- JSON list of node ids (super-node proposals)
+  payee_upi     TEXT,                            -- the vendor's UPI id: the treasurer pays them directly
+  payee_name    TEXT,
   status        TEXT NOT NULL DEFAULT 'draft',   -- draft | eligible | withdrawn | merged
   created_by    TEXT REFERENCES members(id),
   created_at    BIGINT NOT NULL
@@ -267,6 +270,9 @@ MIGRATIONS = [
     "ALTER TABLE contributions ADD COLUMN to_round_id TEXT REFERENCES rounds(id)",
     "ALTER TABLE decisions ADD COLUMN detail TEXT",
     "ALTER TABLE applications ADD COLUMN challenge TEXT",
+    "ALTER TABLE nodes ADD COLUMN pool_ratify TEXT NOT NULL DEFAULT 'every'",
+    "ALTER TABLE proposals ADD COLUMN payee_upi TEXT",
+    "ALTER TABLE proposals ADD COLUMN payee_name TEXT",
 ]
 
 
@@ -411,7 +417,7 @@ def tx(con) -> Iterator[Any]:
     try:
         yield con
         con.execute("COMMIT")
-    except Exception:
+    except BaseException:   # SystemExit and KeyboardInterrupt too: never leave a transaction half-written
         con.execute("ROLLBACK")
         raise
 

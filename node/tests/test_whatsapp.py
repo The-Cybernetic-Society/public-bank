@@ -204,7 +204,7 @@ assert r[1] == "buttons" and ids(r[3]) == [f"ra:{rnd['winner_plan_id']}:approve"
 for ph in (OWNER, STAFF1, STAFF2):
     assert "Approved" in tap(ph, f"ra:{rnd['winner_plan_id']}:approve")[2]
 dec = core.close_ratification(con, rnd["id"], rnd["winner_plan_id"])
-assert dec["verdict"] == "ratified" and dec["approvals"] == 3 and dec["eligible"] == 4, dec
+assert dec["verdict"] == "ratified" and dec["approvals"] == 3 and dec["eligible"] == 3, dec   # the treasurer isn't counted
 
 # --- notifications: inside the 24h window → text; outside → template -------------------------------------
 with db.tx(con): con.execute("UPDATE members SET wa_last_in_at=? WHERE wa_phone=?", (db.now() - 2 * 86400, STAFF2))

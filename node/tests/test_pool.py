@@ -110,14 +110,14 @@ core.submit_ratification(con, rnd["id"], b_team[0]["id"], win, "approve")
 dec = core.close_ratification(con, rnd["id"], win)
 assert dec["verdict"] == "ratified" and dec["eligible"] == 8 and dec["approvals"] == 6 and dec["rejections"] == 1, dec
 detail = db.j(dec["detail"], {})
-assert set(detail) == {"pool/a", "pool/b", "pool/c"} and detail["pool/c"] == {"name": "Pharmacy", "eligible": 3, "approvals": 2, "rejections": 1, "pct": 60, "ok": True}
+assert set(detail) == {"pool/a", "pool/b", "pool/c"} and detail["pool/c"] == {"name": "Pharmacy", "eligible": 3, "approvals": 2, "rejections": 1, "pct": 60, "ok": True, "voted": True}
 q = core.payout_queue(con, rnd["id"])
 assert q and sum(x["amount_paise"] for x in q) == 9000 * 100 and {x["payee_member_id"] for x in q} <= {a_team[0]["id"], c_owner["id"]}
 
 # export: per-child tallies, charter fields, contributions into the round, no identities
 ex = core.export_node(con, "pool")
 assert ex["node"]["pool_vote"] == "nodes" and ex["node"]["match_pct"] == 500 and len(ex["node"]["children"]) == 3
-assert ex["tallies"][0]["children"]["pool/b"] == {"eligible": 2, "approvals": 2, "rejections": 0, "pct": 60, "ok": True}
+assert {k: v for k, v in ex["tallies"][0]["children"]["pool/b"].items() if k != "voted"} == {"eligible": 2, "approvals": 2, "rejections": 0, "pct": 60, "ok": True}
 assert sum(c["amount"] for c in ex["contributions"] if c["to_round"] == rnd["id"]) == 1500 * 100
 assert "wa_phone" not in str(ex) and "9190000" not in str(ex)
 
@@ -161,3 +161,69 @@ assert [n["text"][:8] for n in core.needs_of(con, "pool2")] == ["A bigger"]   # 
 assert twin.draft_from_needs(con, "pool2") == []   # nothing left to group
 
 print("POOL OK · twin plain clustering · match 5x capped · cosign ×2 · one ballot per business · per-child ratification (one child blocks) · payouts · export with child tallies · advance · needs")
+
+# the majority rule: more than half of the businesses that voted pass; silence is neither; the treasurer is not a member
+core.create_node(con, "m", "Majority Pool", kind="pool", pool_vote="nodes", pool_ratify="majority")
+mt = person("mt"); core.join_node(con, "m", mt["id"], role="treasurer", auto_active=True)
+mo = {}
+for nid in ("m/x", "m/y", "m/z"):
+    core.create_node(con, nid, nid[-1].upper(), parent_id="m", ratify_pct=51)
+    with db.tx(con): con.execute("UPDATE nodes SET charter_at=? WHERE id=?", (db.now(), nid))
+    o = person(nid[-1] + "m"); core.join_node(con, nid, o["id"], role="coordinator", auto_active=True); mo[nid] = o
+    st = person(nid[-1] + "s"); core.join_node(con, nid, st["id"], auto_active=True); mo[nid + "/s"] = st
+    core.join_node(con, nid, mt["id"], role="treasurer", auto_active=True)   # as old seeds did: must not count
+assert len(core.eligible_members(con, "m/x")) == 2 and len(core.active_members(con, "m/x")) == 3
+rm = core.open_round(con, "m", 1000 * 100)
+pm = core.add_proposal(con, rm["id"], mo["m/x"]["id"], title="Tea", text="Tea.", ideal_paise=1000 * 100, lead_id=mo["m/x"]["id"])
+core.freeze_proposals(con, rm["id"])
+for nid in ("m/x", "m/y", "m/z"): core.submit_ballot(con, rm["id"], mo[nid]["id"], {pm["id"]: 100})
+core.compute_plans(con, rm["id"]); core.pick_winner(con, rm["id"]); rm = core.get_round(con, rm["id"]); w = rm["winner_plan_id"]
+# X: both approve (passes 51%); Y: one approves, one rejects (50% < 51%: fails); Z: silent
+core.submit_ratification(con, rm["id"], mo["m/x"]["id"], w, "approve"); core.submit_ratification(con, rm["id"], mo["m/x/s"]["id"], w, "approve")
+core.submit_ratification(con, rm["id"], mo["m/y"]["id"], w, "approve"); core.submit_ratification(con, rm["id"], mo["m/y/s"]["id"], w, "reject")
+t = core.ratification_tally(con, rm["id"], w)
+assert t["rule"] == "majority_of_voting_businesses" and t["businesses_voted"] == 2 and t["businesses_passed"] == 1 and not t["ok"], t   # 1 of 2 is not more than half
+core.submit_ratification(con, rm["id"], mo["m/y/s"]["id"], w, "approve")   # Y changes its mind: 2 of 2 voted pass; Z's silence is not a no
+t = core.ratification_tally(con, rm["id"], w); assert t["ok"] and t["businesses_voted"] == 2 and t["detail"]["m/z"]["voted"] is False, t
+dec = core.close_ratification(con, rm["id"], w); assert dec["verdict"] == "ratified" and dec["rule"] == "majority_of_voting_businesses"
+
+# the freeze guard: more than 16 eligible proposals cannot go to the ballot
+core.create_node(con, "big", "Big", kind="group")
+bm = [person("b" + str(i)) for i in range(2)]
+for m_ in bm: core.join_node(con, "big", m_["id"], auto_active=True)
+rb = core.open_round(con, "big", 1000 * 100)
+for i in range(17): core.add_proposal(con, rb["id"], bm[0]["id"], title=f"P{i}", text="x", ideal_paise=100 * 100, lead_id=bm[0]["id"])
+try:
+    core.freeze_proposals(con, rb["id"]); raise AssertionError("froze 17")
+except core.PBError as e:
+    assert e.code == "too_many_proposals" and "17" in e.detail
+assert core.get_round(con, rb["id"])["status"] == "proposals"
+
+# a vendor named on the proposal is paid directly; otherwise the lead is
+core.create_node(con, "v", "Vendor", kind="group")
+vm = [person("v" + str(i)) for i in range(3)]
+for m_ in vm: core.join_node(con, "v", m_["id"], auto_active=True)
+rv = core.open_round(con, "v", 1000 * 100)
+pv1 = core.add_proposal(con, rv["id"], vm[0]["id"], title="Fridge", text="x", ideal_paise=600 * 100, lead_id=vm[0]["id"], payee_upi="coldco@okaxis", payee_name="Cold Co")
+pv2 = core.add_proposal(con, rv["id"], vm[1]["id"], title="Sign", text="x", ideal_paise=400 * 100, lead_id=vm[1]["id"])
+try:
+    core.set_proposal_payee(con, pv2["id"], vm[0]["id"], upi="x@y"); raise AssertionError("not the lead")
+except core.PBError as e:
+    assert e.code == "not_yours"
+core.freeze_proposals(con, rv["id"])
+for m_ in vm: core.submit_ballot(con, rv["id"], m_["id"], {pv1["id"]: 60, pv2["id"]: 40})
+core.compute_plans(con, rv["id"]); core.pick_winner(con, rv["id"]); rv = core.get_round(con, rv["id"])
+for m_ in vm: core.submit_ratification(con, rv["id"], m_["id"], rv["winner_plan_id"], "approve")
+core.close_ratification(con, rv["id"], rv["winner_plan_id"])
+q = {x["title"]: x for x in core.payout_queue(con, rv["id"])}
+assert q["Fridge"]["kind"] == "vendor" and q["Fridge"]["payee_upi"] == "coldco@okaxis" and q["Sign"]["kind"] == "reimbursement" and q["Sign"]["payee_upi"] is None, q
+
+# db.tx rolls back on SystemExit too
+try:
+    with db.tx(con):
+        con.execute("INSERT INTO needs (id,node_id,member_id,text,status,created_at) VALUES ('n_exit','v',?, 'x','open',0)", (vm[0]["id"],))
+        raise SystemExit("allocator bailed")
+except SystemExit:
+    pass
+assert con.execute("SELECT 1 FROM needs WHERE id='n_exit'").fetchone() is None
+print("POOL OK · majority of voting businesses · treasurer not counted · freeze guard · vendor payee · tx rollback on exit")

@@ -66,13 +66,13 @@ def main() -> None:
     wipe(con, a.pool)
     stop = STAGES.index(a.stage)
 
-    pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote="nodes", cosign_min=2, match_pct=0)
+    pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote="nodes", cosign_min=2, match_pct=0, pool_ratify="majority")
     tre = core.upsert_member(con, verified_by="coordinator", telegram_id=a.treasurer_telegram or 1, display="treasurer")
     core.join_node(con, pool["id"], tre["id"], role="treasurer", auto_active=True)
     owners, nodes = {}, []
     for i, (name, people, need) in enumerate(BUSINESSES, 1):
         nid = f"{a.pool}/{slug(name)}"
-        core.create_node(con, nid, name, kind="group", parent_id=pool["id"])
+        core.create_node(con, nid, name, kind="group", parent_id=pool["id"], ratify_pct=51)
         with db.tx(con): con.execute("UPDATE nodes SET charter_at=? WHERE id=?", (db.now(), nid))
         nodes.append(nid)
         for k, person in enumerate(people):

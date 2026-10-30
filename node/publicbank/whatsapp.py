@@ -495,7 +495,7 @@ def propose_text(phone: str, m: dict, state: str, d: dict, text: str) -> None:
         v = parse_rupees(text)
         if v is None or v > d["ideal"]: sender.text(phone, f"A whole number of rupees from 0 to {d['ideal']}."); return
         d["min"] = v; set_state(phone, "p_lead", d)
-        sender.buttons(phone, "Will you lead it? The lead buys or organises it and is reimbursed against receipts.",
+        sender.buttons(phone, "Will you lead it? The lead organises it and names the vendor; the fund pays them directly.",
                        [("pl:y", "Yes, I'll lead"), ("pl:n", "No")])
     elif state == "p_upi":
         if text.lower() != "skip":
@@ -511,7 +511,7 @@ def propose_button(phone: str, m: dict, key: str, ans: str, d: dict) -> None:
         d["lead"] = ans == "y"
         if d["lead"] and not m.get("upi_id"):
             set_state(phone, "p_upi", d)
-            sender.text(phone, "Your UPI id, for the reimbursement (e.g. name@okaxis)? Only the treasurer sees it. Send skip to add it later."); return
+            sender.text(phone, "The vendor's UPI id, if you have a quote (e.g. shop@okaxis)? Only the treasurer sees it. Send skip to add it later."); return
         set_state(phone, "p_confirm", d)
         sender.buttons(phone, proposal_summary(d), [("pc:y", "Submit"), ("pc:n", "Cancel")])
     elif key == "pc":

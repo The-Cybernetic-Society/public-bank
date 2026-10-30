@@ -12,8 +12,8 @@ from . import core, db
 
 CHARTER = os.environ.get("PB_WA_CHARTER", (
     "One business, one vote. Businesses say what they need, back each other's proposals, and split 100 points "
-    "across them. Money moves only after 60% of businesses approve the plan, and every rupee is a purchase or "
-    "a reimbursement against a receipt. Anyone can check the decision record."))
+    "across them. A plan stands when most of the businesses that vote approve it. The fund then pays the vendor "
+    "directly, and every rupee is on a public board anyone can check."))
 
 RULE_NAMES = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Help the least served"}
 ERRORS = {
@@ -33,6 +33,7 @@ ERRORS = {
     "no_proposals": "Nothing is on the list yet, so the round can't move on.",
     "no_ballots": "No ballots are in yet, so the plans can't be computed.",
     "no_valid_plan": "No plan can spend the pot validly. Check the minimums against the budget.",
+    "too_many_proposals": "Too many proposals are eligible for one ballot. Withdraw or merge some before freezing.",
     "no_parent": "This node isn't in a pool.",
     "bad_amounts": "That amount doesn't work.",
 }
@@ -86,7 +87,7 @@ def parse_points(text: str, ids: list[str]) -> dict[str, int] | str:
 
 def proposal_summary(d: dict) -> str:
     return (f"{d['title']}\n{d['text']}\n\nIdeal {rupees(d['ideal'] * 100)}, minimum {rupees(d['min'] * 100)}\n"
-            + ("You lead it: you buy or organise it and are reimbursed against receipts." if d["lead"]
+            + ("You lead it: you organise it and name the vendor; the fund pays them directly." if d["lead"]
                else "No lead yet: it stays a draft, off the ballot, until someone agrees to lead it."))
 
 

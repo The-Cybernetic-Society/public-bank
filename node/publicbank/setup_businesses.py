@@ -58,7 +58,7 @@ def main() -> None:
     try:
         pool = core.get_node(con, a.pool)
     except core.PBError:
-        pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote=a.pool_vote, cosign_min=a.cosign_min, match_pct=a.match_pct)
+        pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote=a.pool_vote, cosign_min=a.cosign_min, match_pct=a.match_pct, pool_ratify="majority")
 
     treasurer = None
     if a.treasurer_telegram:
@@ -73,9 +73,7 @@ def main() -> None:
         while nid in seen or con.execute("SELECT 1 FROM nodes WHERE id=?", (nid,)).fetchone():
             nid = f"{a.pool}/{slug(n)}-{k}"; k += 1
         seen.add(nid)
-        core.create_node(con, nid, n, kind="group", parent_id=pool["id"])
-        if treasurer:
-            core.join_node(con, nid, treasurer["id"], role="treasurer", auto_active=True)
+        core.create_node(con, nid, n, kind="group", parent_id=pool["id"], ratify_pct=51)
         tok = core.mint_token(con, "join_coord", node_id=nid, ttl=TTL_WEEK)
         rows.append((n, nid, link(tok), f"{base}/j/{tok}/poster.png?via=wa"))
         print(f"{n:32s} {nid:48s} {rows[-1][2]}")

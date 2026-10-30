@@ -92,7 +92,13 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `/humans/me`, and dropped.
 - The MCP side never reads an agent's memory/context. Every write is confirmed by the human (see SKILL.md).
 - Exports carry no names, Telegram ids, EdgeOS ids, UPI ids or phone numbers; `applications` never leaves `/c/<pool>`.
-- Approval counts eligible members, not voters. Points sum to 100. Amounts are paise.
+- Approval counts eligible members, not voters (`eligible_members`: active, never a treasurer). Points sum to 100. Amounts are paise.
+- A pool's `pool_ratify`: `every` (each child must pass) or `majority` (more than half of the children that voted pass;
+  silence is neither). Children made by `apply`/the seeds use `ratify_pct=51`. Only verified businesses count
+  (`affected_children` drops children whose application is not `verified`): they can't ballot or decide until the
+  treasurer presses Verify. `freeze_proposals` refuses more than `MAX_PROPOSALS` (16, the allocator's exact limit).
+- The fund pays vendors directly: a proposal carries `payee_upi`/`payee_name`; the payout is `vendor` when set, else
+  the lead's UPI as a reimbursement. `db.tx` rolls back on BaseException.
 - No function in core trusts a caller-supplied identity; transports verify, core receives `member_id`.
 - Payouts are purchases or reimbursements against receipts, paid by a person tapping a link. The
   service never holds or moves money and never calls a bank.
@@ -128,7 +134,8 @@ gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=pu
 Deployed 30 Oct 2026: revision publicbank-00012 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
 the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
-at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers)
+at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers;
+set `pool_ratify='majority'` on prod after the deploy that adds the column)
 exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa (`PB_ALIASES`, default `goa=goa-business-commons`).
 Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oct at the proposals stage. It was made with
 `python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`

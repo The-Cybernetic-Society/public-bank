@@ -33,13 +33,19 @@ class PBError(Exception):
 # ----------------------------------------------------------------------------
 # nodes and rounds
 # ----------------------------------------------------------------------------
+MAX_PROPOSALS = 16   # cns_allocate's exact solvers stop here; the round must shortlist before the ballot
+
+
 def create_node(con, node_id: str, name: str, kind: str = "group", parent_id: str | None = None,
-                levy_pct: int = 0, ratify_pct: int = 60, pool_vote: str = "members", match_pct: int = 0, cosign_min: int = 0) -> dict:
+                levy_pct: int = 0, ratify_pct: int = 60, pool_vote: str = "members", match_pct: int = 0, cosign_min: int = 0,
+                pool_ratify: str = "every") -> dict:
     if pool_vote not in ("members", "nodes"):
         raise PBError("bad_pool_vote")
+    if pool_ratify not in ("every", "majority"):
+        raise PBError("bad_pool_ratify")
     with tx(con):
-        con.execute("INSERT INTO nodes (id,name,kind,parent_id,levy_pct,ratify_pct,pool_vote,match_pct,cosign_min,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                    (node_id, name, kind, parent_id, levy_pct, ratify_pct, pool_vote, match_pct, cosign_min, now()))
+        con.execute("INSERT INTO nodes (id,name,kind,parent_id,levy_pct,ratify_pct,pool_vote,match_pct,cosign_min,pool_ratify,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    (node_id, name, kind, parent_id, levy_pct, ratify_pct, pool_vote, match_pct, cosign_min, pool_ratify, now()))
     return get_node(con, node_id)
 
 
@@ -48,11 +54,12 @@ def children(con, node_id: str) -> list[dict]:
 
 
 def affected_children(con, node_id: str) -> list[dict]:
-    """The children whose ratification a pool decision needs: those that accepted the charter, or all of them
-    while none has (a pool seeded by hand)."""
+    """The children that count in a pool's votes: those that accepted the charter (or all, while none has: a pool
+    seeded by hand), minus any that registered on the form and have not been verified by the treasurer yet."""
     kids = children(con, node_id)
-    signed = [k for k in kids if k.get("charter_at")]
-    return signed or kids
+    signed = [k for k in kids if k.get("charter_at")] or kids
+    unverified = {a["node_id"] for a in rows(con.execute("SELECT node_id, status FROM applications WHERE pool_id=?", (node_id,)).fetchall()) if a["status"] != "verified"}
+    return [k for k in signed if k["id"] not in unverified]
 
 
 def get_node(con, node_id: str) -> dict:
@@ -224,6 +231,12 @@ def active_members(con, node_id: str) -> list[dict]:
                             (node_id,)).fetchall())
 
 
+def eligible_members(con, node_id: str) -> list[dict]:
+    """Who counts when a node approves a plan: its active members, not a treasurer who merely holds the pot."""
+    return rows(con.execute("SELECT m.* FROM members m JOIN memberships ms ON ms.member_id=m.id WHERE ms.node_id=? AND ms.status='active' AND ms.role!='treasurer'",
+                            (node_id,)).fetchall())
+
+
 def mint_token(con, kind: str, *, node_id: str | None = None, round_id: str | None = None, member_id: str | None = None,
                ttl: int = TOKEN_TTL_ACTION) -> str:
     t = secrets.token_urlsafe(24)
@@ -247,7 +260,8 @@ def read_token(con, token: str, kind: str, consume: bool = False) -> dict:
 # proposals and offers
 # ----------------------------------------------------------------------------
 def add_proposal(con, round_id: str, member_id: str, *, title: str, text: str, ideal_paise: int, min_paise: int = 0,
-                 lead_id: str | None = None, source: str = "human", cosign_nodes: list[str] | None = None) -> dict:
+                 lead_id: str | None = None, source: str = "human", cosign_nodes: list[str] | None = None,
+                 payee_upi: str = "", payee_name: str = "") -> dict:
     rnd = get_round(con, round_id)
     if rnd["status"] != "proposals":
         raise PBError("proposals_closed")
@@ -260,10 +274,10 @@ def add_proposal(con, round_id: str, member_id: str, *, title: str, text: str, i
         signs.append(via["id"])
     pid = new_id("p_")
     with tx(con):
-        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at,payee_upi,payee_name)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (pid, round_id, title.strip()[:120], text.strip()[:2000], min_paise, ideal_paise, lead_id, source,
-                     json.dumps(signs), _proposal_status(con, rnd["node_id"], lead_id, signs), member_id, now()))
+                     json.dumps(signs), _proposal_status(con, rnd["node_id"], lead_id, signs), member_id, now(), payee_upi.strip()[:80] or None, payee_name.strip()[:80] or None))
     return get_proposal(con, pid)
 
 
@@ -334,6 +348,8 @@ def freeze_proposals(con, round_id: str) -> list[dict]:
     props = eligible_proposals(con, round_id)
     if not props:
         raise PBError("no_proposals")
+    if len(props) > MAX_PROPOSALS:
+        raise PBError("too_many_proposals", f"{len(props)} eligible; at most {MAX_PROPOSALS} can go to the ballot. Withdraw or merge some first.")
     set_round_status(con, round_id, "ballots")
     return props
 
@@ -394,7 +410,7 @@ def can_ballot(con, rnd: dict, member_id: str) -> bool:
     if not via:
         return False
     if via["id"] != rnd["node_id"] and get_node(con, rnd["node_id"]).get("pool_vote") == "nodes":
-        return is_role(con, via["id"], member_id, ("coordinator",))
+        return is_role(con, via["id"], member_id, ("coordinator",)) and via["id"] in {k["id"] for k in affected_children(con, rnd["node_id"])}
     return True
 
 
@@ -404,8 +420,9 @@ def voters(con, rnd: dict) -> list[dict]:
     if not children(con, node["id"]):
         return active_members(con, node["id"])
     if node.get("pool_vote") == "nodes":
-        return rows(con.execute("""SELECT DISTINCT m.* FROM members m JOIN memberships ms ON ms.member_id=m.id JOIN nodes n ON n.id=ms.node_id
-                                   WHERE n.parent_id=? AND ms.role='coordinator' AND ms.status='active'""", (node["id"],)).fetchall())
+        ok = {k["id"] for k in affected_children(con, node["id"])}
+        return [v for v in rows(con.execute("""SELECT DISTINCT m.*, ms.node_id AS via FROM members m JOIN memberships ms ON ms.member_id=m.id JOIN nodes n ON n.id=ms.node_id
+                                   WHERE n.parent_id=? AND ms.role='coordinator' AND ms.status='active'""", (node["id"],)).fetchall()) if v.pop("via") in ok]
     return tree_members(con, node["id"])
 
 
@@ -561,12 +578,20 @@ def ratification_tally(con, round_id: str, plan_id: str) -> dict:
         return {"eligible": len(ids), "approvals": a, "rejections": r, "pct": pct, "ok": len(ids) > 0 and a * 100 >= pct * len(ids)}
 
     if not kids:
-        t = tally(active_members(con, node["id"]), node["ratify_pct"])
+        t = tally(eligible_members(con, node["id"]), node["ratify_pct"])
         return {**t, "rule": f"approval_{node['ratify_pct']}", "detail": None}
-    detail = {k["id"]: {"name": k["name"], **tally(active_members(con, k["id"]), k["ratify_pct"])} for k in kids}
-    return {"eligible": sum(d["eligible"] for d in detail.values()), "approvals": sum(d["approvals"] for d in detail.values()),
-            "rejections": sum(d["rejections"] for d in detail.values()), "pct": node["ratify_pct"],
-            "ok": bool(detail) and all(d["ok"] for d in detail.values()), "rule": "every_child_ratifies", "detail": detail}
+    detail = {k["id"]: {"name": k["name"], **tally(eligible_members(con, k["id"]), k["ratify_pct"])} for k in kids}
+    for d in detail.values():
+        d["voted"] = (d["approvals"] + d["rejections"]) > 0
+    base = {"eligible": sum(d["eligible"] for d in detail.values()), "approvals": sum(d["approvals"] for d in detail.values()),
+            "rejections": sum(d["rejections"] for d in detail.values()), "pct": node["ratify_pct"], "detail": detail}
+    if node.get("pool_ratify") == "majority":
+        # more than half of the businesses that voted pass their own threshold; silence is neither a yes nor a no
+        voted = [d for d in detail.values() if d["voted"]]
+        passed = sum(1 for d in voted if d["ok"])
+        return {**base, "ok": bool(voted) and passed * 2 > len(voted), "rule": "majority_of_voting_businesses",
+                "businesses_voted": len(voted), "businesses_passed": passed, "businesses": len(detail)}
+    return {**base, "ok": bool(detail) and all(d["ok"] for d in detail.values()), "rule": "every_child_ratifies"}
 
 
 def close_ratification(con, round_id: str, plan_id: str) -> dict:
@@ -587,9 +612,10 @@ def close_ratification(con, round_id: str, plan_id: str) -> dict:
             for pid, amt in j(plan["amounts"], {}).items():
                 if amt <= 0: continue
                 p = get_proposal(con, pid)
-                con.execute("""INSERT INTO payouts (id,round_id,proposal_id,payee_member_id,amount_paise,kind,status,created_at)
-                               VALUES (?,?,?,?,?,?,?,?)""",
-                            (new_id("pay_"), round_id, pid, p["lead_id"], amt, "reimbursement", "queued", now()))
+                vendor = (p.get("payee_upi") or "").strip()
+                con.execute("""INSERT INTO payouts (id,round_id,proposal_id,payee_member_id,payee_upi,amount_paise,kind,status,created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?)""",
+                            (new_id("pay_"), round_id, pid, p["lead_id"], vendor or None, amt, "vendor" if vendor else "reimbursement", "queued", now()))
     return row(con.execute("SELECT * FROM decisions WHERE id=?", (did,)).fetchone())
 
 
@@ -666,6 +692,16 @@ def upi_link(pa: str, amount_paise: int, note: str, pn: str = "") -> str:
     from urllib.parse import quote
     am = f"{amount_paise // 100}.{amount_paise % 100:02d}"
     return f"upi://pay?pa={quote(pa)}&pn={quote(pn or 'Public Bank')}&am={am}&cu=INR&tn={quote(note[:50])}"
+
+
+def set_proposal_payee(con, pid: str, member_id: str, *, upi: str, name: str = "") -> dict:
+    """The lead names the vendor the treasurer will pay directly."""
+    p = get_proposal(con, pid)
+    if p["lead_id"] != member_id:
+        raise PBError("not_yours")
+    with tx(con):
+        con.execute("UPDATE proposals SET payee_upi=?, payee_name=? WHERE id=?", (upi.strip()[:80] or None, name.strip()[:80] or None, pid))
+    return get_proposal(con, pid)
 
 
 def set_payee(con, payout_id: str, *, upi: str | None = None, kind: str | None = None) -> None:
@@ -787,9 +823,7 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
                 add_need(con, cur["node_id"], m["member_id"], need.strip()[:500])
         return cur
     nid = unique_node_id(con, f"{pool['id']}/{slugify(business)}")
-    create_node(con, nid, business, kind="group", parent_id=pool["id"])
-    for t in rows(con.execute("SELECT member_id FROM memberships WHERE node_id=? AND role='treasurer' AND status='active'", (pool["id"],)).fetchall()):
-        join_node(con, nid, t["member_id"], role="treasurer", auto_active=True)
+    create_node(con, nid, business, kind="group", parent_id=pool["id"], ratify_pct=51)
     tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
     aid = new_id("a_")
     with tx(con):

@@ -172,7 +172,7 @@ def poster(token: str, via: str = ""):
     y = 1070
     for line, f in [(parent["name"] if parent else "", med), (node["name"], big), ("", med),
                     ("Scan to join on WhatsApp." if via == "wa" else "Scan to join your budget round.", med), ("Propose · vote · approve.", med),
-                    ("Money moves only after 60% of members approve.", med), ("", med), (BASE_URL.replace("https://", "").replace("http://", ""), med)]:
+                    ("The fund pays the vendor once the plan is approved.", med), ("", med), (BASE_URL.replace("https://", "").replace("http://", ""), med)]:
         if line:
             d.text((120, y), line, fill="black", font=f)
         y += 70 if f is big else 56
@@ -373,7 +373,7 @@ def node_page(node_id: str, request: Request):
         <input name=title placeholder='What (e.g. water filter for the hall)' required maxlength=120>
         <textarea name=text placeholder='Who it's for, why, what it needs' rows=3 required></textarea>
         <div class=row><label>Ideal ₹<input name=ideal type=number min=1 required></label><label>Minimum ₹<input name=min type=number min=0 value=0></label></div>
-        <input name=upi placeholder='Your UPI ID (only if you lead and will be reimbursed)'>
+        <input name=upi placeholder='The vendor&#39;s UPI id, if you have a quote (optional)'>
         <label><input type=checkbox name=lead checked style='width:auto'> I'll lead this if it's funded</label>
         <button>Submit proposal</button></form>"""
     elif rnd["status"] == "ballots":
@@ -415,10 +415,8 @@ def node_page(node_id: str, request: Request):
 def propose(node_id: str, request: Request, title: str = Form(...), text: str = Form(""), ideal: int = Form(...), min: int = Form(0), upi: str = Form(""), lead: str | None = Form(None), next: str = ""):
     m = _require(request); rnd = core.current_round(con, node_id)
     if not rnd: raise HTTPException(400, "no open round")
-    if upi.strip():
-        with db.tx(con): con.execute("UPDATE members SET upi_id=? WHERE id=?", (upi.strip(), m["id"]))
     try:
-        core.add_proposal(con, rnd["id"], m["id"], title=title, text=text or title, ideal_paise=ideal * 100, min_paise=min * 100, lead_id=m["id"] if lead else None)
+        core.add_proposal(con, rnd["id"], m["id"], title=title, text=text or title, ideal_paise=ideal * 100, min_paise=min * 100, lead_id=m["id"] if lead else None, payee_upi=upi)
     except core.PBError as e:
         raise HTTPException(400, e.code)
     return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
@@ -511,10 +509,18 @@ def applications_csv(node_id: str, request: Request):
     return Response(buf.getvalue(), media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={node_id.replace('/', '-')}-registrations.csv"})
 
 
+def _runs(node_id: str, member_id: str) -> bool:
+    """Coordinators and treasurers of the node, and the treasurer of its pool."""
+    if core.is_role(con, node_id, member_id, ("coordinator", "treasurer")):
+        return True
+    node = core.get_node(con, node_id)
+    return bool(node.get("parent_id")) and core.is_role(con, node["parent_id"], member_id, ("treasurer",))
+
+
 @app.get("/c/{node_id:path}")
 def coordinate(node_id: str, request: Request):
     m = _require(request)
-    if not core.is_role(con, node_id, m["id"], ("coordinator", "treasurer")): raise HTTPException(403)
+    if not _runs(node_id, m["id"]): raise HTTPException(403)
     pend = db.rows(con.execute("SELECT m.id, m.display, m.verified_by, ms.status FROM memberships ms JOIN members m ON m.id=ms.member_id WHERE ms.node_id=? ORDER BY ms.status, ms.joined_at", (node_id,)).fetchall())
     rnd = core.current_round(con, node_id)
     body = "<h2>Members</h2><table><tr><th>Who</th><th>Verified by</th><th>Status</th><th></th></tr>"
@@ -604,7 +610,7 @@ def advance(node_id: str, request: Request, step: str = Form("")):
 ANNOUNCE = {
     "freeze": ("Proposals are frozen in {node}. Ballots are open: split 100 points across the items. {cmd}\n{url}", "/ballot", "VOTE"),
     "compute": ("The plans for {node} are ready. See where your equal share went and rank the candidates. {cmd}\n{url}", "/rank", "RANK"),
-    "winner": ("A winning plan was picked for {node}. Please approve or reject it; 60% of members must approve before any money moves. {cmd}\n{url}", "/approve", "APPROVE"),
+    "winner": ("A winning plan was picked for {node}. Please approve or reject it; nothing is paid until the plan is approved. {cmd}\n{url}", "/approve", "APPROVE"),
     "close": ("The round in {node} is decided. Open the page for the result.{cmd}\n{url}", "", ""),
 }
 
@@ -651,7 +657,7 @@ def treasury(request: Request):
         pa = x["payee_upi"] or x["lead_upi"] or ""
         link = core.upi_link(pa, x["amount_paise"], f"{x['round_id']} {x['title']}") if pa else ""
         body += f"<tr><td>{esc(x['round_id'])}</td><td>{esc(x['title'])}</td><td>{_rupees(x['amount_paise'])}</td><td>{esc(pa) or '<i>no UPI yet</i>'}</td><td>{'<a href=\"' + esc(link) + '\">Pay in UPI app</a>' if link else ''}<form method=post action='/treasury/paid' style='margin:0'><input type=hidden name=payout_id value='{esc(x['id'])}'><input name=reference placeholder='UPI/IMPS ref' required><button>Paid</button></form></td></tr>"
-    body += "</table><p class=muted>Each payout is a purchase or a reimbursement against a receipt. Put the round id in the UPI remark.</p>"
+    body += "</table><p class=muted>Each payout goes to the vendor named on the proposal, or to the lead if none was named. Put the round id in the UPI remark.</p>"
     return page("Treasury · payout queue", body)
 
 
@@ -979,6 +985,7 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
             f"<label>What <input name=title required maxlength=120 placeholder='A shared delivery scooter for the market lane'></label>"
             f"<label>About how much, in rupees <input name=ideal type=number inputmode=numeric min=1 required placeholder='60000'></label>"
             f"<label>A line on how it would be shared <input name=text maxlength=500></label>"
+            f"<label>The vendor's UPI id, if you have a quote <span class=hint>Optional. The fund pays them directly once the plan is approved.</span><input name=upi maxlength=80 placeholder='shop@okaxis'></label>"
             f"<input type=hidden name=lead value=on><button>Propose it, I'll lead it</button></form></details></div>")
     out += """<script>(function(){document.querySelectorAll('.prop form').forEach(function(f){f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button'),row=f.closest('.prop');b.disabled=true;b.textContent='…';
 fetch(f.action,{method:'POST',body:new FormData(f),headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.json().then(function(j){return [r.ok,j]})}).then(function(x){var ok=x[0],j=x[1];
@@ -1035,7 +1042,7 @@ def start_done(node_id: str, request: Request):
                  f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
         body += _table_card(node, parent, m, f"/start/{node['id']}/done")
         body += (f"<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
-                 f"then every business gets 100 points to split across the list. Winning items are bought against receipts, and every rupee is on the "
+                 f"then every business gets 100 points to split across the list. The fund pays the vendors directly, and every rupee is on the "
                  f"<a href='/b/{esc(parent['id']) if parent else esc(node['id'])}'>live board</a>.</p><p><a href='/me'>Your nodes</a> · <a href='/c/{esc(node['id'])}'>Your business</a></p></div>")
     return page("You're in", body)
 

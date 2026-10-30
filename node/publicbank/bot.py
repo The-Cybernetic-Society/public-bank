@@ -247,7 +247,7 @@ async def propose_text(update: Update, m: dict, state: str, d: dict, text: str) 
         v = parse_rupees(text)
         if v is None or v > d["ideal"]: await reply(f"A whole number of rupees from 0 to {d['ideal']}."); return
         d["min"] = v; set_state(tg, "p_lead", d)
-        await reply("Will you lead it? The lead buys or organises it and is reimbursed against receipts.",
+        await reply("Will you lead it? The lead organises it and names the vendor; the fund pays them directly.",
                     reply_markup=yes_no("pl", "Yes, I'll lead", "No"))
     elif state == "p_upi":
         if text.lower() != "skip":
@@ -263,7 +263,7 @@ async def propose_button(update: Update, m: dict, key: str, ans: str, d: dict) -
         d["lead"] = ans == "y"
         if d["lead"] and not m["upi_id"]:
             set_state(tg, "p_upi", d)
-            await reply("Your UPI id, for the reimbursement (e.g. name@okaxis)? Only the treasurer sees it. Send skip to add it later."); return
+            await reply("The vendor's UPI id, if you have a quote (e.g. shop@okaxis)? Only the treasurer sees it. Send skip to add it later."); return
         set_state(tg, "p_confirm", d)
         await reply(proposal_summary(d), reply_markup=yes_no("pc", "Submit", "Cancel"))
     elif key == "pc":

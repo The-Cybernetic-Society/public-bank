@@ -43,7 +43,7 @@ assert C.post("/c/goa-2026/res-a/advance", data={"step": "winner"}).status_code 
 assert "Approve the winning plan" in resid[0].get("/n/goa-2026/res-a").text
 for c in resid[:5]: assert c.post("/n/goa-2026/res-a/approve", data={"verdict": "approve"}).status_code == 303
 assert C.post("/c/goa-2026/res-a/advance", data={"step": "close"}).status_code == 303
-d = db.row(con.execute("SELECT * FROM decisions").fetchone()); assert d["verdict"] == "ratified" and d["approvals"] == 5 and d["eligible"] == 8
+d = db.row(con.execute("SELECT * FROM decisions").fetchone()); assert d["verdict"] == "ratified" and d["approvals"] == 5 and d["eligible"] == 7   # the treasurer holds the pot, not a vote
 T = client(tre["id"]); assert "upi://pay?pa=lead0%40upi" in T.get("/treasury").text
 pid = db.row(con.execute("SELECT id FROM payouts LIMIT 1").fetchone())["id"]
 pp = T.get(f"/pay/{pid}"); assert pp.status_code == 200 and "upi://pay?pa=lead" in pp.text and "Open UPI app" in pp.text, pp.text[-400:]
