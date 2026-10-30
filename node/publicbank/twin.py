@@ -27,7 +27,7 @@ log = logging.getLogger("publicbank.twin")
 DEFAULT_IDEAL_RUPEES = int(os.environ.get("PB_TWIN_IDEAL_RUPEES", "10000"))   # per business in the group, before the model refines it
 MODEL = "claude-opus-5-5"
 BATCH = int(os.environ.get("PB_TWIN_BATCH", "60"))   # needs per model call; above this the twin drafts in batches
-MAX_SHARE = float(os.environ.get("PB_TWIN_MAX_SHARE", "0.2"))   # no single draft may ask for more than this share of the pot
+MAX_SHARE = float(os.environ.get("PB_TWIN_MAX_SHARE", "0.5"))   # no single draft may ask for more than this share of the pot
 STOP = set("""a an the and or of for to in on at with by from is are be was were we our us i my me it its this that these those
 need needs needed want wants wanted some more one two three new up down out over get got have has had also just
 like would could should can will do does not no yes very really too so but if then than there here when where
@@ -116,7 +116,7 @@ def cluster_llm(con, needs: list[dict], drafts: list[dict], min_nodes: int, rnd:
         pot = int(rnd["budget_paise"] // 100) if rnd else 0
         n_biz = len(core.children(con, rnd["node_id"])) if rnd else len({n["node_id"] for n in needs})
         money = (f" The whole fund is ₹{pot:,} for about {max(n_biz, 1)} businesses, so one proposal should rarely ask for more than a "
-                 f"tenth of it and never more than ₹{int(pot * MAX_SHARE):,}. Price what one shared item actually costs in Goa: a second-hand "
+                 f"tenth of it and never more than ₹{int(pot * MAX_SHARE):,}. Give ideal_rupees only; minimums are not used. Price what one shared item actually costs in Goa: a second-hand "
                  "delivery scooter ₹40,000–60,000, a billing software licence ₹5,000–15,000 a year, a commercial fridge ₹30,000–80,000, "
                  "a trainer for two days ₹10,000–25,000, bins and signage for a lane ₹10,000–30,000.") if pot else ""
         system = ("You turn the stated needs of small businesses in Goa, India into draft proposals for a shared fund: things "
@@ -213,7 +213,7 @@ def _draft_batch(con, rnd: dict, needs: list[dict], min_nodes: int, dry_run: boo
             continue
         text = g["text"] if g["text"] and g["text"].startswith("Suggested") else (g["text"] + "\n\n" + describe(members)).strip()
         cap = max(1, int(rnd["budget_paise"] // 100 * MAX_SHARE))   # a hard ceiling whatever the model or the default said
-        ideal = min(max(1, int(g["ideal"])), cap); mn = min(max(0, int(g["min"])), ideal)
+        ideal = min(max(1, int(g["ideal"])), cap); mn = 0   # twin drafts carry no minimum: any amount helps, the lead decides later
         if dry_run:
             drafts.append({"title": g["title"], "text": text, "ideal_paise": ideal * 100, "min_paise": mn * 100, "needs": len(members)})
             continue
