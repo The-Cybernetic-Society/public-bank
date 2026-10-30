@@ -944,7 +944,11 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     if a["status"] == "new":
         m = core.enter_from_application(con, a["id"])
         return _set_session(RedirectResponse(f"/start/{a['node_id']}/values", status_code=303), m["id"])
-    # the same number again, after already joining: just say so
+    # the same number again, after already joining: back into that business's flow if this browser runs it
+    m = _member(request)
+    if m and core.is_role(con, a["node_id"], m["id"], ("coordinator",)):
+        return page("Already registered", f"<p><b>{esc(a['business'])}</b> is already set up on this phone.</p>"
+                                          f"<form method=get action='/start/{esc(a['node_id'])}/done'><button>Continue where you left off</button></form>")
     return page("Already registered", f"<p><b>{esc(a['business'])}</b> is already set up. Open the link we sent you, or ask in the group.</p>")
 
 
