@@ -1041,9 +1041,8 @@ def start_done(node_id: str, request: Request):
                  f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
                  f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
         body += _table_card(node, parent, m, f"/start/{node['id']}/done")
-        body += (f"<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
-                 f"then every business gets 100 points to split across the list. The fund pays the vendors directly, and every rupee is on the "
-                 f"<a href='/b/{esc(parent['id']) if parent else esc(node['id'])}'>live board</a>.</p><p><a href='/me'>Your nodes</a> · <a href='/c/{esc(node['id'])}'>Your business</a></p></div>")
+        body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
+                 "then every business gets 100 points to split across the list.</p><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p></div>")
     return page("You're in", body)
 
 
