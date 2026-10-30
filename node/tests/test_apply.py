@@ -52,10 +52,10 @@ assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=Fal
 # step 2: sliders; a stranger can't see them
 r = R.get("/start/commons/mandrem-tailors/values"); assert r.status_code == 200 and r.text.count("type=range") == 5 and "What matters" in r.text
 assert client().get("/start/commons/mandrem-tailors/values").status_code == 401
-r = R.post("/start/commons/mandrem-tailors/values", data={"offseason": "9", "admin": "3", "reach": "7", "staff": "5", "goa": "10"})
+r = R.post("/start/commons/mandrem-tailors/values", data={"earn": "9", "horizon": "3", "scope": "7", "means": "5", "risk": "10"})
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
-vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"offseason": 9, "admin": 3, "reach": 7, "staff": 5, "goa": 10} and vv[0]["node_name"] == "Mandrem Tailors"
-R.post("/start/commons/mandrem-tailors/values", data={"offseason": "1"}); assert core.values_of(con, "commons")[0]["vector"]["offseason"] == 1 and len(core.values_of(con, "commons")) == 1
+vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"earn": 9, "horizon": 3, "scope": 7, "means": 5, "risk": 10} and vv[0]["node_name"] == "Mandrem Tailors"
+R.post("/start/commons/mandrem-tailors/values", data={"earn": "1"}); assert core.values_of(con, "commons")[0]["vector"]["earn"] == 1 and len(core.values_of(con, "commons")) == 1
 # step 3: the charter, then the team link
 r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "How Goa Business Commons works" in r.text and "I'm in" in r.text and "/j/" not in r.text
 assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
@@ -169,25 +169,28 @@ assert S2.post(f"/n/commons/cosign?next=/start/{pid2}/done", data={"pid": pid}).
 assert "backed ✓" in S2.get(f"/start/{pid2}/done").text and db.row(con.execute("SELECT status FROM proposals WHERE id=?", (pid,)).fetchone())["status"] == "eligible"
 print("APPLY OK · on the table")
 
-# personalised order: a business that cares about reach and needs a scooter sees the scooter first, marked for them;
-# one that cares about admin and needs billing sees billing first
+# personalised order: a business leaning "earn more / things" sees the scooter first, marked for them;
+# one leaning "spend less / proven" sees billing first
 from publicbank import twin  # noqa: E402
-t = twin.tags_for("A shared delivery scooter for the market lane, orders to customers at home"); assert t["reach"] == 1.0 and t["admin"] < t["reach"], t
-t = twin.tags_for("One GST billing and stock software licence for several shops"); assert t["admin"] == 1.0 and t["reach"] < 1.0, t
-assert twin.tags_for("zzz") == {k: 0.0 for k in twin.TAG_WORDS}
+t = twin.tags_for("A shared delivery scooter for the market lane, orders to customers at home"); assert t["earn"] < 0 and t["means"] < 0, t
+t = twin.tags_for("One GST billing and stock software licence for several shops"); assert t["earn"] > 0 and t["risk"] < 0, t
+t = twin.tags_for("Try an AI tool for Instagram posts"); assert t["risk"] > 0 and t["earn"] < 0, t
+t = twin.tags_for("zzz"); assert all(v == 0 for k, v in t.items() if k != "_conf") and not any(t["_conf"].values())
 R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "GST billing software licence for several shops", "ideal": "20000", "text": "One licence, shared.", "lead": "on"})
 R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "Beach clean-up kit and bins for the lane", "ideal": "15000", "text": "", "lead": "on"})
 allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd2["id"],)).fetchall())
-R.post("/start/commons/mandrem-tailors/values", data={"offseason": "5", "admin": "2", "reach": "10", "staff": "3", "goa": "2"})
-order = [p["title"] for p in twin.rank_for(con, "commons/mandrem-tailors", allp)]
-assert order[0] == "A shared delivery scooter" and twin.rank_for(con, "commons/mandrem-tailors", allp)[0]["suggested"], order
-S2.post(f"/start/{pid2}/values", data={"offseason": "3", "admin": "10", "reach": "2", "staff": "3", "goa": "2"})
+R.post("/start/commons/mandrem-tailors/values", data={"earn": "1", "horizon": "5", "scope": "2", "means": "1", "risk": "5"})
+ranked = twin.rank_for(con, "commons/mandrem-tailors", allp); order = [p["title"] for p in ranked]
+assert order[0] == "A shared delivery scooter" and ranked[0]["suggested"], order
+S2.post(f"/start/{pid2}/values", data={"earn": "10", "horizon": "5", "scope": "2", "means": "1", "risk": "1"})
 order2 = [p["title"] for p in twin.rank_for(con, pid2, allp)]
 assert order2[0].startswith("GST billing"), order2
 r = S2.get(f"/start/{pid2}/done"); assert r.text.index("GST billing") < r.text.index("A shared delivery scooter") and "The ten that fit" in r.text
 assert "for you" in R.get("/start/commons/mandrem-tailors/done").text
 # a business with no sliders yet gets the neutral vector and still a stable order
 assert len(twin.rank_for(con, b2["node_id"], allp)) == 3
+# the slider page shows poles, not a 1-10 scale
+r = R.get("/start/commons/mandrem-tailors/values"); assert "Earn more" in r.text and "Spend less" in r.text and "The whole lane" in r.text and "not at all" not in r.text
 print("APPLY OK · personalised order")
 # backing from the page script answers JSON and the row updates without a reload
 pid3 = next(p["id"] for p in allp if p["title"].startswith("GST billing"))

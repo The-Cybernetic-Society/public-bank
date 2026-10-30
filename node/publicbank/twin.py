@@ -174,30 +174,44 @@ if __name__ == "__main__":
 # ----------------------------------------------------------------------------
 # what a draft is about, and which drafts a business should see first
 # ----------------------------------------------------------------------------
-TAG_WORDS = {   # five-letter stems, matching words(); the dimensions are core.VALUE_DIMENSIONS
-    "offseason": ["seaso", "monso", "winte", "offse", "off-s", "incom", "stead", "quiet", "slow", "regul", "year-", "local", "resid"],
-    "admin": ["billi", "invoi", "gst", "accou", "stock", "inven", "booki", "softw", "licen", "payme", "paper", "compl", "tally", "recor"],
-    "reach": ["deliv", "scoot", "onlin", "websi", "insta", "googl", "order", "custo", "marke", "promo", "reach", "found", "phone", "whats", "sign"],
-    "staff": ["staff", "train", "hire", "worke", "team", "skill", "cours", "learn", "emplo", "appre", "cook", "chef", "guide", "assis"],
-    "goa": ["clean", "waste", "plast", "beach", "green", "recyc", "traff", "parki", "water", "solar", "tree", "compo", "garba", "commu"],
+TAG_WORDS = {   # per axis: (stems pulling to the left pole, stems pulling to the right pole); five-letter stems like words()
+    "earn": (["custo", "order", "deliv", "sale", "sell", "marke", "promo", "reach", "onlin", "insta", "websi", "touri", "book", "incom", "reven", "footf"],
+             ["billi", "invoi", "gst", "accou", "stock", "inven", "softw", "licen", "payme", "paper", "cost", "save", "cheap", "time", "admin", "elect", "solar", "rent"]),
+    "horizon": (["seaso", "peak", "decem", "chris", "this", "now", "month", "week", "event", "festi", "diwal", "summe"],
+                ["fridg", "cold", "store", "scoot", "van", "machi", "equip", "build", "roof", "solar", "year", "asset", "perma", "invest", "websi"]),
+    "scope": (["my", "our", "shop", "own", "licen", "billi", "accou", "fridg", "sign", "stock"],
+              ["lane", "beach", "road", "villa", "all", "every", "share", "commo", "clean", "waste", "plast", "green", "traff", "parki", "water", "commu", "touri", "goa", "mandr", "ashve", "morji", "aramb"]),
+    "means": (["scoot", "fridg", "cold", "machi", "equip", "softw", "licen", "bins", "kit", "van", "oven", "print", "solar", "sign", "websi", "phone", "table", "chair", "tent"],
+              ["train", "trainer", "cours", "teach", "staff", "hire", "worke", "cook", "chef", "guide", "assis", "skill", "learn", "coach", "consu", "perso", "someo", "rider"]),
+    "risk": (["billi", "gst", "fridg", "scoot", "cold", "stock", "sign", "bins", "clean", "tally", "van", "oven", "print"],
+             ["ai", "chatg", "app", "onlin", "insta", "digit", "new", "exper", "try", "pilot", "autom", "robot", "websi", "drone", "qr", "crypt"]),
 }
 
 
 def tags_for(text: str) -> dict[str, float]:
-    """How much a text is about each dimension, 0..1: the share of its tag hits per dimension, so a text about
-    delivery and staff splits between 'reach' and 'staff'. All zeros when nothing matches."""
+    """Where a text sits on each axis, -1 (left pole) .. +1 (right pole); 0 when it says nothing on that axis.
+    Also returns `_conf`: which axes it spoke to, so the fit can ignore the silent ones."""
     w = words(text)
-    raw = {}
-    for dim, stems in TAG_WORDS.items():
-        hits = sum(1 for st in stems if any(x.startswith(st) or st.startswith(x) for x in w))
-        raw[dim] = hits
-    top = max(raw.values()) or 1
-    return {d: round(v / top, 3) for d, v in raw.items()}
+    low = text.lower()
+    out, conf = {}, {}
+    for axis, (left, right) in TAG_WORDS.items():
+        def hits(stems):
+            return sum(1 for st in stems if (len(st) >= 4 and any(x.startswith(st) or st.startswith(x) for x in w)) or (len(st) < 4 and re.search(r"\b" + re.escape(st) + r"\b", low)))
+        l, r = hits(left), hits(right)
+        out[axis] = round((r - l) / (r + l), 3) if (r + l) else 0.0
+        conf[axis] = 1 if (r + l) else 0
+    out["_conf"] = conf
+    return out
+
+
+def position(v: int | float) -> float:
+    """A slider value 1..10 as -1..+1."""
+    return (float(v) - 5.5) / 4.5
 
 
 def business_vector(con, node_id: str) -> dict[str, int]:
     vv = core.values_of(con, node_id, include_children=False)
-    return vv[-1]["vector"] if vv else {k: 5 for k, _, _ in core.VALUE_DIMENSIONS}
+    return vv[-1]["vector"] if vv else {k: 5 for k, *_ in core.VALUE_DIMENSIONS}
 
 
 def rank_for(con, node_id: str, proposals: list[dict], limit: int = 10) -> list[dict]:
@@ -211,7 +225,9 @@ def rank_for(con, node_id: str, proposals: list[dict], limit: int = 10) -> list[
     out = []
     for i, p in enumerate(proposals):
         t = tags_for(p["title"] + " " + (p.get("text") or ""))
-        fit = sum(t[d] * vec.get(d, 5) / 10 for d in t) / max(1, sum(1 for v in t.values() if v))
+        spoke = [d for d, c in t["_conf"].items() if c]
+        # closeness on the axes the proposal speaks to: 1 when it sits where the business leans, 0 at the opposite pole
+        fit = (sum(1 - abs(position(vec.get(d, 5)) - t[d]) / 2 for d in spoke) / len(spoke)) if spoke else 0.5
         overlap = len(need_w & words(p["title"] + " " + (p.get("text") or "")))
         mine = node["name"] in (p.get("text") or "")   # the twin names the businesses whose needs it grouped
         suggested = mine or overlap >= 2

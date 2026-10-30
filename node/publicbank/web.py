@@ -114,8 +114,8 @@ table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",mono
 button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
-.slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--p:44%}
-.slider input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--gold) var(--p),var(--line) var(--p))}.slider input::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}.slider input::-moz-range-progress{height:6px;border-radius:3px;background:var(--gold)}
+.slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--a:50%;--b:50%}.poles{display:flex;justify-content:space-between;font-weight:500;color:var(--ink)}.poleword{text-align:center;margin:2px 0 6px}.poleword output{font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:6px 10px;border-radius:8px;display:inline-block;min-width:6ch}.axis .hint{margin-top:4px}
+.slider input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--line) var(--a),var(--gold) var(--a),var(--gold) var(--b),var(--line) var(--b))}.slider input::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}.slider input::-moz-range-progress{height:6px;border-radius:3px;background:var(--gold)}
 .slider input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-10px;border-radius:50%;background:var(--card);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--shadow);cursor:pointer;transition:transform .12s}.slider input::-webkit-slider-thumb:active{transform:scale(1.15)}.slider input::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--card);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--shadow)}
 .tick{width:64px;height:64px;margin:4px 0 12px}.tick svg{width:64px;height:64px;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.tick circle{stroke-dasharray:160;stroke-dashoffset:160;animation:draw .7s ease-out forwards}.tick path{stroke:#2f6b3f;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .5s ease-out forwards}
 @keyframes draw{to{stroke-dashoffset:0}}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -995,13 +995,16 @@ row.classList.add('did');if(j.status==='eligible'&&!row.querySelector('.tag.vote
 def start_values(node_id: str, request: Request):
     """Step 2: five sliders. The twin scores its drafts against these; asked again after a round."""
     node, m = _my_node_or_403(node_id, request)
-    body = _steps(1) + f"<p><b>{esc(node['name'])}</b> is registered. Two more minutes. For your business over the next year, how much would each of these matter?</p>"
+    body = _steps(1) + f"<p><b>{esc(node['name'])}</b> is registered. One more minute. Five trade-offs: slide towards whichever matters more for your business this year. The middle means either is fine.</p>"
     body += f"<form method=post action='/start/{esc(node_id)}/values'>"
-    for k, title, hint in core.VALUE_DIMENSIONS:
-        body += (f"<div class='card rise'><label for=v_{k}>{esc(title)} <span class=hint>{esc(hint)}</span></label>"
-                 f"<div class=slider><span class=lo>not at all</span><input id=v_{k} name={k} type=range min=1 max=10 value=5><span class=hi>the most</span><output for=v_{k}>5</output></div></div>")
+    for k, left, right, hint in core.VALUE_DIMENSIONS:
+        body += (f"<div class='card rise axis'><div class=poles><span class=pole>{esc(left)}</span><span class=pole>{esc(right)}</span></div>"
+                 f"<div class=slider><input id=v_{k} name={k} type=range min=1 max=10 value=5 aria-label='{esc(left)} or {esc(right)}'></div>"
+                 f"<div class=poleword><output for=v_{k} data-l='{esc(left)}' data-r='{esc(right)}'>either</output></div><span class=hint>{esc(hint)}</span></div>")
     body += "<button>Next</button></form>"
-    body += "<script>document.querySelectorAll('.slider input').forEach(function(i){var o=i.parentNode.querySelector('output');function f(){o.textContent=i.value;i.style.setProperty('--p',(i.value-1)/9*100+'%')}i.addEventListener('input',f);f()})</script>"
+    body += ("<script>document.querySelectorAll('.axis input').forEach(function(i){var o=i.closest('.axis').querySelector('output');function f(){var v=+i.value,c=(v-1)/9*100;"
+             "i.style.setProperty('--a',Math.min(c,50)+'%');i.style.setProperty('--b',Math.max(c,50)+'%');"
+             "o.textContent=v<=4?'\u2190 '+o.dataset.l+(v<=2?', strongly':''):v>=7?o.dataset.r+(v>=9?', strongly':'')+' \u2192':'either'}i.addEventListener('input',f);f()})</script>")
     return page("What matters to you", body)
 
 
@@ -1009,7 +1012,7 @@ def start_values(node_id: str, request: Request):
 async def start_values_post(node_id: str, request: Request):
     node, m = _my_node_or_403(node_id, request)
     form = await request.form()
-    core.set_values(con, node_id, m["id"], {k: form.get(k) for k, _, _ in core.VALUE_DIMENSIONS})
+    core.set_values(con, node_id, m["id"], {k: form.get(k) for k, *_ in core.VALUE_DIMENSIONS})
     return RedirectResponse(f"/start/{node_id}/done", status_code=303)
 
 

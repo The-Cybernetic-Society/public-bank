@@ -46,8 +46,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   makes the opener coordinator, copies the form's need into `needs` (`core.claim_application`), shows the pool
   charter to accept (`POST /n/<node>/charter`) and a `join_team` link that joins staff at once (a plain `join`
   link still needs approval). Since 30 Oct a submit signs the applicant in at once as coordinator (`verified_by='web'`,
-  `core.enter_from_application`) and walks them through `/start/<node>/values` (five sliders → `value_vectors`,
-  `core.VALUE_DIMENSIONS`, phase before/after: the twin's objective and the outcome baseline) and `/start/<node>/done`
+  `core.enter_from_application`) and walks them through `/start/<node>/values` (five TRADE-OFF sliders → `value_vectors`,
+  `core.VALUE_DIMENSIONS`: earn more↔spend less, this season↔the long run, my business↔the whole lane, things↔people,
+  proven↔new; 1 = left pole, 10 = right, phase before/after: the twin's objective and the outcome baseline) and `/start/<node>/done`
   (charter, team link). Verification is post-hoc: `/c/<pool>` shows new/joined/verified with a Verify button.
   Pages share one look (`CSS`, `FONTS`: Newsreader, Silkscreen, Plex Mono; motion off under reduced-motion).
 - `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
@@ -64,8 +65,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
   to the plain path. Only need texts and business names go out. Drafts have no lead and no signatures.
-  `tags_for` scores a text on the five value dimensions by keyword stems; `rank_for(con, node_id, proposals)` orders
-  proposals for one business from its slider vector and its need (`suggested` = built from or like its need). The
+  `tags_for` places a text on each axis (-1..+1, left/right stem lists in `TAG_WORDS`, `_conf` says which axes it spoke to);
+  `rank_for(con, node_id, proposals)` orders proposals for one business by closeness to its slider positions plus its need (`suggested` = built from or like its need). The
   onboarding table card and the WhatsApp COSIGN list show the top ten in that order.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,

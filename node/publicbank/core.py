@@ -827,12 +827,12 @@ def has_need(con, node_id: str) -> bool:
 # ----------------------------------------------------------------------------
 # onboarding: the applicant enters at once; verification is a later, human step
 # ----------------------------------------------------------------------------
-VALUE_DIMENSIONS = [
-    ("offseason", "More customers in the off-season", "Steady income from November to March, not just the peak."),
-    ("admin", "Spending less time on admin", "Billing, stock, GST, bookings, chasing payments."),
-    ("reach", "Reaching customers who aren't walking past", "Delivery, online orders, being found on a phone."),
-    ("staff", "People to work with", "Finding, training and keeping good staff."),
-    ("goa", "Goa staying a place people come back to", "Clean beaches, less traffic, locals not priced out."),
+VALUE_DIMENSIONS = [   # (key, left pole, right pole, hint); a value of 1 is the left pole, 10 the right, the middle is "either"
+    ("earn", "Earn more", "Spend less", "New customers and revenue, or lower costs and time saved."),
+    ("horizon", "This season", "The long run", "Pays off within months, or an asset that pays off over years."),
+    ("scope", "My business", "The whole lane", "Helps me directly, or helps all of us even if less for me."),
+    ("means", "Things", "People", "Equipment and software, or skills, training and hands."),
+    ("risk", "Proven", "New", "What already works for shops like mine, or trying something new."),
 ]
 
 
@@ -863,7 +863,7 @@ def verify_application(con, application_id: str, by_member_id: str) -> dict:
 
 def set_values(con, node_id: str, member_id: str, vector: dict, phase: str = "before") -> dict:
     """One answer per member per phase; a second submit replaces the first."""
-    keys = {k for k, _, _ in VALUE_DIMENSIONS}
+    keys = {k for k, *_ in VALUE_DIMENSIONS}
     v = {k: max(1, min(10, int(vector.get(k, 5) or 5))) for k in keys}
     with tx(con):
         con.execute("DELETE FROM value_vectors WHERE node_id=? AND member_id=? AND phase=?", (node_id, member_id, phase))
