@@ -132,3 +132,12 @@ print("APPLY OK · rupees · board ceiling")
 core.create_node(con, "empty-pool", "Empty Pool", kind="pool", match_pct=500); core.open_round(con, "empty-pool", 500000 * 100)
 assert "up to ₹5,00,000" in client().get("/b/empty-pool").text   # even before any business exists
 print("APPLY OK · empty matching pool")
+# the country selector: India by default; the number is national, the code comes from the box
+assert "<option value=IN selected>" in anon.get("/apply/commons").text and "+1</option>" in anon.get("/apply/commons").text
+np = core.normalize_phone
+assert np("98765 43210", "91") == "919876543210" and np("098765 43210", "91") == "919876543210" and np("+91 98765 43210", "91") == "919876543210"
+assert np("415 938 0000", "1") == "14159380000" and np("+1 415 938 0000", "1") == "14159380000" and np("07911 123456", "44") == "447911123456"
+assert np("91 98765 43210", "91") == "919876543210" and np("12", "91") == ""
+r = anon.post("/apply/commons", data=dict(form, business="Surf Cafe", applicant="Marcus", phone="415 938 0000", cc="US"))
+assert r.status_code == 200 and next(x for x in core.applications_of(con, "commons") if x["business"] == "Surf Cafe")["phone"] == "14159380000"
+print("APPLY OK · country code")

@@ -723,13 +723,25 @@ def export_node(con, node_id: str) -> dict[str, Any]:
 # ----------------------------------------------------------------------------
 # applications: a business registers itself from the public form, before anyone is verified
 # ----------------------------------------------------------------------------
-def normalize_phone(s: str) -> str:
-    """Digits only; a bare ten-digit Indian mobile gets the country code. '' when it can't be a phone number."""
-    d = "".join(ch for ch in str(s) if ch.isdigit())
-    if len(d) == 10 and d[0] in "6789":
-        d = "91" + d
-    if d.startswith("0") and len(d) == 11:
-        d = "91" + d[1:]
+def normalize_phone(s: str, dial: str = "") -> str:
+    """Digits only, international form. With `dial` (the chosen country's code) the number is national: trunk
+    zeros come off and the code goes on, unless it was typed with the code already. Without one, a bare ten-digit
+    Indian mobile gets 91. '' when it can't be a phone number."""
+    raw = str(s).strip()
+    d = "".join(ch for ch in raw if ch.isdigit())
+    dial = "".join(ch for ch in str(dial) if ch.isdigit())
+    if dial:
+        if raw.startswith("+") or (raw.startswith("00") and len(d) > 11):
+            d = d[2:] if raw.startswith("00") else d
+        elif d.startswith(dial) and len(d) >= 11 + (len(dial) - 1) and not (dial == "91" and len(d) == 10):
+            pass   # typed with the code
+        else:
+            d = dial + d.lstrip("0")
+    else:
+        if len(d) == 10 and d[0] in "6789":
+            d = "91" + d
+        if d.startswith("0") and len(d) == 11:
+            d = "91" + d[1:]
     return d if 10 <= len(d) <= 15 else ""
 
 
@@ -745,7 +757,7 @@ def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "business"
 
 
-def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, about: str = "", team_size: int | None = None,
+def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", team_size: int | None = None,
           need: str = "", share: str = "", contribute: str = "", consent: bool = False, token_ttl: int = 30 * 86400) -> dict:
     """Register a business under a pool from the public form. Makes the business node and an owner's card
     (a `join_coord` token). The same phone applying again updates its application instead of making a second
@@ -753,7 +765,7 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     pool = get_node(con, pool_id)
     business = " ".join(business.split())[:80]
     applicant = " ".join(applicant.split())[:80]
-    ph = normalize_phone(phone)
+    ph = normalize_phone(phone, dial)
     if len(business) < 2 or len(applicant) < 2 or not ph:
         raise PBError("bad_application")
     if role not in ("owner", "manager", "staff"):

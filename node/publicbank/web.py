@@ -104,6 +104,7 @@ button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}bu
 .muted{color:var(--muted);font-size:16px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
 code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px solid var(--line);padding:2px 6px;border-radius:3px}
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
+.phone{display:flex;gap:8px}.phone select{width:46%;flex:0 0 auto;padding-right:6px}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}</style>"""
 
 
@@ -771,7 +772,7 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
 <label>WhatsApp number <span class=hint>We send your business's join link here. Never published.</span>
-<input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></label>
+<div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
 <label>How many people work there, including you <input name=team_size type=number inputmode=numeric min=1 max=500 required value='{g('team_size') or 1}'></label>
@@ -785,6 +786,11 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
     return page(pool["name"], body)
+
+
+def _country_options(selected: str) -> str:
+    from .countries import COUNTRIES, flag
+    return "".join(f"<option value={iso}{' selected' if iso == selected else ''}>{flag(iso)} {esc(name)} +{code}</option>" for iso, name, code in COUNTRIES)
 
 
 def _pool_or_404(pool_id: str) -> dict:
@@ -803,17 +809,19 @@ def apply_get(pool_id: str):
 
 
 @app.post("/apply/{pool_id:path}")
-def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""),
+def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""), cc: str = Form("IN"),
                about: str = Form(""), team_size: str = Form(""), need: str = Form(""), share: str = Form(""), contribute: str = Form(""),
                consent: str = Form(""), website: str = Form("")):
     pool = _pool_or_404(pool_id)
-    v = dict(business=business, applicant=applicant, role=role, phone=phone, about=about, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
+    from .countries import DIAL
+    cc = cc.upper() if cc.upper() in DIAL else "IN"
+    v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
     if website:   # a bot filled the hidden field: say thanks, keep nothing
         return page("Thank you", "<p>We'll be in touch.</p>")
-    if not core.normalize_phone(phone):
-        return _apply_form(pool, v, "That doesn't look like a WhatsApp number. Ten digits, or with the country code.")
+    if not core.normalize_phone(phone, DIAL[cc]):
+        return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.")
     try:
-        a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, about=about,
+        a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about,
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent))
     except core.PBError:
         return _apply_form(pool, v, "Check the business name and your name.")
