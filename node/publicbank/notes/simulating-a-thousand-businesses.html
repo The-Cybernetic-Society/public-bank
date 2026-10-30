@@ -1,0 +1,62 @@
+<p class=muted>30 October 2026 · The Cybernetic Society · Goa Business Commons</p>
+
+<p class=lead>Before the first real business registered for the Goa Business Commons, we put a thousand simulated ones through the real software and ran whole funding rounds. This is what we did, what broke, and the one thing no rule can fix.</p>
+
+<h2>What the Commons is, in a paragraph</h2>
+<p>A shared fund of ₹5 lakh that Goan businesses spend together. Each business registers, says what it needs, and sets five trade-offs (earn more or spend less, this season or the long run, my business or the whole lane, things or people, proven or new). A "digital twin" turns the stated needs into draft proposals for things several businesses could buy or run together. A draft becomes a proposal when a business leads it and another backs it. Then every business splits 100 points across the proposals, four allocation rules compute candidate plans, the businesses rank the plans, and the winner stands if most of the businesses that vote approve it. The fund pays the vendors directly and every rupee is on a public board. This is <a href="https://en.wikipedia.org/wiki/Participatory_budgeting">participatory budgeting</a> with two additions: an AI that drafts, and allocation rules chosen for fairness rather than a plain majority.</p>
+
+<h2>Why simulate</h2>
+<p>We had no users yet and a set of rules that had only ever been exercised by six made-up businesses. The questions were mechanical: at what size does the ballot become unusable, does the approval rule pass or block, what does ₹5 lakh buy per business as the pool grows, and whether the AI's drafts crowd out people's own proposals. Those have numbers, and numbers come from running the thing.</p>
+
+<h2>Method</h2>
+<p>The simulation uses the production code, not a model of it. A simulated business registers through the same web form a real one does, answers the same sliders, and its round runs through the same allocation and approval functions. Only the people are synthetic.</p>
+<ul>
+<li><b>Personas.</b> We asked <a href="https://www.anthropic.com/claude">Claude</a> once for fifty North Goa business personas: a trade, a locality, a team size, what the owner would actually type into our form, and positions on the five trade-offs. A population of 50, 200 or 1,000 businesses is sampled from those fifty with noise, so the needs read like real ones ("someone to deliver lunch orders on the lane in the afternoon") rather than templates.</li>
+<li><b>Agents.</b> Each business follows simple seeded rules, no language model per agent. It leads or backs a draft with a probability that rises with how well the draft fits its trade-offs, splits its 100 points by a softmax over fit, ranks plans by how much of each went to things it backed, and approves the winning plan with a base probability of 0.5 plus a bonus for its own items being funded. Members abstain 15% of the time. These rules are assumptions, and the last section is about the one that matters.</li>
+<li><b>The twin.</b> The drafting step ran with the model, as it does in production, with a plain word-overlap clustering as the comparison.</li>
+<li><b>Allocation.</b> The four plans come from an allocator shared with a sister project: the <a href="https://equalshares.net/">Method of Equal Shares</a>, where each voter's equal slice of the pot can only be spent on things they supported; <a href="https://en.wikipedia.org/wiki/Nash_social_welfare">Nash welfare</a>; utilitarian (most points); and <a href="https://en.wikipedia.org/wiki/Egalitarian_rule">maximin</a> (help the least served). The ranking between plans uses the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method</a>.</li>
+<li><b>Sizes and sweeps.</b> 50, 200 and 1,000 businesses, then at 1,000 one change at a time: the pot (₹5L, ₹25L, ₹1 crore), the number of backers a proposal needs (1, 2, 5), the approval thresholds, one flat pool against locality sub-pools, and the agents' base approval probability.</li>
+</ul>
+<p>Everything is reproducible with one command and a seed; the full report with every table is in the repository.</p>
+
+<h2>Results</h2>
+
+<h3>1. The mechanism runs at a thousand</h3>
+<p>A thousand businesses registered, were verified, drafted, backed, voted, ranked and approved, and the round produced a plan and a ledger. Two limits appeared. The exact allocators stop at 16 proposals on a ballot, so above about 200 businesses the round has to shortlist: at 1,000, 36 proposals were eligible and 20 were cut. And the fairness rules get slow with many voters: Nash took over three minutes at a thousand. Neither matters at forty businesses; both are real beyond a few hundred.</p>
+
+<h3>2. What the pot buys</h3>
+<table><tr><th>Businesses</th><th>Drafts from the twin</th><th>On the ballot</th><th>Businesses funded</th><th>₹ per business</th></tr>
+<tr><td>50</td><td>24</td><td>5</td><td>8 (16%)</td><td>₹10,000</td></tr>
+<tr><td>200</td><td>44</td><td>16</td><td>29 (14%)</td><td>₹2,500</td></tr>
+<tr><td>1,000</td><td>45</td><td>16</td><td>58 (6%)</td><td>₹500</td></tr></table>
+<p>₹5 lakh is a forty-business instrument. A bigger pot did not help as much as expected: at a thousand businesses, ₹1 crore funded 8% of them and spent only ₹38 lakh, because sixteen items at bounded prices cannot absorb more. The size of the ballot, not the money, caps what a large pool can deploy. Money spread across businesses is very unequal at every size (a <a href="https://en.wikipedia.org/wiki/Gini_coefficient">Gini coefficient</a> around 0.9), which is what "fund a few shared things" looks like, and is honest to say up front.</p>
+
+<h3>3. The twin against the people</h3>
+<p>The model drafted three to four times more proposals than plain clustering from the same needs: 24 against 8 from fifty businesses, 45 against 11 from a thousand. Its drafts took 25%, 77% and 47% of the winning money at the three sizes, against ten human proposals. We don't read much into those shares yet: ten humans was a fixed number while the twin scaled with the population. The real version of this question, whether owners pick the human proposal or the AI's draft when both are on the ballot, is what the first real round will answer, and every proposal on the board records whether a person or the twin wrote it.</p>
+<p>The step that limits everything at the realistic size is backing. From fifty businesses the twin produced 24 drafts and only five reached the ballot, because the simulated owners back rarely. Requiring one backer instead of two raised eligible proposals from 36 to 52 at a thousand. For a first real round that is the lever we would pull.</p>
+
+<h3>4. Locality sub-pools don't work yet</h3>
+<p>Splitting the pool into eight locality pools under one Goa pool failed at every size: localities of six businesses never reached a backed proposal, and the top pool saw no needs and no voters because the twin and the ballot only look one level down. One flat pool with a locality field, for now.</p>
+
+<h3>5. The one thing that decides the outcome</h3>
+<p>At every size, only a quarter to a third of businesses approved the final plan, so every round failed approval. Then we tried every lever the rules control, one at a time, at a thousand businesses:</p>
+<table><tr><th>Lever</th><th>Businesses passing their own vote</th><th>Verdict</th></tr>
+<tr><td>Pot ₹5L → ₹25L → ₹1 crore</td><td>33% → 33% → 33%</td><td>failed</td></tr>
+<tr><td>Backers needed 1 → 2 → 5</td><td>33% → 33% → 34%</td><td>failed</td></tr>
+<tr><td>Business threshold 51% → 60%; pool rule majority → unanimity</td><td>32% to 33%</td><td>failed</td></tr>
+<tr><td>Agents' base approval 0.5 → 0.7 → 0.9</td><td>33% → 58% → 82%</td><td>failed → ratified → ratified</td></tr></table>
+<p>Nothing the charter controls moved approval by more than a point. The only thing that did was the assumption about how a business votes on a plan that funded someone else's item. That is not a finding about businesses; it is a finding about what to measure. The first real round's most important number is the approval rate among businesses whose own items were not funded. No allocation rule substitutes for it, and the simulation cannot supply it.</p>
+
+<h2>What changed because of this</h2>
+<ul>
+<li>The round refuses to freeze more than 16 proposals and says so, instead of letting the allocator stop the server.</li>
+<li>The approval rule became a majority of the businesses that voted, with no quorum, so silence neither passes nor blocks.</li>
+<li>Only businesses the treasurer has verified count in votes.</li>
+<li>A treasurer is no longer counted as a member of every business, which had inflated every business's threshold.</li>
+<li>The twin now drafts from a single business's need, prices against the pot with a hard cap of half of it, and attaches later similar needs to an existing draft instead of writing a duplicate.</li>
+</ul>
+
+<h2>Caveats</h2>
+<p>One seed per run; the structure is stable across seeds, the exact counts are not. The agents' rules are ours, not measured. The human-versus-twin comparison needs a human count that scales. And a simulation of a mechanism tells you where it strains, never whether people will like it.</p>
+
+<p class=muted>The Commons is live at <a href="/b/goa">bank.cyberneticsutra.com/b/goa</a>. The protocol, the allocator and the simulator are open source; the long-term aim is a coordination protocol that recurses from a lane of shops to a village to a network of villages, in the spirit of <a href="https://en.wikipedia.org/wiki/Project_Cybersyn">Cybersyn</a> and the <a href="https://www.cyberneticsutra.com/">Cybernetic Sutra</a>.</p>

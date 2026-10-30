@@ -1146,6 +1146,21 @@ def start_finished(node_id: str, request: Request):
     return page("Done", body)
 
 
+NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
+NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
+
+
+@app.get("/notes/{slug}")
+def note(slug: str):
+    """A write-up, as a page in the site's look. The body is an HTML fragment in publicbank/notes/."""
+    if slug not in NOTES:
+        raise HTTPException(404)
+    with open(os.path.join(NOTES_DIR, slug + ".html"), encoding="utf-8") as f:
+        body = f.read()
+    html = page(NOTES[slug], body).body.decode()
+    return HTMLResponse(html.replace("</style>", "body{max-width:760px}h2{margin-top:34px}h3{font:500 20px/1.2 Newsreader,Georgia,serif;margin:24px 0 6px;color:var(--ink)}p.lead{font-size:21px;line-height:1.5;color:var(--ink)}ul{padding-left:22px}li{margin:8px 0}table{margin:12px 0}</style>", 1))
+
+
 @app.get("/")
 def home():
     pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
@@ -1157,6 +1172,7 @@ def home():
                  + f"<br><a href='/b/{esc(p['id'])}'>Live board</a> · <a href='/apply/{esc(p['id'])}'>Register a business</a></div>")
     if not pools:
         body += "<p class=muted>Nothing is running here yet.</p>"
+    body += "<h2>Notes</h2>" + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items())
     return page("Public Bank", body)
 
 

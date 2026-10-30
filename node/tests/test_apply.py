@@ -252,3 +252,8 @@ ro = core.open_round(con, "oldpool", 1000 * 100)
 with db.tx(con): con.execute("UPDATE rounds SET status='paid' WHERE id=?", (ro["id"],))
 r = client(tre["id"]).get("/me"); assert "Earlier: " in r.text and r.text.index("Goa Business Commons") < r.text.index("Earlier: ") and "Edge City 2025" in r.text[r.text.index("Earlier: "):]
 print("APPLY OK · login link two-step · treasurer told · /me folded")
+
+# the notes
+r = anon.get("/notes/simulating-a-thousand-businesses"); assert r.status_code == 200 and "Method of Equal Shares" in r.text and "equalshares.net" in r.text
+assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thousand-businesses" in anon.get("/").text
+print("APPLY OK · notes")
