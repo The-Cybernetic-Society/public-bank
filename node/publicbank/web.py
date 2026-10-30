@@ -110,7 +110,7 @@ code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px s
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
-.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
+.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.drafting{color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);margin-right:8px;animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
 button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
@@ -970,7 +970,7 @@ def _my_node_or_403(node_id: str, request: Request) -> tuple[dict, dict]:
     return core.get_node(con, node_id), m
 
 
-def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
+def _table_card(node: dict, parent: dict | None, m: dict, back: str, waiting: int = 0) -> str:
     """Proposals in the pool's open round, with lead and back buttons; the business's own need when there are none;
     and a box to propose something now."""
     pool = parent or node
@@ -999,7 +999,10 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
             out += "</div></div>"
     else:
         need = core.needs_of(con, node["id"], include_children=False, status=None)
-        if need:
+        if need and any(n["status"] == "open" for n in need) and waiting < 5:
+            # the twin is drafting from this need in the background: look again in a few seconds
+            out += f"<p class=drafting><span class=dot></span> Drafting a proposal from <i>{esc(need[-1]['text'])}</i>…</p><meta http-equiv=refresh content='4;url={esc(back)}?w={waiting + 1}'>"
+        elif need:
             out += f"<p>Your need is in: <i>{esc(need[-1]['text'])}</i>. When another business needs something similar, a draft appears here and on WhatsApp.</p>"
         else:
             out += "<p>Nothing yet. When businesses' needs line up, drafts appear here and on WhatsApp.</p>"
@@ -1041,6 +1044,9 @@ async def start_values_post(node_id: str, request: Request):
     node, m = _my_node_or_403(node_id, request)
     form = await request.form()
     core.set_values(con, node_id, m["id"], {k: form.get(k) for k, *_ in core.VALUE_DIMENSIONS})
+    if node.get("parent_id"):
+        from . import twin
+        twin.schedule(node["parent_id"])   # the sliders are in: draft from this business's need now
     return RedirectResponse(f"/start/{node_id}/done", status_code=303)
 
 
@@ -1062,7 +1068,8 @@ def start_done(node_id: str, request: Request):
         body += (f"<div class='card rise'><h2 style='margin-top:0'>Your team</h2><p>Share this with the people who work with you so they can vote too. Anyone who opens it joins "
                  f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
                  f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
-        body += _table_card(node, parent, m, f"/start/{node['id']}/done")
+        waiting = int(request.query_params.get("w", "0") or 0)
+        body += _table_card(node, parent, m, f"/start/{node['id']}/done", waiting=waiting)
         body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  "then every business gets 100 points to split across the list.</p><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p></div>")
         body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"

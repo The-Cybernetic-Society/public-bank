@@ -65,7 +65,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
-  to the plain path. Only need texts and business names go out. Drafts have no lead and no signatures.
+  to the plain path. Only need texts, business names and each business's slider lean go out. Drafts have no lead and no
+  signatures. One need is enough for a draft (`min_nodes=1`, written as the lane's shared version); a later need that reads
+  like an existing twin draft is attached to it (`core.attach_need_to_draft`) rather than drafted again.
   `tags_for` places a text on each axis (-1..+1, left/right stem lists in `TAG_WORDS`, `_conf` says which axes it spoke to);
   `rank_for(con, node_id, proposals)` orders proposals for one business by closeness to its slider positions plus its need (`suggested` = built from or like its need). The
   onboarding table card and the WhatsApp COSIGN list show the top ten in that order.

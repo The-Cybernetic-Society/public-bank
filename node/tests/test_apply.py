@@ -178,8 +178,10 @@ rnd2 = core.current_round(con, "commons")
 core.add_need(con, pid2, cafe_owner, "A delivery scooter for lunch orders to customers on the lane")
 S3.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
 tw = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND source='twin'", (rnd2["id"],)).fetchall())
-assert len(tw) == 1 and "Mandrem Tailors" in tw[0]["text"] and "Lane Cafe" in tw[0]["text"], tw
-r = T.get("/c/commons"); assert "The twin" in r.text and "1 draft" in r.text and "Draft proposals from needs" in r.text
+scooter = [p for p in tw if "scooter" in p["title"].lower() or "deliver" in p["title"].lower()]
+assert len(scooter) == 1 and "Mandrem Tailors" in scooter[0]["text"] and "Lane Cafe" in scooter[0]["text"], tw   # one draft for the scooter needs, the cafe attached
+assert all(n["status"] == "drafted" for n in core.needs_of(con, "commons", status=None))   # every need, including lone ones, is drafted
+r = T.get("/c/commons"); assert "The twin" in r.text and "drafts in this round" in r.text and "Draft proposals from needs" in r.text
 assert T.post("/c/commons/twin").headers["location"].endswith("?drafted=0")   # nothing left to group
 r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose something now" in r.text and ("Your need is in" in r.text or "suggested from what businesses" in r.text), r.text[:300]
 r = R.post("/start/commons/mandrem-tailors/done", data={})  # nothing: pages are GET
@@ -207,7 +209,7 @@ R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"tit
 allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd2["id"],)).fetchall())
 R.post("/start/commons/mandrem-tailors/values", data={"earn": "1", "horizon": "5", "scope": "2", "means": "1", "risk": "5"})
 ranked = twin.rank_for(con, "commons/mandrem-tailors", allp); order = [p["title"] for p in ranked]
-assert order[0].startswith("Shared:") and ranked[0]["suggested"] and order[1] == "A shared delivery scooter", order   # the twin's draft from its own need first, then the scooter
+assert order[0].startswith("Shared:") and ranked[0]["suggested"] and "A shared delivery scooter" in order[:3], order   # the twin's drafts from its own needs first, the scooter close behind
 S2.post(f"/start/{pid2}/values", data={"earn": "10", "horizon": "5", "scope": "2", "means": "1", "risk": "1"})
 order2 = [p["title"] for p in twin.rank_for(con, pid2, allp)]
 assert order2.index(next(t for t in order2 if t.startswith("GST billing"))) < order2.index("A shared delivery scooter"), order2

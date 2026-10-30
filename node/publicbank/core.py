@@ -667,6 +667,21 @@ def add_twin_draft(con, round_id: str, *, title: str, text: str, ideal_paise: in
     return get_proposal(con, pid)
 
 
+def attach_need_to_draft(con, pid: str, need_id: str) -> dict:
+    """A later business's need joins a draft the twin already wrote: the need is quoted under the draft's text and
+    marked drafted. The draft keeps its lead and signatures."""
+    p = get_proposal(con, pid)
+    n = row(con.execute("SELECT nd.*, no.name AS node_name FROM needs nd JOIN nodes no ON no.id=nd.node_id WHERE nd.id=?", (need_id,)).fetchone())
+    if not n or p["source"] != "twin" or p["status"] not in ("draft", "eligible"):
+        raise PBError("not_a_draft")
+    line = f"- {n['node_name']}: {n['text']}"
+    text = p["text"] if line in p["text"] else (p["text"].rstrip() + "\n" + line)[:2000]
+    with tx(con):
+        con.execute("UPDATE proposals SET text=? WHERE id=?", (text, pid))
+        con.execute("UPDATE needs SET status='drafted' WHERE id=?", (need_id,))
+    return get_proposal(con, pid)
+
+
 def needs_of(con, node_id: str, include_children: bool = True, status: str | None = "open") -> list[dict]:
     """Needs recorded in a node and, for a pool, in its children, each with the node's name."""
     ids = [node_id] + ([k["id"] for k in children(con, node_id)] if include_children else [])

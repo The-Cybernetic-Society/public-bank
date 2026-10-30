@@ -152,13 +152,21 @@ for nid, who, text in (("pool2/x", "x0", "A scooter for deliveries to customers"
     core.create_node(con, nid, nid[-1].upper(), parent_id="pool2")
     pm = person(who); core.join_node(con, nid, pm["id"], role="coordinator", auto_active=True); core.add_need(con, nid, pm["id"], text)
 r3 = core.open_round(con, "pool2", 10000 * 100)
-dry = twin.draft_from_needs(con, "pool2", dry_run=True)
+dry = twin.draft_from_needs(con, "pool2", min_nodes=2, dry_run=True)
 assert len(dry) == 1 and dry[0]["needs"] == 2 and dry[0]["ideal_paise"] == 2 * twin.DEFAULT_IDEAL_RUPEES * 100, dry
 assert all(n["status"] == "open" for n in core.needs_of(con, "pool2"))   # a dry run marks nothing
-made = twin.draft_from_needs(con, "pool2")
+made = twin.draft_from_needs(con, "pool2", min_nodes=2)
 assert len(made) == 1 and made[0]["status"] == "draft" and made[0]["source"] == "twin" and "- X: A scooter" in made[0]["text"] and "- Y: Delivery" in made[0]["text"], made[0]["text"]
 assert [n["text"][:8] for n in core.needs_of(con, "pool2")] == ["A bigger"]   # only the fridge is still open
-assert twin.draft_from_needs(con, "pool2") == []   # nothing left to group
+# one need is enough by default: the lone fridge becomes a draft written as the lane's shared version
+made2 = twin.draft_from_needs(con, "pool2")
+assert len(made2) == 1 and made2[0]["source"] == "twin" and "Z said it needs" in made2[0]["text"] and core.needs_of(con, "pool2") == []
+assert twin.draft_from_needs(con, "pool2") == []   # nothing left
+# a later business with a similar need is attached to the existing scooter draft, not given a second one
+core.create_node(con, "pool2/q", "Q", parent_id="pool2"); qm = person("q0"); core.join_node(con, "pool2/q", qm["id"], role="coordinator", auto_active=True)
+core.add_need(con, "pool2/q", qm["id"], "A scooter to deliver orders to customers")
+res = twin.draft_from_needs(con, "pool2")
+assert len(res) == 1 and res[0]["id"] == made[0]["id"] and "- Q: A scooter" in res[0]["text"] and len(twin.existing_drafts(con, r3["id"])) == 2, res
 
 print("POOL OK · twin plain clustering · match 5x capped · cosign ×2 · one ballot per business · per-child ratification (one child blocks) · payouts · export with child tallies · advance · needs")
 

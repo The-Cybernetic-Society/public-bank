@@ -81,50 +81,80 @@ def title_plain(group: list[dict]) -> str:
 
 def describe(group: list[dict]) -> str:
     biz = sorted({n["node_name"] for n in group})
-    lines = [f"Suggested from {len(group)} needs across {len(biz)} businesses. Nobody owns it yet: lead it if you'll organise it, co-sign it if your business wants it."]
+    if len(biz) == 1:
+        lines = [f"Suggested from what {biz[0]} said it needs, as something the lane could share. Nobody owns it yet: lead it if you'll organise it, back it if your business wants it too."]
+    else:
+        lines = [f"Suggested from {len(group)} needs across {len(biz)} businesses. Nobody owns it yet: lead it if you'll organise it, co-sign it if your business wants it."]
     lines += [f"- {n['node_name']}: {n['text']}" for n in group]
     return "\n".join(lines)[:2000]
 
 
-def cluster_llm(needs: list[dict]) -> list[dict] | None:
-    """Ask the model for groups with titles and rupee estimates. None when no key, a refusal, or any failure."""
+def _lean(con, node_id: str) -> str:
+    """The business's trade-off positions as words for the model: 'earn more (strongly), the long run, things'."""
+    vec = business_vector(con, node_id)
+    out = []
+    for k, left, right, _ in core.VALUE_DIMENSIONS:
+        v = vec.get(k, 5)
+        if v == 5: continue
+        side = left if v < 5 else right
+        out.append(side.lower() + (" (strongly)" if v <= 1 or v >= 9 else ""))
+    return ", ".join(out) or "no strong lean"
+
+
+def cluster_llm(con, needs: list[dict], drafts: list[dict], min_nodes: int) -> dict | None:
+    """Ask the model to attach needs to existing drafts or write new ones, with titles and rupee estimates.
+    Returns {"attach": [(draft_id, need_id)], "groups": [...]} or None when no key, a refusal, or any failure."""
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return None
     try:
         import anthropic
         client = anthropic.Anthropic()
-        items = [{"id": n["id"], "business": n["node_name"], "need": n["text"]} for n in needs]
-        system = ("You group the needs of small businesses in Goa, India into things they could buy or run together: a shared "
-                  "delivery scooter, one software licence for several shops, a shared cold store, a paid trainer. Group only needs "
-                  "that one shared purchase or service would meet. Each group must span at least two different businesses. "
-                  "Answer with JSON only: a list of objects with keys title (short, plain), text (one or two sentences on what "
-                  "is bought and how it is shared), ideal_rupees (integer, what would let it work well), min_rupees (integer, the "
-                  "least that still makes sense, 0 if any amount helps), need_ids (list of the ids in the group). Prices in rupees, "
-                  "realistic for Goa in 2026. Leave out needs that stand alone.")
+        items = [{"id": n["id"], "business": n["node_name"], "need": n["text"], "leans_towards": _lean(con, n["node_id"])} for n in needs]
+        existing = [{"draft_id": d["id"], "title": d["title"], "text": d["text"][:300]} for d in drafts]
+        system = ("You turn the stated needs of small businesses in Goa, India into draft proposals for a shared fund: things "
+                  "businesses could buy or run together, such as a delivery scooter shared along a lane, one software licence for "
+                  "several shops, a shared cold store, a paid trainer. A need that stands alone still becomes a draft, written as the "
+                  "shared version of it (one shop's scooter becomes a scooter shared by the shops on its lane). Group needs that one "
+                  "shared purchase or service would meet. When an existing draft already covers a need, attach the need to it instead "
+                  "of writing a new one. Each business says what it leans towards on five trade-offs (earn more or spend less; this "
+                  "season or the long run; my business or the whole lane; things or people; proven or new): let that shape the draft, "
+                  "for example a cheaper, proven option for a business leaning spend less and proven. Prices in rupees, realistic for "
+                  "Goa in 2026. Answer with JSON only: an object with keys attach (list of {draft_id, need_id}) and groups (list of "
+                  "{title (short, plain), text (one or two sentences on what is bought and how it is shared), ideal_rupees (integer), "
+                  "min_rupees (integer, the least that still makes sense, 0 if any amount helps), need_ids (list)}).")
         r = client.beta.messages.create(
             model=MODEL, max_tokens=16000, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
             output_config={"effort": "medium"}, system=system,
-            messages=[{"role": "user", "content": json.dumps(items, ensure_ascii=False)}])
+            messages=[{"role": "user", "content": json.dumps({"needs": items, "existing_drafts": existing}, ensure_ascii=False)}])
         if r.stop_reason == "refusal":
             log.info("twin: model declined (%s)", getattr(getattr(r, "stop_details", None), "category", None)); return None
         text = "".join(b.text for b in r.content if b.type == "text")
-        m = re.search(r"\[.*\]", text, re.S)
+        m = re.search(r"\{.*\}", text, re.S)
         out = json.loads(m.group(0) if m else text)
-        ok = []
         known = {n["id"] for n in needs}
-        for g in out:
-            ids = [i for i in g.get("need_ids", []) if i in known]
-            if len(ids) < 2: continue
-            ok.append({"title": str(g.get("title", ""))[:120], "text": str(g.get("text", ""))[:1500],
-                       "ideal": max(1, int(g.get("ideal_rupees", 0) or 0)), "min": max(0, int(g.get("min_rupees", 0) or 0)), "need_ids": ids})
-        return ok
+        known_drafts = {d["id"] for d in drafts}
+        attach = [(a.get("draft_id"), a.get("need_id")) for a in out.get("attach", []) if a.get("draft_id") in known_drafts and a.get("need_id") in known]
+        taken = {nid for _, nid in attach}
+        groups = []
+        for g in out.get("groups", []):
+            ids = [i for i in g.get("need_ids", []) if i in known and i not in taken]
+            if not ids: continue
+            groups.append({"title": str(g.get("title", ""))[:120], "text": str(g.get("text", ""))[:1500],
+                           "ideal": max(1, int(g.get("ideal_rupees", 0) or 0)), "min": max(0, int(g.get("min_rupees", 0) or 0)), "need_ids": ids})
+        return {"attach": attach, "groups": groups}
     except Exception as e:  # network, key, parse: the plain path is always there
         log.info("twin: model path skipped: %s", type(e).__name__)
         return None
 
 
-def draft_from_needs(con, pool_id: str, min_nodes: int = 2, dry_run: bool = False) -> list[dict]:
-    """Group open needs across the pool's children and write one draft proposal per group into the pool's round."""
+def existing_drafts(con, round_id: str) -> list[dict]:
+    return db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND source='twin' AND status IN ('draft','eligible') ORDER BY created_at", (round_id,)).fetchall())
+
+
+def draft_from_needs(con, pool_id: str, min_nodes: int = 1, dry_run: bool = False) -> list[dict]:
+    """Turn the pool's open needs into draft proposals in its round. A need that reads like an existing twin draft
+    is attached to it; the rest are grouped and written, one draft per group. One need is enough for a draft, so
+    the first business to register sees something on the table; `min_nodes=2` restores the old behaviour."""
     rnd = core.current_round(con, pool_id)
     if not rnd or rnd["status"] != "proposals":
         raise core.PBError("proposals_closed")
@@ -132,16 +162,32 @@ def draft_from_needs(con, pool_id: str, min_nodes: int = 2, dry_run: bool = Fals
     if not needs:
         return []
     by_id = {n["id"]: n for n in needs}
-    drafts = []
-    groups = cluster_llm(needs)
-    if groups is None:
+    current = existing_drafts(con, rnd["id"])
+    drafts: list[dict] = []
+    res = cluster_llm(con, needs, current, min_nodes)
+    if res is None:
+        # plain: a need joins a draft it shares two stems with (title + text); the rest cluster as before
+        attach = []
+        for n in needs:
+            w = words(n["text"])
+            for d in current:
+                if len(w & words(d["title"] + " " + d["text"])) >= 2:
+                    attach.append((d["id"], n["id"])); break
+        taken = {nid for _, nid in attach}
+        rest = [n for n in needs if n["id"] not in taken]
         groups = []
-        for g in cluster_plain(needs):
-            if len({n["node_id"] for n in g}) < min_nodes:
-                continue
+        for g in cluster_plain(rest):
             groups.append({"title": title_plain(g), "text": describe(g), "ideal": DEFAULT_IDEAL_RUPEES * len({n["node_id"] for n in g}),
                            "min": 0, "need_ids": [n["id"] for n in g]})
-    for g in groups:
+        res = {"attach": attach, "groups": groups}
+    for did, nid in res["attach"]:
+        if dry_run:
+            drafts.append({"attach_to": did, "need_id": nid}); continue
+        try:
+            drafts.append(core.attach_need_to_draft(con, did, nid))
+        except core.PBError:
+            pass
+    for g in res["groups"]:
         members = [by_id[i] for i in g["need_ids"] if i in by_id]
         if len({n["node_id"] for n in members}) < min_nodes:
             continue
