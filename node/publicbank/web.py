@@ -789,7 +789,7 @@ s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEvent
 <div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <button>Register my business</button>
 </form>
-<p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. By registering you agree to our <a href='/privacy'>privacy policy</a>.</p>"""
+<p class=muted>Free and voluntary. Registering does not guarantee funding. By registering you agree to our <a href='/privacy'>privacy policy</a>.</p>"""
     return page(pool["name"], body)
 
 
