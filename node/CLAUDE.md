@@ -131,11 +131,11 @@ gcloud run jobs execute publicbank-seed --region=asia-southeast1 --wait
 gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed' --limit=30 --format='value(textPayload)' --freshness=10m
 ```
 
-Deployed 30 Oct 2026: revision publicbank-00012 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
-the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
+Deployed 30 Oct 2026: revision publicbank-00014 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
+the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off, onboarding flow, trade-off sliders, majority ratification, verified-only voting, vendor payees; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
 at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers;
-set `pool_ratify='majority'` on prod after the deploy that adds the column)
+`pool_ratify='majority'` set on prod 30 Oct via the seed job)
 exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa (`PB_ALIASES`, default `goa=goa-business-commons`).
 Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oct at the proposals stage. It was made with
 `python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`
