@@ -26,6 +26,7 @@ from . import core, db
 log = logging.getLogger("publicbank.twin")
 DEFAULT_IDEAL_RUPEES = int(os.environ.get("PB_TWIN_IDEAL_RUPEES", "10000"))   # per business in the group, before the model refines it
 MODEL = "claude-opus-5-5"
+BATCH = int(os.environ.get("PB_TWIN_BATCH", "60"))   # needs per model call; above this the twin drafts in batches
 STOP = set("""a an the and or of for to in on at with by from is are be was were we our us i my me it its this that these those
 need needs needed want wants wanted some more one two three new up down out over get got have has had also just
 like would could should can will do does not no yes very really too so but if then than there here when where
@@ -127,7 +128,7 @@ def cluster_llm(con, needs: list[dict], drafts: list[dict], min_nodes: int) -> d
             output_config={"effort": "medium"}, system=system,
             messages=[{"role": "user", "content": json.dumps({"needs": items, "existing_drafts": existing}, ensure_ascii=False)}])
         if r.stop_reason == "refusal":
-            log.info("twin: model declined (%s)", getattr(getattr(r, "stop_details", None), "category", None)); return None
+            log.warning("twin: model declined (%s), falling back to plain clustering", getattr(getattr(r, "stop_details", None), "category", None)); return None
         text = "".join(b.text for b in r.content if b.type == "text")
         m = re.search(r"\{.*\}", text, re.S)
         out = json.loads(m.group(0) if m else text)
@@ -143,7 +144,7 @@ def cluster_llm(con, needs: list[dict], drafts: list[dict], min_nodes: int) -> d
                            "ideal": max(1, int(g.get("ideal_rupees", 0) or 0)), "min": max(0, int(g.get("min_rupees", 0) or 0)), "need_ids": ids})
         return {"attach": attach, "groups": groups}
     except Exception as e:  # network, key, parse: the plain path is always there
-        log.info("twin: model path skipped: %s", type(e).__name__)
+        log.warning("twin: model path failed, falling back to plain clustering: %s: %s", type(e).__name__, str(e)[:200])
         return None
 
 
@@ -161,6 +162,18 @@ def draft_from_needs(con, pool_id: str, min_nodes: int = 1, dry_run: bool = Fals
     needs = core.needs_of(con, pool_id, include_children=True, status="open")
     if not needs:
         return []
+    by_id = {n["id"]: n for n in needs}
+    drafts: list[dict] = []
+    if len(needs) > BATCH and not dry_run:
+        # a thousand needs do not fit one prompt: draft in batches, each seeing the drafts made so far so later
+        # needs attach to them instead of duplicating
+        for i in range(0, len(needs), BATCH):
+            drafts += _draft_batch(con, rnd, needs[i:i + BATCH], min_nodes)
+        return drafts
+    return _draft_batch(con, rnd, needs, min_nodes, dry_run)
+
+
+def _draft_batch(con, rnd: dict, needs: list[dict], min_nodes: int, dry_run: bool = False) -> list[dict]:
     by_id = {n["id"]: n for n in needs}
     current = existing_drafts(con, rnd["id"])
     drafts: list[dict] = []

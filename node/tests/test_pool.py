@@ -235,3 +235,19 @@ except SystemExit:
     pass
 assert con.execute("SELECT 1 FROM needs WHERE id='n_exit'").fetchone() is None
 print("POOL OK · majority of voting businesses · treasurer not counted · freeze guard · vendor payee · tx rollback on exit")
+
+# many needs are drafted in batches, later batches attaching to earlier drafts rather than duplicating
+os.environ["PB_TWIN_BATCH"] = "3"
+import importlib; importlib.reload(twin)
+core.create_node(con, "pool3", "Pool 3", kind="pool", cosign_min=2)
+for i in range(7):
+    nid = f"pool3/n{i}"; core.create_node(con, nid, f"N{i}", parent_id="pool3")
+    pm = person(f"p3{i}"); core.join_node(con, nid, pm["id"], role="coordinator", auto_active=True)
+    core.add_need(con, nid, pm["id"], "A scooter for deliveries to customers" if i % 2 == 0 else "A bigger fridge for the season")
+r4 = core.open_round(con, "pool3", 10000 * 100)
+out = twin.draft_from_needs(con, "pool3")
+ds = twin.existing_drafts(con, r4["id"])
+assert len(ds) == 2 and core.needs_of(con, "pool3") == [], [d["title"] for d in ds]   # one scooter draft, one fridge draft, every need drafted
+assert sum(1 for d in ds if d["text"].count("- N") >= 3) == 2, [d["text"] for d in ds]   # both gathered needs from later batches
+os.environ.pop("PB_TWIN_BATCH")
+print("POOL OK · batched drafting")
