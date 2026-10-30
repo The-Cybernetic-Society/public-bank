@@ -38,11 +38,15 @@ assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.g
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
             team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings")
-# registering signs the applicant in as the business's coordinator and sends them to step 2
+# registering signs the applicant in as the business's coordinator, sends them to step 2, and tells the treasurer on Telegram
+os.environ["TELEGRAM_BOT_TOKEN"] = "t"
+tg_sent = []
+web.httpx.post = lambda url, json=None, timeout=None, **kw: tg_sent.append((url.split("/bot")[0], json)) or type("R", (), {"status_code": 200})()
 R = client()
 r = R.post("/apply/commons", data=form)
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/values", (r.status_code, r.text[:300])
 owner_id = web.signer.loads(R.cookies.get("pb"))["m"]
+assert len(tg_sent) == 1 and tg_sent[0][1]["chat_id"] == 7 and "Mandrem Tailors" in tg_sent[0][1]["text"] and "/c/commons" in tg_sent[0][1]["text"], tg_sent
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
 a = apps[0]
 assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210"
@@ -242,4 +246,9 @@ r = c0.get(f"/l/{lt}"); assert r.status_code == 200 and "Continue" in r.text   #
 r = c0.post(f"/l/{lt}", data={"next": "/c/commons"}); assert r.status_code == 303 and r.headers["location"] == "/c/commons" and c0.cookies.get("pb")
 assert c0.get("/c/commons").status_code == 200
 assert "Link expired" in client().post(f"/l/{lt}", data={}).text   # spent
-print("APPLY OK · login link two-step")
+# /me: live rounds first, earlier nodes folded into one line
+core.create_node(con, "oldpool", "Edge City 2025", kind="pool"); core.join_node(con, "oldpool", tre["id"], role="treasurer", auto_active=True)
+ro = core.open_round(con, "oldpool", 1000 * 100)
+with db.tx(con): con.execute("UPDATE rounds SET status='paid' WHERE id=?", (ro["id"],))
+r = client(tre["id"]).get("/me"); assert "Earlier: " in r.text and r.text.index("Goa Business Commons") < r.text.index("Earlier: ") and "Edge City 2025" in r.text[r.text.index("Earlier: "):]
+print("APPLY OK · login link two-step · treasurer told · /me folded")

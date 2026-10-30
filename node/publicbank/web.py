@@ -125,6 +125,7 @@ h1{animation:rise .4s ease-out both}.choice label,button{transition:transform .1
 
 
 BRAND = os.environ.get("PB_BRAND", "The Cybernetic Society")
+LIVE_STAGES = ("proposals", "ballots", "plans", "ratifying")   # a round someone can still act in
 
 
 def page(title: str, body: str) -> HTMLResponse:
@@ -338,15 +339,21 @@ def me(request: Request):
     m = _require(request)
     ms = db.rows(con.execute("SELECT ms.*, n.name FROM memberships ms JOIN nodes n ON n.id=ms.node_id WHERE member_id=?", (m["id"],)).fetchall())
     body = f"<p class=muted>Verified by: {esc(m['verified_by'])}</p>"
+    live, old_ = [], []
     for x in ms:
         rnd = core.current_round(con, x["node_id"])
-        stage = rnd["status"] if rnd else "no open round"
-        body += f"<div class=card><b>{esc(x['name'])}</b> · {esc(x['status'])} · round: {esc(stage)}<br>"
-        if x["status"] == "active" and rnd:
+        (live if rnd and rnd["status"] in LIVE_STAGES else old_).append((x, rnd))
+    for x, rnd in live:
+        body += f"<div class=card><b>{esc(x['name'])}</b> · {esc(x['status'])} · round: {esc(rnd['status'])}<br>"
+        if x["status"] == "active":
             body += f"<a href='/n/{esc(x['node_id'])}'>Open</a>"
         if x["role"] in ("coordinator", "treasurer"):
             body += f" · <a href='/c/{esc(x['node_id'])}'>Coordinate</a>"
         body += "</div>"
+    if not live:
+        body += "<p>No round is open where you take part.</p>"
+    if old_:
+        body += "<p class=muted>Earlier: " + " · ".join(f"<a href='/c/{esc(x['node_id'])}'>{esc(x['name'])}</a>" if x["role"] in ("coordinator", "treasurer") else esc(x["name"]) for x, _ in old_) + "</p>"
     if BOT_USERNAME and not m["telegram_id"]:
         lt = core.mint_token(con, "link", member_id=m["id"])
         body += f"<p><a href='https://t.me/{BOT_USERNAME}?start=l_{esc(lt)}'>Link Telegram</a> to be notified when ballots and approvals open.</p>"
@@ -663,6 +670,19 @@ def _announce(node_id: str, step: str) -> None:
     threading.Thread(target=_send_all, args=(node_id, tg_text, wa_text), daemon=True).start()
 
 
+def _notify_treasurers(pool_id: str, text: str) -> None:
+    """A Telegram message to each treasurer of the pool who has linked Telegram. Sent inside the request (Cloud Run
+    gives threads no CPU afterwards) and never allowed to fail the request."""
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if not tok:
+        return
+    for mem in db.rows(con.execute("SELECT m.telegram_id FROM members m JOIN memberships ms ON ms.member_id=m.id WHERE ms.node_id=? AND ms.role='treasurer' AND ms.status='active' AND m.telegram_id IS NOT NULL", (pool_id,)).fetchall()):
+        try:
+            httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": mem["telegram_id"], "text": text}, timeout=8)
+        except Exception:
+            pass
+
+
 def _send_all(node_id: str, tg_text: str, wa_text: str) -> None:
     tok = os.environ.get("TELEGRAM_BOT_TOKEN")
     if tok:
@@ -942,6 +962,9 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
         return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
     if a["status"] == "new":
         m = core.enter_from_application(con, a["id"])
+        _notify_treasurers(pool["id"], (f"New business on {pool['name']}: {a['business']} — {a['applicant']} ({a['role']}), team of {a['team_size']}, {a['about']}.\n"
+                                        f"Needs help with: {a['challenge']}.\nWould buy or run together: {a['need']}\n"
+                                        f"Verify: {BASE_URL}/c/{pool['id']}"))
         return _set_session(RedirectResponse(f"/start/{a['node_id']}/values", status_code=303), m["id"])
     # the same number again, after already joining: back into that business's flow if this browser runs it
     m = _member(request)

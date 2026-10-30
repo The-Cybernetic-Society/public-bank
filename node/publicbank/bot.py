@@ -90,12 +90,18 @@ async def me(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     m = member_for(update)
     if not m:
         await update.message.reply_text("I don't know you yet. Scan a residency QR code to join."); return
-    lines = []
+    live, old = [], []
     for x in db.rows(con.execute("SELECT ms.*, n.name FROM memberships ms JOIN nodes n ON n.id=ms.node_id WHERE member_id=?", (m["id"],)).fetchall()):
         rnd = core.current_round(con, x["node_id"])
-        lines.append(f"• {x['name']} — {x['status']}" + (f", round: {rnd['status']}" if rnd else ""))
+        if rnd and rnd["status"] in ("proposals", "ballots", "plans", "ratifying"):
+            live.append(f"• {x['name']} — {x['role']}, {x['status']}, round: {rnd['status']}")
+        else:
+            old.append(x["name"])
     tok = core.mint_token(con, "login", member_id=m["id"])
-    await update.message.reply_text("\n".join(lines) + f"\n\nOpen: {BASE_URL}/l/{tok}")
+    text = ("\n".join(live) if live else "No round is open where you take part.")
+    if old:
+        text += "\n\nEarlier: " + ", ".join(old)
+    await update.message.reply_text(text + f"\n\nOpen: {BASE_URL}/l/{tok}")
 
 
 async def status(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
