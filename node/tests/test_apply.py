@@ -151,3 +151,20 @@ assert np("91 98765 43210", "91") == "919876543210" and np("12", "91") == ""
 r = anon.post("/apply/commons", data=dict(form, business="Surf Cafe", applicant="Marcus", phone="415 938 0000", cc="US"))
 assert r.status_code == 303 and next(x for x in core.applications_of(con, "commons") if x["business"] == "Surf Cafe")["phone"] == "14159380000"
 print("APPLY OK · country code")
+
+# the last step shows the business's own need, lets it propose, and shows drafts from others with lead/back buttons
+rnd2 = core.current_round(con, "commons")
+r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Your need is in" in r.text and "Propose something now" in r.text, r.text[:300]
+r = R.post("/start/commons/mandrem-tailors/done", data={})  # nothing: pages are GET
+r = R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "A shared delivery scooter", "ideal": "60000", "text": "", "lead": "on"})
+assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
+r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text and "I'll lead this" not in r.text
+# the second business backs it from its own last step
+S2 = client(); S2.post("/apply/commons", data=dict(form, business="Lane Cafe", phone="+91 90000 11111", applicant="Joao"))
+pid2 = core.applications_of(con, "commons")[0]["node_id"] if core.applications_of(con, "commons")[0]["business"] == "Lane Cafe" else next(x["node_id"] for x in core.applications_of(con, "commons") if x["business"] == "Lane Cafe")
+S2.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
+r = S2.get(f"/start/{pid2}/done"); assert "Back this" in r.text
+pid = re.search(r"name=pid value='([^']+)'", r.text).group(1)
+assert S2.post(f"/n/commons/cosign?next=/start/{pid2}/done", data={"pid": pid}).headers["location"] == f"/start/{pid2}/done"
+assert "backed ✓" in S2.get(f"/start/{pid2}/done").text and db.row(con.execute("SELECT status FROM proposals WHERE id=?", (pid,)).fetchone())["status"] == "eligible"
+print("APPLY OK · on the table")

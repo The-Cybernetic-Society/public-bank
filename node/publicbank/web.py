@@ -75,6 +75,10 @@ def _require(request: Request) -> dict:
     return m
 
 
+def _back(next: str, default: str) -> str:
+    return next if next.startswith("/") and not next.startswith("//") else default
+
+
 def _rupees(p: int) -> str:
     from .convo import rupees
     return rupees(p)
@@ -107,7 +111,7 @@ table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",mono
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}
-button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
+button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
 .slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--p:44%}
@@ -408,33 +412,33 @@ def node_page(node_id: str, request: Request):
 
 
 @app.post("/n/{node_id:path}/propose")
-def propose(node_id: str, request: Request, title: str = Form(...), text: str = Form(...), ideal: int = Form(...), min: int = Form(0), upi: str = Form(""), lead: str | None = Form(None)):
+def propose(node_id: str, request: Request, title: str = Form(...), text: str = Form(""), ideal: int = Form(...), min: int = Form(0), upi: str = Form(""), lead: str | None = Form(None), next: str = ""):
     m = _require(request); rnd = core.current_round(con, node_id)
     if not rnd: raise HTTPException(400, "no open round")
     if upi.strip():
         with db.tx(con): con.execute("UPDATE members SET upi_id=? WHERE id=?", (upi.strip(), m["id"]))
     try:
-        core.add_proposal(con, rnd["id"], m["id"], title=title, text=text, ideal_paise=ideal * 100, min_paise=min * 100, lead_id=m["id"] if lead else None)
+        core.add_proposal(con, rnd["id"], m["id"], title=title, text=text or title, ideal_paise=ideal * 100, min_paise=min * 100, lead_id=m["id"] if lead else None)
     except core.PBError as e:
         raise HTTPException(400, e.code)
-    return RedirectResponse(f"/n/{node_id}", status_code=303)
+    return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
 
 
 @app.post("/n/{node_id:path}/lead")
-def lead(node_id: str, request: Request, pid: str = Form(...)):
+def lead(node_id: str, request: Request, pid: str = Form(...), next: str = ""):
     m = _require(request)
     try: core.lead_proposal(con, pid, m["id"])
     except core.PBError as e: raise HTTPException(400, e.code)
-    return RedirectResponse(f"/n/{node_id}", status_code=303)
+    return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
 
 
 @app.post("/n/{node_id:path}/cosign")
-def cosign(node_id: str, request: Request, pid: str = Form(...)):
+def cosign(node_id: str, request: Request, pid: str = Form(...), next: str = ""):
     m = _require(request)
     via = core.require_in_tree(con, node_id, m["id"])
     try: core.cosign_proposal(con, pid, via["id"], m["id"])
     except core.PBError as e: raise HTTPException(400, e.code)
-    return RedirectResponse(f"/n/{node_id}", status_code=303)
+    return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
 
 
 @app.post("/n/{node_id:path}/ballot")
@@ -926,6 +930,45 @@ def _my_node_or_403(node_id: str, request: Request) -> tuple[dict, dict]:
     return core.get_node(con, node_id), m
 
 
+def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
+    """Proposals in the pool's open round, with lead and back buttons; the business's own need when there are none;
+    and a box to propose something now."""
+    pool = parent or node
+    rnd = core.current_round(con, pool["id"])
+    if not rnd or rnd["status"] != "proposals":
+        return ""
+    props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY status, created_at DESC LIMIT 12", (rnd["id"],)).fetchall())
+    names = {k["id"]: k["name"] for k in core.children(con, pool["id"])}
+    out = "<div class='card rise'><h2 style='margin-top:0'>On the table</h2>"
+    if props:
+        out += "<p class=muted>Lead it if you'd organise it and be reimbursed against receipts. Back it if your business wants it; two backers put it on the ballot.</p>"
+        for p in props:
+            signs = db.j(p["cosign_nodes"], [])
+            out += f"<div class=prop><b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
+            if signs: out += "<br><span class=muted>backed by " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
+            if p["source"] == "twin": out += "<br><span class=muted>suggested from what businesses said they need</span>"
+            out += "<div class=row>"
+            if not p["lead_id"]:
+                out += f"<form method=post action='/n/{esc(pool['id'])}/lead?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>I'll lead this</button></form>"
+            if node["id"] not in signs:
+                out += f"<form method=post action='/n/{esc(pool['id'])}/cosign?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>Back this</button></form>"
+            elif p["lead_id"]:
+                out += "<span class=ok>backed ✓</span>"
+            out += "</div></div>"
+    else:
+        need = core.needs_of(con, node["id"], include_children=False, status=None)
+        if need:
+            out += f"<p>Your need is in: <i>{esc(need[-1]['text'])}</i>. When another business needs something similar, a draft appears here and on WhatsApp.</p>"
+        else:
+            out += "<p>Nothing yet. When businesses' needs line up, drafts appear here and on WhatsApp.</p>"
+    out += (f"<details><summary>Propose something now</summary><form method=post action='/n/{esc(pool['id'])}/propose?next={esc(back)}'>"
+            f"<label>What <input name=title required maxlength=120 placeholder='A shared delivery scooter for the market lane'></label>"
+            f"<label>About how much, in rupees <input name=ideal type=number inputmode=numeric min=1 required placeholder='60000'></label>"
+            f"<label>A line on how it would be shared <input name=text maxlength=500></label>"
+            f"<input type=hidden name=lead value=on><button>Propose it, I'll lead it</button></form></details></div>")
+    return out
+
+
 @app.get("/start/{node_id:path}/values")
 def start_values(node_id: str, request: Request):
     """Step 2: five sliders. The twin scores its drafts against these; asked again after a round."""
@@ -966,6 +1009,7 @@ def start_done(node_id: str, request: Request):
         body += (f"<div class='card rise'><h2 style='margin-top:0'>Your team</h2><p>Share this with the people who work with you so they can vote too. Anyone who opens it joins "
                  f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
                  f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
+        body += _table_card(node, parent, m, f"/start/{node['id']}/done")
         body += (f"<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  f"then every business gets 100 points to split across the list. Winning items are bought against receipts, and every rupee is on the "
                  f"<a href='/b/{esc(parent['id']) if parent else esc(node['id'])}'>live board</a>.</p><p><a href='/me'>Your nodes</a> · <a href='/c/{esc(node['id'])}'>Your business</a></p></div>")

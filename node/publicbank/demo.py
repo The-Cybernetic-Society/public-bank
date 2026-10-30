@@ -66,7 +66,7 @@ def main() -> None:
     wipe(con, a.pool)
     stop = STAGES.index(a.stage)
 
-    pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote="nodes", cosign_min=2, match_pct=500)
+    pool = core.create_node(con, a.pool, a.name, kind="pool", pool_vote="nodes", cosign_min=2, match_pct=0)
     tre = core.upsert_member(con, verified_by="coordinator", telegram_id=a.treasurer_telegram or 1, display="treasurer")
     core.join_node(con, pool["id"], tre["id"], role="treasurer", auto_active=True)
     owners, nodes = {}, []
