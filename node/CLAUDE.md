@@ -121,7 +121,7 @@ Deployed 29 Oct 2026: revision publicbank-00011 (federation + WhatsApp adapter +
 the /apply front door in the site's look; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
 at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers)
-exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa-business-commons.
+exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa (`PB_ALIASES`, default `goa=goa-business-commons`).
 Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oct at the proposals stage. It was made with
 `python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`
 (no `--business`: businesses register themselves at `/apply/goa-business-commons`).

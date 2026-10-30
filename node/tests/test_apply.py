@@ -31,6 +31,8 @@ assert anon.get("/privacy").status_code == 200 and "privacy policy" in anon.get(
 r = anon.get("/"); assert r.status_code == 200 and "Goa Business Commons" in r.text and "/apply/commons" in r.text
 r = anon.get("/apply/commons"); assert r.status_code == 200 and "Register my business" in r.text and "name=phone" in r.text
 assert anon.get("/apply/nope").status_code == 404
+web.ALIASES["g"] = "commons"
+assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.get("/apply/g").text and anon.get("/b/g").status_code == 200
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge="Finding customers in the off season",
             team_size="3", need="A scooter for deliveries, customers keep asking", share="Sewing machine evenings")

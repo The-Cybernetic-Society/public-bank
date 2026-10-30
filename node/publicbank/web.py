@@ -661,6 +661,7 @@ STAGE_WORDS = {"proposals": "Proposals open", "ballots": "Voting", "plans": "Pla
 @app.get("/b/{node_id:path}")
 def board(node_id: str):
     """Everything the room may see. No names, no ids, no UPI handles; the payer never appears."""
+    node_id = _resolve(node_id)
     try:
         node = core.get_node(con, node_id)
     except core.PBError:
@@ -759,8 +760,9 @@ APPLY_INTRO = os.environ.get("PB_APPLY_INTRO", (
     "all vote on what we fund."))
 
 
-def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLResponse:
+def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | None = None) -> HTMLResponse:
     v = v or {}
+    path = path or pool["id"]
     g = lambda k: esc(v.get(k, ""))  # noqa: E731
     def radio(name, options, default=""):
         cur = v.get(name, default)
@@ -768,7 +770,7 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
     body = f"<p>{esc(APPLY_INTRO)}</p>"
     if error:
         body += f"<p class=bad>{esc(error)}</p>"
-    body += f"""<form method=post action='/apply/{esc(pool['id'])}'>
+    body += f"""<form method=post action='/apply/{esc(path)}'>
 <input class=hp name=website tabindex=-1 autocomplete=off>
 <label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
@@ -798,9 +800,17 @@ def _country_options(selected: str) -> str:
     return "".join(f"<option value={iso} data-name='{esc(name)}'{' selected' if iso == selected else ''}>{flag(iso)} +{code}</option>" for iso, name, code in COUNTRIES)
 
 
+# Short public names for node ids: /apply/goa and /b/goa instead of the full id. "goa=goa-business-commons,x=y".
+ALIASES = dict(kv.split("=", 1) for kv in os.environ.get("PB_ALIASES", "goa=goa-business-commons").split(",") if "=" in kv)
+
+
+def _resolve(node_id: str) -> str:
+    return ALIASES.get(node_id, node_id)
+
+
 def _pool_or_404(pool_id: str) -> dict:
     try:
-        pool = core.get_node(con, pool_id)
+        pool = core.get_node(con, _resolve(pool_id))
     except core.PBError:
         raise HTTPException(404)
     if pool.get("parent_id"):
@@ -810,7 +820,7 @@ def _pool_or_404(pool_id: str) -> dict:
 
 @app.get("/apply/{pool_id:path}")
 def apply_get(pool_id: str):
-    return _apply_form(_pool_or_404(pool_id))
+    return _apply_form(_pool_or_404(pool_id), path=pool_id)
 
 
 @app.post("/apply/{pool_id:path}")
@@ -824,12 +834,12 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     if website:   # a bot filled the hidden field: say thanks, keep nothing
         return page("Thank you", "<p>We'll be in touch.</p>")
     if not core.normalize_phone(phone, DIAL[cc]):
-        return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.")
+        return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.", path=pool_id)
     try:
         a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about, challenge=challenge,
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent))
     except core.PBError:
-        return _apply_form(pool, v, "Check the business name and your name.")
+        return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
     body = f"<p><b>{esc(a['business'])}</b> is registered in {esc(pool['name'])}.</p>"
     if os.environ.get("PB_WA_NUMBER") and a["status"] == "new":
         from . import whatsapp
