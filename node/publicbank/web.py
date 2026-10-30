@@ -726,16 +726,15 @@ def paid(request: Request, payout_id: str = Form(...), reference: str = Form(...
 # ----------------------------------------------------------------------------
 # the live board: one public, read-only page per node, for a projector or a phone
 # ----------------------------------------------------------------------------
-BOARD_CSS = """<style>body{max-width:1040px;background:#07090d;color:#e8dfca;font:400 16px/1.5 "IBM Plex Mono",monospace;padding-top:24px}
-h1{color:#fbf6e9;font-size:40px}h2{color:#fbf6e9;font-size:22px;margin-top:30px}a{color:#e8dfca}b,strong{color:#fbf6e9}
-.bar{display:flex;align-items:center;gap:10px;background:#fbf6e9;color:#20201d;border:2px solid #20201d;border-radius:3px 3px 0 0;padding:8px 12px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase}
-.bar .sq{width:10px;height:10px;border:2px solid #20201d;background:#fbf6e9}.bar a{color:#20201d;text-decoration:none}
-.win{border:2px solid #20201d;border-top:0;background:#101720;padding:18px 22px 30px;box-shadow:6px 6px 0 #20201dcc;border-radius:0 0 3px 3px}
-.card{background:#0b1016;border:1px solid #2a3340;box-shadow:none;color:#e8dfca;padding:12px 14px;margin:12px 0}.card b{color:#fbf6e9}
-.stage{display:inline-block;padding:7px 14px;border-radius:10px;background:#d9a33d;color:#20201d;font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;vertical-align:middle}
-.big{font:400 44px/1.1 Newsreader,Georgia,serif;color:#fbf6e9;vertical-align:middle}.muted{color:#9a917f}
-table{color:#e8dfca}td,th{border-top:1px solid #2a3340}th{color:#9a917f}.ok{color:#86bcc1}.bad{color:#e0b2a9}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}body{padding:16px 12px}.win{padding:12px 12px 20px}}</style>"""
+BOARD_CSS = """<style>body{max-width:1040px;padding-top:24px}
+.bar{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:3px 3px 0 0;padding:9px 14px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase}
+.bar .sq{width:10px;height:10px;border:2px solid var(--paper)}.bar a{color:var(--paper);text-decoration:none}
+.win{border:2px solid var(--ink);border-top:0;background:var(--card);padding:18px 22px 30px;box-shadow:6px 6px 0 #20201dcc;border-radius:0 0 3px 3px}
+.win h1{margin-top:4px}.win .card{box-shadow:none;border-width:1px;border-color:var(--line);background:var(--paper)}
+.stage{display:inline-block;padding:7px 14px;border-radius:10px;background:var(--gold);color:var(--ink);font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;vertical-align:middle;border:2px solid var(--ink)}
+.big{font:400 44px/1.1 Newsreader,Georgia,serif;color:var(--ink);vertical-align:middle}
+table{font:400 15px/1.4 "IBM Plex Mono",monospace}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}body{padding:16px 12px}.win{padding:12px 12px 20px}.big{font-size:34px}}</style>"""
 STAGE_WORDS = {"proposals": "Proposals open", "ballots": "Voting", "plans": "Plans ready, ranking", "ratifying": "Approval",
                "ratified": "Approved", "failed": "Not approved", "paid": "Paid out", "closed": "Closed"}
 
