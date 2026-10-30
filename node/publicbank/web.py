@@ -773,21 +773,21 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
 <label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
-<label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
-<div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]');if(!s)return;var o=[].slice.call(s.options);o.forEach(function(x){{x.dataset.short=x.textContent}});
 function long(){{o.forEach(function(x){{x.textContent=x.dataset.short+'  '+x.dataset.name}})}}function short(){{o.forEach(function(x){{x.textContent=x.dataset.short}})}}
 s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEventListener('blur',short);s.addEventListener('change',function(){{short();s.blur()}})}})()</script>
 <label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
-<label>What does your business need help with most? <textarea name=challenge rows=2 required maxlength=500>{g('challenge')}</textarea></label>
+<label>What do you need help with most? <textarea name=challenge rows=2 required maxlength=500>{g('challenge')}</textarea></label>
 <label>How many people work there, including you <input name=team_size type=number inputmode=numeric min=1 max=500 required value='{g('team_size') or 1}'></label>
 <label>One thing you would buy or run together with other businesses <span class=hint>A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
 <textarea name=need rows=3 required maxlength=500>{g('need')}</textarea></label>
 <label>What could you share with other businesses? <span class=hint>Equipment, space, a skill, a contact. Nothing is too small.</span>
 <textarea name=share rows=2 required maxlength=300>{g('share')}</textarea></label>
 <label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')])}</label>
-<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You can use my anonymised answers in open-source research and publications about funding public goods.</span></label>
+<label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
+<div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
+<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You can use my anonymised answers in research and publications about funding public goods.</span></label>
 <button>Register my business</button>
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
