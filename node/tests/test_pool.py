@@ -153,7 +153,7 @@ for nid, who, text in (("pool2/x", "x0", "A scooter for deliveries to customers"
     pm = person(who); core.join_node(con, nid, pm["id"], role="coordinator", auto_active=True); core.add_need(con, nid, pm["id"], text)
 r3 = core.open_round(con, "pool2", 10000 * 100)
 dry = twin.draft_from_needs(con, "pool2", min_nodes=2, dry_run=True)
-assert len(dry) == 1 and dry[0]["needs"] == 2 and dry[0]["ideal_paise"] == 2 * twin.DEFAULT_IDEAL_RUPEES * 100, dry
+assert len(dry) == 1 and dry[0]["needs"] == 2 and dry[0]["ideal_paise"] == min(2 * twin.DEFAULT_IDEAL_RUPEES, int(10000 * twin.MAX_SHARE)) * 100, dry   # capped at a fifth of the ₹10,000 pot
 assert all(n["status"] == "open" for n in core.needs_of(con, "pool2"))   # a dry run marks nothing
 made = twin.draft_from_needs(con, "pool2", min_nodes=2)
 assert len(made) == 1 and made[0]["status"] == "draft" and made[0]["source"] == "twin" and "- X: A scooter" in made[0]["text"] and "- Y: Delivery" in made[0]["text"], made[0]["text"]
@@ -251,3 +251,12 @@ assert len(ds) == 2 and core.needs_of(con, "pool3") == [], [d["title"] for d in 
 assert sum(1 for d in ds if d["text"].count("- N") >= 3) == 2, [d["text"] for d in ds]   # both gathered needs from later batches
 os.environ.pop("PB_TWIN_BATCH")
 print("POOL OK · batched drafting")
+
+# no draft may ask for more than a fifth of the pot, whatever the default or the model said
+core.create_node(con, "pool4", "Pool 4", kind="pool")
+core.create_node(con, "pool4/a", "A4", parent_id="pool4"); am = person("a4"); core.join_node(con, "pool4/a", am["id"], role="coordinator", auto_active=True)
+core.add_need(con, "pool4/a", am["id"], "A scooter for deliveries to customers")
+r5 = core.open_round(con, "pool4", 20000 * 100)   # a small pot: the default ₹10,000 per business is above a fifth of it
+d5 = twin.draft_from_needs(con, "pool4")
+assert len(d5) == 1 and d5[0]["ideal_paise"] == 4000 * 100 and d5[0]["min_paise"] <= d5[0]["ideal_paise"], d5
+print("POOL OK · draft price cap")

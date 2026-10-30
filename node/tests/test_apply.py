@@ -63,7 +63,7 @@ R.post("/start/commons/mandrem-tailors/values", data={"earn": "0"}); assert core
 r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "Five rules" in r.text and "Agree and continue" in r.text and "One business, one vote." in r.text and "/j/" not in r.text
 assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
 assert core.get_node(con, a["node_id"])["charter_at"]
-r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" in r.text and "/j/" in r.text and "What happens next" in r.text and "Finish" in r.text
+r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" not in r.text and "/j/" not in r.text and "What happens next" in r.text and "Finish" in r.text
 r = R.get("/start/commons/mandrem-tailors/finished"); assert r.status_code == 200 and "That's it" in r.text and "confetti" in r.text and "/j/" in r.text
 assert client().get("/start/commons/mandrem-tailors/finished").status_code == 401
 import re  # noqa: E402
@@ -194,7 +194,7 @@ assert client().post("/start/commons/mandrem-tailors/draft").status_code == 401
 r = R.post("/start/commons/mandrem-tailors/done", data={})  # nothing: pages are GET
 r = R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "A shared delivery scooter", "ideal": "60000", "text": "", "lead": "on"})
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
-r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text   # the twin's draft (no lead) also sits on the table
+r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text and "you lead this ✓" in r.text
 # the second business backs it from its own last step
 S2 = S3
 r = S2.get(f"/start/{pid2}/done"); assert "Back this" in r.text

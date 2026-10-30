@@ -1009,31 +1009,35 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str, waiting: in
     if pending:
         out += f"<p class=drafting id=drafting><span class=dot></span> Drafting a proposal from <i>{esc(need[-1]['text'])}</i>…</p>"
     if props:
-        out += "<p class=muted>The ten that fit your business best, from what you told us. Back one if your business would use it.</p>"
+        out += ("<p class=muted>The ten that fit your business best, from what you told us. <b>Back</b> one if your business would use it. "
+                "<b>Lead</b> one if you'd organise it and deal with the vendor; leading also backs it.</p>")
         for p in props:
             signs = db.j(p["cosign_nodes"], [])
             out += f"<div class=prop data-pid='{esc(p['id'])}' data-me='{esc(node['id'])}'>" + ("<span class=tag>for you</span> " if p["suggested"] else "") + f"<b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
             out += "<br><span class='muted backers'>" + ("backed by " + ", ".join(esc(names.get(x, x)) for x in signs) if signs else "") + "</span>"
             if p["source"] == "twin": out += "<br><span class=muted>suggested from what businesses said they need</span>"
             out += "<div class=row>"
-            if not p["lead_id"]:
-                out += f"<form method=post action='/n/{esc(pool['id'])}/lead?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>I'll lead this</button></form>"
-            if node["id"] not in signs:
-                out += f"<form method=post action='/n/{esc(pool['id'])}/cosign?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>Back this</button></form>"
-            elif p["lead_id"]:
-                out += "<span class=ok>backed ✓</span>"
+            mine_lead = p["lead_id"] == m["id"]
+            if mine_lead:
+                out += "<span class=ok>you lead this ✓</span>"
+            else:
+                if not p["lead_id"]:
+                    out += f"<form method=post action='/n/{esc(pool['id'])}/lead?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>I'll lead this</button></form>"
+                if node["id"] not in signs:
+                    out += f"<form method=post action='/n/{esc(pool['id'])}/cosign?next={esc(back)}'><input type=hidden name=pid value='{esc(p['id'])}'><button class=small>Back this</button></form>"
+                else:
+                    out += "<span class=ok>backed ✓</span>"
             out += "</div></div>"
     elif not pending:
         out += "<p class=muted>Nothing on the table yet.</p>"
     out += "</div>"
     out += """<script>(function(){if(window.__pbTable)return;window.__pbTable=1;
-document.addEventListener('submit',function(ev){var f=ev.target;if(!f.closest||!f.closest('.prop'))return;ev.preventDefault();var b=f.querySelector('button'),row=f.closest('.prop');b.disabled=true;b.textContent='…';
+document.addEventListener('submit',function(ev){var f=ev.target;if(!f.closest||!f.closest('.prop'))return;ev.preventDefault();var row=f.closest('.prop'),isLead=f.action.indexOf('/lead')>-1,rowDiv=row.querySelector('.row'),saved=rowDiv.innerHTML;
+rowDiv.innerHTML='<span class=ok>'+(isLead?'you lead this ✓':'backed ✓')+'</span>';row.classList.add('did');
 fetch(f.action,{method:'POST',body:new FormData(f),headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.json().then(function(j){return [r.ok,j]})}).then(function(x){var ok=x[0],j=x[1];
-if(!ok){b.disabled=false;b.textContent='Try again';var e=row.querySelector('.err')||row.appendChild(Object.assign(document.createElement('span'),{className:'muted err'}));e.textContent=' '+(j.error||'that did not work').replace(/_/g,' ');return}
+if(!ok){rowDiv.innerHTML=saved;var e=row.querySelector('.err')||row.appendChild(Object.assign(document.createElement('span'),{className:'muted err'}));e.textContent=' '+(j.error||'that did not work').replace(/_/g,' ');return}
 var bk=row.querySelector('.backers');bk.textContent=j.backers.length?'backed by '+j.backers.join(', '):'';
-if(f.action.indexOf('/lead')>-1){f.remove()}
-if(j.signs.indexOf(row.dataset.me)>-1){var cf=row.querySelector('form[action*=cosign]');if(cf){cf.remove()}if(!row.querySelector('.ok')){row.querySelector('.row').appendChild(Object.assign(document.createElement('span'),{className:'ok',textContent:'backed ✓'}))}}
-row.classList.add('did');if(j.status==='eligible'&&!row.querySelector('.tag.vote')){row.insertBefore(Object.assign(document.createElement('span'),{className:'tag vote',textContent:'to the vote'}),row.firstChild)}}).catch(function(){b.disabled=false;b.textContent='Try again'})});
+if(j.status==='eligible'&&!row.querySelector('.tag.vote')){row.insertBefore(Object.assign(document.createElement('span'),{className:'tag vote',textContent:'to the vote'}),row.firstChild)}}).catch(function(){rowDiv.innerHTML=saved})});
 function draft(){var t=document.getElementById('table');if(!t||!document.getElementById('drafting'))return;
 fetch(t.dataset.draft,{method:'POST',headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.text()}).then(function(h){var d=document.createElement('div');d.innerHTML=h;var n=d.querySelector('#table');if(n){t.replaceWith(n);n.classList.add('did')}}).catch(function(){var p=document.getElementById('drafting');if(p){p.textContent='Could not draft just now. Your need is saved.'}})}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',draft)}else{draft()}})()</script>"""
@@ -1088,18 +1092,12 @@ def start_done(node_id: str, request: Request):
     node, m = _my_node_or_403(node_id, request)
     from . import convo
     parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
-    base = str(request.base_url).rstrip("/")
-    tok = core.mint_token(con, "join_team", node_id=node["id"], ttl=core.TOKEN_TTL_JOIN)
-    link = f"{base}/j/{tok}"
     body = _steps(2) + "<div class=tick><svg viewBox='0 0 52 52'><circle cx=26 cy=26 r=24 fill=none /><path fill=none d='M14 27l8 8 16-16'/></svg></div>"
     body += f"<p class=rise>You run <b>{esc(node['name'])}</b> in {esc(parent['name']) if parent else esc(BRAND)}. You decide who is in, and you cast its vote.</p>"
     if parent and not node.get("charter_at"):
         body += (f"<div class='card rise'><h2 style='margin-top:0'>Five rules</h2><ol class=rules>" + "".join(f"<li>{esc(ln)}</li>" for ln in convo.CHARTER_LINES) + "</ol>"
                  f"<form method=post action='/n/{esc(node['id'])}/charter?next=/start/{esc(node['id'])}/done'><button>Agree and continue</button></form></div>")
     else:
-        body += (f"<div class='card rise'><h2 style='margin-top:0'>Your team</h2><p>Share this with the people who work with you so they can vote too. Anyone who opens it joins "
-                 f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
-                 f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
         waiting = int(request.query_params.get("w", "0") or 0)
         body += _table_card(node, parent, m, f"/start/{node['id']}/done", waiting=waiting)
         body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p>"
