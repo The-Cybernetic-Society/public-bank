@@ -59,11 +59,10 @@ r = R.post("/start/commons/mandrem-tailors/values", data={"earn": "9", "horizon"
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
 vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"earn": 9, "horizon": 3, "scope": 7, "means": 5, "risk": 10} and vv[0]["node_name"] == "Mandrem Tailors"
 R.post("/start/commons/mandrem-tailors/values", data={"earn": "0"}); assert core.values_of(con, "commons")[0]["vector"]["earn"] == 0 and len(core.values_of(con, "commons")) == 1
-# step 3: the charter, then the team link
-r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "Five rules" in r.text and "Agree and continue" in r.text and "One business, one vote." in r.text and "/j/" not in r.text
-assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
+# step 3: straight to the table; the sliders counted as joining
 assert core.get_node(con, a["node_id"])["charter_at"]
-r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" not in r.text and "/j/" not in r.text and "What happens next" in r.text and "Finish" in r.text
+r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "Five rules" not in r.text and "is in Goa Business Commons" in r.text
+assert "Your team" not in r.text and "/j/" not in r.text and "What happens next" in r.text and "Finish" in r.text
 r = R.get("/start/commons/mandrem-tailors/finished"); assert r.status_code == 200 and "That's it" in r.text and "confetti" in r.text and "/j/" in r.text
 assert client().get("/start/commons/mandrem-tailors/finished").status_code == 401
 import re  # noqa: E402

@@ -1081,8 +1081,8 @@ async def start_values_post(node_id: str, request: Request):
     form = await request.form()
     core.set_values(con, node_id, m["id"], {k: form.get(k) for k, *_ in core.VALUE_DIMENSIONS})
     if node.get("parent_id"):
-        from . import twin
-        twin.schedule(node["parent_id"])   # the sliders are in: draft from this business's need now
+        with db.tx(con):   # registering and answering is joining: no separate rules step on the web
+            con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
     return RedirectResponse(f"/start/{node_id}/done", status_code=303)
 
 
@@ -1090,21 +1090,16 @@ async def start_values_post(node_id: str, request: Request):
 def start_done(node_id: str, request: Request):
     """Step 3: the charter to accept, the team link, what happens next."""
     node, m = _my_node_or_403(node_id, request)
-    from . import convo
     parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
-    body = _steps(2) + "<div class=tick><svg viewBox='0 0 52 52'><circle cx=26 cy=26 r=24 fill=none /><path fill=none d='M14 27l8 8 16-16'/></svg></div>"
-    body += f"<p class=rise>You run <b>{esc(node['name'])}</b> in {esc(parent['name']) if parent else esc(BRAND)}. You decide who is in, and you cast its vote.</p>"
-    if parent and not node.get("charter_at"):
-        body += (f"<div class='card rise'><h2 style='margin-top:0'>Five rules</h2><ol class=rules>" + "".join(f"<li>{esc(ln)}</li>" for ln in convo.CHARTER_LINES) + "</ol>"
-                 f"<form method=post action='/n/{esc(node['id'])}/charter?next=/start/{esc(node['id'])}/done'><button>Agree and continue</button></form></div>")
-    else:
+    body = _steps(2) + f"<p class=rise><b>{esc(node['name'])}</b> is in {esc(parent['name']) if parent else esc(BRAND)}. You cast its vote.</p>"
+    if True:
         waiting = int(request.query_params.get("w", "0") or 0)
         body += _table_card(node, parent, m, f"/start/{node['id']}/done", waiting=waiting)
         body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p>"
                  "<p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  "then every business gets 100 points to split across the list.</p></div>")
         body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"
-    return page("You're in", body)
+    return page("On the table", body)
 
 
 @app.get("/start/{node_id:path}/finished")
