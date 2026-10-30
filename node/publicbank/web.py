@@ -773,7 +773,7 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
 <label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
-<label>WhatsApp number <span class=hint>We may call you to verify your eligibility. Never published.</span>
+<label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
 <div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]');if(!s)return;var o=[].slice.call(s.options);o.forEach(function(x){{x.dataset.short=x.textContent}});
 function long(){{o.forEach(function(x){{x.textContent=x.dataset.short+'  '+x.dataset.name}})}}function short(){{o.forEach(function(x){{x.textContent=x.dataset.short}})}}
