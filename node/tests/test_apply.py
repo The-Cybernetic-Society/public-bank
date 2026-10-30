@@ -36,58 +36,62 @@ assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.g
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
             team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings")
-r = anon.post("/apply/commons", data=form)
-assert r.status_code == 200 and "Mandrem Tailors" in r.text and "3210" in r.text and "98765" not in r.text, r.text[:400]
+# registering signs the applicant in as the business's coordinator and sends them to step 2
+R = client()
+r = R.post("/apply/commons", data=form)
+assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/values", (r.status_code, r.text[:300])
+owner_id = web.signer.loads(R.cookies.get("pb"))["m"]
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
 a = apps[0]
-assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210" and a["node_id"] == "commons/mandrem-tailors" and a["status"] == "new"
+assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210"
+assert a["node_id"] == "commons/mandrem-tailors" and a["status"] == "joined"
 node = core.get_node(con, a["node_id"]); assert node["parent_id"] == "commons" and node["name"] == "Mandrem Tailors"
-assert core.is_role(con, a["node_id"], tre["id"], ("treasurer",))   # the pool's treasurer rides along into every business
-
-# the same phone again: an update, not a second business; a different business with the same slug gets its own id
-r = anon.post("/apply/commons", data=dict(form, business="Mandrem Tailors & Co", need="A bigger shop sign"))
-assert r.status_code == 200 and len(core.applications_of(con, "commons")) == 1
-a = next(x for x in core.applications_of(con, "commons") if x["node_id"] == "commons/mandrem-tailors"); assert a["business"] == "Mandrem Tailors & Co" and core.get_node(con, a["node_id"])["name"] == "Mandrem Tailors & Co"
-r = anon.post("/apply/commons", data=dict(form, phone="+91 91234 56789", applicant="Sunil"))
+assert core.is_role(con, a["node_id"], owner_id, ("coordinator",)) and core.is_role(con, a["node_id"], tre["id"], ("treasurer",))
+assert db.row(con.execute("SELECT display, verified_by FROM members WHERE id=?", (owner_id,)).fetchone()) == {"display": "Rekha Naik", "verified_by": "web"}
+assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=False)] == ["A scooter for deliveries, customers keep asking"]
+# step 2: sliders; a stranger can't see them
+r = R.get("/start/commons/mandrem-tailors/values"); assert r.status_code == 200 and r.text.count("type=range") == 5 and "What matters" in r.text
+assert client().get("/start/commons/mandrem-tailors/values").status_code == 401
+r = R.post("/start/commons/mandrem-tailors/values", data={"offseason": "9", "admin": "3", "reach": "7", "staff": "5", "goa": "10"})
+assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
+vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"offseason": 9, "admin": 3, "reach": 7, "staff": 5, "goa": 10} and vv[0]["node_name"] == "Mandrem Tailors"
+R.post("/start/commons/mandrem-tailors/values", data={"offseason": "1"}); assert core.values_of(con, "commons")[0]["vector"]["offseason"] == 1 and len(core.values_of(con, "commons")) == 1
+# step 3: the charter, then the team link
+r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "How Goa Business Commons works" in r.text and "I'm in" in r.text and "/j/" not in r.text
+assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
+assert core.get_node(con, a["node_id"])["charter_at"]
+r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" in r.text and "/j/" in r.text and "What happens next" in r.text
+import re  # noqa: E402
+team = re.search(r"/j/([A-Za-z0-9_-]+)", r.text).group(1)
+S = client(); r = S.get(f"/j/{team}"); assert r.status_code == 200 and "You're in" in r.text
+assert len(core.active_members(con, a["node_id"])) == 3   # owner, staff, treasurer
+# the same phone again: already registered, the new need is kept, no second business
+r = anon.post("/apply/commons", data=dict(form, need="A bigger shop sign"))
+assert r.status_code == 200 and "Already registered" in r.text and len(core.applications_of(con, "commons")) == 1
+assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=False)] == ["A scooter for deliveries, customers keep asking", "A bigger shop sign"]
+# another business, same slug, its own id; nothing ticked, a bot, a bad number
+r = client().post("/apply/commons", data=dict(form, phone="+91 91234 56789", applicant="Sunil")); assert r.status_code == 303
 assert {x["node_id"] for x in core.applications_of(con, "commons")} == {"commons/mandrem-tailors", "commons/mandrem-tailors-2"}
-# nothing ticked: the form comes back with the error and the same phone count
-assert "Tick at least one" in anon.post("/apply/commons", data=dict(form, share=[], share_other="")).text and len(core.applications_of(con, "commons")) == 2
-# a bot and a bad number
+assert "Tick at least one" in anon.post("/apply/commons", data=dict(form, phone="5551112222", share=[], share_other="")).text and len(core.applications_of(con, "commons")) == 2
 assert anon.post("/apply/commons", data=dict(form, phone="5551112222", website="x")).status_code == 200 and len(core.applications_of(con, "commons")) == 2
 r = anon.post("/apply/commons", data=dict(form, phone="12")); assert "doesn't look like" in r.text and len(core.applications_of(con, "commons")) == 2
 assert core.normalize_phone("0 98765 43210") == "919876543210" and core.normalize_phone("+1 415 555 0100") == "14155550100" and core.normalize_phone("abc") == ""
 
-# the treasurer sees the businesses and a "Send card" link that opens WhatsApp to the owner with the card inside
+# the treasurer sees both, verifies one post-hoc; the un-continued one still has a Send-card link
 T = client(tre["id"])
-r = T.get("/c/commons"); assert r.status_code == 200
-assert "Registered businesses" in r.text and "Mandrem Tailors &amp; Co" in r.text and "wa.me/919876543210?text=" in r.text and "Send card" in r.text
-assert "/j/" + a["token"] in __import__("urllib.parse").parse.unquote(r.text)
+r = T.get("/c/commons"); assert r.status_code == 200 and "Registered businesses" in r.text and "Verify" in r.text and "Download CSV" in r.text
 assert client().get("/c/commons").status_code == 401
-
-# the owner opens the card on the web: coordinator, charter shown, need recorded, display set from the form
-O = client()
-r = O.get(f"/j/{a['token']}")
-assert r.status_code == 200 and "You run <b>Mandrem Tailors &amp; Co</b>" in r.text and "works like this" in r.text and "Your team" in r.text, r.text[:600]
-owner_id = web.signer.loads(O.cookies.get("pb"))["m"]
-assert core.is_role(con, a["node_id"], owner_id, ("coordinator",))
-assert db.row(con.execute("SELECT display FROM members WHERE id=?", (owner_id,)).fetchone())["display"] == "Rekha Naik"
-assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=False)] == ["A bigger shop sign"]
-assert core.applications_of(con, "commons", status="joined")[0]["id"] == a["id"]
-assert not core.get_node(con, a["node_id"]).get("charter_at")
-assert O.post(f"/n/{a['node_id']}/charter").status_code == 303 and core.get_node(con, a["node_id"])["charter_at"]
-r = O.get(f"/c/{a['node_id']}"); assert "works like this" not in r.text
-# opening the card twice is harmless; a stranger can't accept a charter
-assert O.get(f"/j/{a['token']}").status_code == 200 and len(core.needs_of(con, a["node_id"], include_children=False)) == 1
+assert T.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 303
+assert core.applications_of(con, "commons", status="verified")[0]["id"] == a["id"] and "verified" in T.get("/c/commons").text
+assert R.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 403   # a business can't verify itself
+b2 = next(x for x in core.applications_of(con, "commons") if x["node_id"] == "commons/mandrem-tailors-2")
+with db.tx(con): con.execute("UPDATE applications SET status='new' WHERE id=?", (b2["id"],))   # as if Sunil had closed the tab before step 2
+assert "Send card" in T.get("/c/commons").text and "/j/" + b2["token"] in __import__("urllib.parse").parse.unquote(T.get("/c/commons").text)
+# that card still works on the web for a second person
+O = client(); r = O.get(f"/j/{b2['token']}"); assert r.status_code == 200 and "You run <b>Mandrem Tailors" in r.text
 assert client().post(f"/n/{a['node_id']}/charter").status_code == 401
-# the team link on the welcome page joins staff straight in; the poster link on /c/ still needs approval
-import re  # noqa: E402
-team = re.search(r"/j/([A-Za-z0-9_-]+)", O.get(f"/j/{a['token']}").text).group(1)
-S = client(); r = S.get(f"/j/{team}"); assert r.status_code == 200 and "You're in" in r.text
-poster = re.search(r"/j/([A-Za-z0-9_-]+)", O.get(f"/c/{a['node_id']}").text).group(1)
+poster = re.search(r"/j/([A-Za-z0-9_-]+)", R.get(f"/c/{a['node_id']}").text).group(1)
 assert "coordinator will confirm" in client().get(f"/j/{poster}").text
-assert len(core.active_members(con, a["node_id"])) == 3   # owner, staff, treasurer
-# the treasurer's view now says joined
-assert "joined" in T.get("/c/commons").text
 
 # the second business's owner opens the card on WhatsApp: the form's need is kept and the bot doesn't ask again
 sent = []
@@ -97,7 +101,8 @@ class FakeSender:
     def list(self, to, body, button, rows): sent.append((to, body))
     def template(self, to, name, params): sent.append((to, name))
 whatsapp.sender = FakeSender()
-b = core.applications_of(con, "commons", status="new")[0]
+b = b2
+with db.tx(con): con.execute("DELETE FROM needs WHERE node_id=?", (b["node_id"],)); con.execute("UPDATE applications SET status='new' WHERE id=?", (b["id"],))
 def wa(phone, text):
     whatsapp.handle_update({"object": "whatsapp_business_account", "entry": [{"id": "1", "changes": [{"field": "messages", "value": {
         "messaging_product": "whatsapp", "contacts": [{"profile": {"name": "Sunil"}, "wa_id": phone}],
@@ -144,5 +149,5 @@ assert np("98765 43210", "91") == "919876543210" and np("098765 43210", "91") ==
 assert np("415 938 0000", "1") == "14159380000" and np("+1 415 938 0000", "1") == "14159380000" and np("07911 123456", "44") == "447911123456"
 assert np("91 98765 43210", "91") == "919876543210" and np("12", "91") == ""
 r = anon.post("/apply/commons", data=dict(form, business="Surf Cafe", applicant="Marcus", phone="415 938 0000", cc="US"))
-assert r.status_code == 200 and next(x for x in core.applications_of(con, "commons") if x["business"] == "Surf Cafe")["phone"] == "14159380000"
+assert r.status_code == 303 and next(x for x in core.applications_of(con, "commons") if x["business"] == "Surf Cafe")["phone"] == "14159380000"
 print("APPLY OK · country code")

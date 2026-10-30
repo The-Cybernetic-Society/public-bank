@@ -822,3 +822,60 @@ def claim_application(con, node_id: str, member_id: str) -> dict | None:
 
 def has_need(con, node_id: str) -> bool:
     return bool(con.execute("SELECT 1 FROM needs WHERE node_id=? LIMIT 1", (node_id,)).fetchone())
+
+
+# ----------------------------------------------------------------------------
+# onboarding: the applicant enters at once; verification is a later, human step
+# ----------------------------------------------------------------------------
+VALUE_DIMENSIONS = [
+    ("offseason", "More customers in the off-season", "Steady income from November to March, not just the peak."),
+    ("admin", "Spending less time on admin", "Billing, stock, GST, bookings, chasing payments."),
+    ("reach", "Reaching customers who aren't walking past", "Delivery, online orders, being found on a phone."),
+    ("staff", "People to work with", "Finding, training and keeping good staff."),
+    ("goa", "Goa staying a place people come back to", "Clean beaches, less traffic, locals not priced out."),
+]
+
+
+def enter_from_application(con, application_id: str) -> dict:
+    """The person who just registered runs their business here from this moment: a web member, coordinator of the
+    node, the form's need recorded. Nobody has checked them yet; `verify_application` is the treasurer's later call."""
+    a = row(con.execute("SELECT * FROM applications WHERE id=?", (application_id,)).fetchone())
+    if not a:
+        raise PBError("application_not_found")
+    mid = new_id("m_")
+    with tx(con):
+        con.execute("INSERT INTO members (id,verified_by,display,created_at) VALUES (?,?,?,?)", (mid, "web", a["applicant"], now()))
+    join_node(con, a["node_id"], mid, role="coordinator", auto_active=True)
+    claim_application(con, a["node_id"], mid)
+    return row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
+
+
+def verify_application(con, application_id: str, by_member_id: str) -> dict:
+    a = row(con.execute("SELECT * FROM applications WHERE id=?", (application_id,)).fetchone())
+    if not a:
+        raise PBError("application_not_found")
+    if not is_role(con, a["pool_id"], by_member_id, ("coordinator", "treasurer")):
+        raise PBError("not_coordinator")
+    with tx(con):
+        con.execute("UPDATE applications SET status='verified', updated_at=? WHERE id=?", (now(), a["id"]))
+    return row(con.execute("SELECT * FROM applications WHERE id=?", (a["id"],)).fetchone())
+
+
+def set_values(con, node_id: str, member_id: str, vector: dict, phase: str = "before") -> dict:
+    """One answer per member per phase; a second submit replaces the first."""
+    keys = {k for k, _, _ in VALUE_DIMENSIONS}
+    v = {k: max(1, min(10, int(vector.get(k, 5) or 5))) for k in keys}
+    with tx(con):
+        con.execute("DELETE FROM value_vectors WHERE node_id=? AND member_id=? AND phase=?", (node_id, member_id, phase))
+        con.execute("INSERT INTO value_vectors (id,node_id,member_id,phase,vector,created_at) VALUES (?,?,?,?,?,?)",
+                    (new_id("v_"), node_id, member_id, phase, json.dumps(v), now()))
+    return v
+
+
+def values_of(con, node_id: str, phase: str = "before", include_children: bool = True) -> list[dict]:
+    ids = [node_id] + ([k["id"] for k in children(con, node_id)] if include_children else [])
+    q = f"SELECT vv.*, n.name AS node_name FROM value_vectors vv JOIN nodes n ON n.id=vv.node_id WHERE vv.node_id IN ({','.join('?' * len(ids))}) AND vv.phase=? ORDER BY vv.created_at"
+    out = rows(con.execute(q, [*ids, phase]).fetchall())
+    for r in out:
+        r["vector"] = j(r["vector"], {})
+    return out

@@ -213,6 +213,15 @@ CREATE TABLE IF NOT EXISTS applications (
   updated_at    BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS value_vectors (
+  id            TEXT PRIMARY KEY,
+  node_id       TEXT NOT NULL REFERENCES nodes(id),
+  member_id     TEXT NOT NULL REFERENCES members(id),
+  phase         TEXT NOT NULL DEFAULT 'before',  -- before | after: the same questions, before the first round and after one
+  vector        TEXT NOT NULL,                   -- JSON {dimension: 1..10}
+  created_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS tokens (
   token         TEXT PRIMARY KEY,
   kind          TEXT NOT NULL,                   -- join | ballot | ratify | login

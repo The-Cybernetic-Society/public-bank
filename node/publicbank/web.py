@@ -106,7 +106,18 @@ code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px s
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
-.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}</style>"""
+.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}
+button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
+.steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
+.slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
+.slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--p:44%}
+.slider input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--gold) var(--p),var(--line) var(--p))}.slider input::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}.slider input::-moz-range-progress{height:6px;border-radius:3px;background:var(--gold)}
+.slider input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-10px;border-radius:50%;background:var(--card);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--shadow);cursor:pointer;transition:transform .12s}.slider input::-webkit-slider-thumb:active{transform:scale(1.15)}.slider input::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--card);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--shadow)}
+.tick{width:64px;height:64px;margin:4px 0 12px}.tick svg{width:64px;height:64px;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.tick circle{stroke-dasharray:160;stroke-dashoffset:160;animation:draw .7s ease-out forwards}.tick path{stroke:#2f6b3f;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .5s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.rise{animation:rise .45s ease-out both}.rise:nth-of-type(2){animation-delay:.08s}.rise:nth-of-type(3){animation-delay:.16s}.rise:nth-of-type(4){animation-delay:.24s}.rise:nth-of-type(5){animation-delay:.32s}
+h1{animation:rise .4s ease-out both}.choice label,button{transition:transform .12s,box-shadow .12s,background .2s}.choice label:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+@media(prefers-reduced-motion:reduce){.rise,h1,.tick circle,.tick path{animation:none;opacity:1;stroke-dashoffset:0}}</style>"""
 
 
 BRAND = os.environ.get("PB_BRAND", "The Cybernetic Society")
@@ -231,12 +242,13 @@ def _coordinator_welcome(node: dict, m: dict, request: Request) -> HTMLResponse:
 
 
 @app.post("/n/{node_id:path}/charter")
-def accept_charter(node_id: str, request: Request):
+def accept_charter(node_id: str, request: Request, next: str = ""):
     m = _require(request)
     if not core.is_role(con, node_id, m["id"], ("coordinator",)): raise HTTPException(403)
     with db.tx(con):
         con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
-    return RedirectResponse(f"/c/{node_id}", status_code=303)
+    dest = next if next.startswith("/") and not next.startswith("//") else f"/c/{node_id}"
+    return RedirectResponse(dest, status_code=303)
 
 
 @app.get("/l/{token}")
@@ -510,7 +522,7 @@ def coordinate(node_id: str, request: Request):
     if not node.get("parent_id"):
         apps = core.applications_of(con, node_id)
         body += f"<h2>Registered businesses</h2><p class=muted>From <a href='/apply/{esc(node_id)}'>{esc(base)}/apply/{esc(node_id)}</a>. "
-        body += f"“Send card” opens WhatsApp on your phone with the owner's join link ready to send. <a href='/c/{esc(node_id)}/applications.csv'>Download CSV</a>.</p>"
+        body += f"A business registers and runs itself at once; “Verify” is your note that you've checked it is real. “Send card” is for owners who registered but never continued. <a href='/c/{esc(node_id)}/applications.csv'>Download CSV</a>.</p>"
         if apps:
             body += "<table><tr><th>Business</th><th>Who</th><th>Team</th><th>Need</th><th></th></tr>"
             for a in apps:
@@ -519,8 +531,14 @@ def coordinate(node_id: str, request: Request):
                     from . import whatsapp
                     link = whatsapp.join_link(a["token"])
                 msg = f"Hi {a['applicant']}, welcome to {node['name']}. Open this to join as {a['business']}: {link}"
-                act = (f"<a href='https://wa.me/{esc(a['phone'])}?text={esc(urllib.parse.quote(msg))}'>Send card</a>" if a["status"] == "new"
-                       else "<span class=ok>joined</span>")
+                call = f"<a href='https://wa.me/{esc(a['phone'])}'>WhatsApp</a>"
+                if a["status"] == "verified":
+                    act = f"<span class=ok>verified</span> · {call}"
+                elif a["status"] == "joined":
+                    act = (f"<form method=post action='/c/{esc(node_id)}/verify' style='margin:0'><input type=hidden name=application_id value='{esc(a['id'])}'>"
+                           f"<button class=small>Verify</button></form>{call}")
+                else:
+                    act = f"<a href='https://wa.me/{esc(a['phone'])}?text={esc(urllib.parse.quote(msg))}'>Send card</a>"
                 chal = f"<br><span class=muted>Needs help with: {esc(a['challenge'])}</span>" if a.get("challenge") else ""
                 body += (f"<tr><td><b>{esc(a['business'])}</b><br><span class=muted>{esc(a['about'] or '')}</span>{chal}</td><td>{esc(a['applicant'])}<br><span class=muted>{esc(a['role'])}"
                          + (" · would chip in" if a["contribute"] == "yes" else "") + f"</span></td><td>{a['team_size'] or ''}</td><td>{esc(a['need'] or '')}</td><td>{act}</td></tr>")
@@ -534,6 +552,14 @@ def coordinate(node_id: str, request: Request):
         from . import whatsapp
         body += f"<p>WhatsApp: <code>{esc(whatsapp.join_link(tok))}</code> · <a href='/j/{esc(tok)}/poster.png?via=wa'>card</a></p>"
     return page(f"Coordinate · {node['name']}", body)
+
+
+@app.post("/c/{node_id:path}/verify")
+def verify_application(node_id: str, request: Request, application_id: str = Form(...)):
+    m = _require(request)
+    try: core.verify_application(con, application_id, m["id"])
+    except core.PBError as e: raise HTTPException(403, e.code)
+    return RedirectResponse(f"/c/{node_id}", status_code=303)
 
 
 @app.post("/c/{node_id:path}/approve-member")
@@ -859,15 +885,11 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent))
     except core.PBError:
         return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
-    body = f"<p><b>{esc(a['business'])}</b> is registered in {esc(pool['name'])}.</p>"
-    if os.environ.get("PB_WA_NUMBER") and a["status"] == "new":
-        from . import whatsapp
-        body += (f"<p>One tap to finish: open WhatsApp and send the message that appears. That makes you the person who runs "
-                 f"{esc(a['business'])} here.</p><form action='{esc(whatsapp.join_link(a['token']))}'><button>Open WhatsApp</button></form>")
-    else:
-        body += f"<p>We'll WhatsApp the number ending in <b>{esc(a['phone'][-4:])}</b> with your business's join link. Open it and you're set up as the person who runs {esc(a['business'])} here; you'll get a link to share with your team.</p>"
-    body += f"<p class=muted>Change something? Fill the form again from the same number and it updates. <a href='/b/{esc(pool['id'])}'>Live board</a></p>"
-    return page(f"Thanks, {esc(a['applicant'].split()[0])}", body)
+    if a["status"] == "new":
+        m = core.enter_from_application(con, a["id"])
+        return _set_session(RedirectResponse(f"/start/{a['node_id']}/values", status_code=303), m["id"])
+    # the same number again, after already joining: just say so
+    return page("Already registered", f"<p><b>{esc(a['business'])}</b> is already set up. Open the link we sent you, or ask in the group.</p>")
 
 
 GROUP = os.environ.get("PB_WA_GROUP", "https://chat.whatsapp.com/Bmvu9ldoM8jIr1QZ3Qkmgu")   # the WhatsApp group where the Commons talks
@@ -890,6 +912,64 @@ def privacy():
 <p>We keep it while the Commons runs, and delete names and numbers when it ends. You can leave at any time: message an admin of the <a href='{esc(GROUP)}'>WhatsApp group</a> and we will delete what we hold about you and your business and stop using it. Decisions already made stay in the public record, without your name, because the other businesses' votes and the ledger depend on them.</p>
 <p class=muted>Run by {esc(BRAND)}. This is a private, independent pilot, not a bank or a government scheme.</p>"""
     return page("Privacy", body)
+
+
+def _steps(n: int) -> str:
+    names = ["Register", "What matters", "You're in"]
+    return "<ol class=steps>" + "".join(f"<li class='{'done' if i < n else 'now' if i == n else ''}'><span>{i + 1}</span>{x}</li>" for i, x in enumerate(names)) + "</ol>"
+
+
+def _my_node_or_403(node_id: str, request: Request) -> tuple[dict, dict]:
+    m = _require(request)
+    if not core.is_role(con, node_id, m["id"], ("coordinator",)):
+        raise HTTPException(403)
+    return core.get_node(con, node_id), m
+
+
+@app.get("/start/{node_id:path}/values")
+def start_values(node_id: str, request: Request):
+    """Step 2: five sliders. The twin scores its drafts against these; asked again after a round."""
+    node, m = _my_node_or_403(node_id, request)
+    body = _steps(1) + f"<p><b>{esc(node['name'])}</b> is registered. Two more minutes. For your business over the next year, how much would each of these matter?</p>"
+    body += f"<form method=post action='/start/{esc(node_id)}/values'>"
+    for k, title, hint in core.VALUE_DIMENSIONS:
+        body += (f"<div class='card rise'><label for=v_{k}>{esc(title)} <span class=hint>{esc(hint)}</span></label>"
+                 f"<div class=slider><span class=lo>not at all</span><input id=v_{k} name={k} type=range min=1 max=10 value=5><span class=hi>the most</span><output for=v_{k}>5</output></div></div>")
+    body += "<button>Next</button></form>"
+    body += "<script>document.querySelectorAll('.slider input').forEach(function(i){var o=i.parentNode.querySelector('output');function f(){o.textContent=i.value;i.style.setProperty('--p',(i.value-1)/9*100+'%')}i.addEventListener('input',f);f()})</script>"
+    return page("What matters to you", body)
+
+
+@app.post("/start/{node_id:path}/values")
+async def start_values_post(node_id: str, request: Request):
+    node, m = _my_node_or_403(node_id, request)
+    form = await request.form()
+    core.set_values(con, node_id, m["id"], {k: form.get(k) for k, _, _ in core.VALUE_DIMENSIONS})
+    return RedirectResponse(f"/start/{node_id}/done", status_code=303)
+
+
+@app.get("/start/{node_id:path}/done")
+def start_done(node_id: str, request: Request):
+    """Step 3: the charter to accept, the team link, what happens next."""
+    node, m = _my_node_or_403(node_id, request)
+    from . import convo
+    parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
+    base = str(request.base_url).rstrip("/")
+    tok = core.mint_token(con, "join_team", node_id=node["id"], ttl=core.TOKEN_TTL_JOIN)
+    link = f"{base}/j/{tok}"
+    body = _steps(2) + "<div class=tick><svg viewBox='0 0 52 52'><circle cx=26 cy=26 r=24 fill=none /><path fill=none d='M14 27l8 8 16-16'/></svg></div>"
+    body += f"<p class=rise>You run <b>{esc(node['name'])}</b> in {esc(parent['name']) if parent else esc(BRAND)}. You decide who is in, and you cast its vote.</p>"
+    if parent and not node.get("charter_at"):
+        body += (f"<div class='card rise'><h2 style='margin-top:0'>How {esc(parent['name'])} works</h2><p>{esc(convo.CHARTER)}</p>"
+                 f"<form method=post action='/n/{esc(node['id'])}/charter?next=/start/{esc(node['id'])}/done'><button>I'm in</button></form></div>")
+    else:
+        body += (f"<div class='card rise'><h2 style='margin-top:0'>Your team</h2><p>Share this with the people who work with you so they can vote too. Anyone who opens it joins "
+                 f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
+                 f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
+        body += (f"<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
+                 f"then every business gets 100 points to split across the list. Winning items are bought against receipts, and every rupee is on the "
+                 f"<a href='/b/{esc(parent['id']) if parent else esc(node['id'])}'>live board</a>.</p><p><a href='/me'>Your nodes</a> · <a href='/c/{esc(node['id'])}'>Your business</a></p></div>")
+    return page("You're in", body)
 
 
 @app.get("/")
