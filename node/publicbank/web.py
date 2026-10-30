@@ -754,7 +754,7 @@ def board(node_id: str):
 # the front door: a pool's registration form, and the landing page
 # ----------------------------------------------------------------------------
 APPLY_INTRO = os.environ.get("PB_APPLY_INTRO", (
-    "A shared fund for things businesses can buy or run together: a delivery scooter for a lane, one software licence "
+    "A shared ₹5L fund for things businesses can buy or run together: a delivery scooter for a lane, one software licence "
     "for several shops, a cold store, a trainer. Each business says what it needs, similar needs are grouped, then we "
     "all vote on what we fund."))
 
