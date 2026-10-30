@@ -27,17 +27,18 @@ def client(mid=None):
 
 
 anon = client()
+assert anon.get("/privacy").status_code == 200 and "privacy policy" in anon.get("/apply/commons").text
 r = anon.get("/"); assert r.status_code == 200 and "Goa Business Commons" in r.text and "/apply/commons" in r.text
 r = anon.get("/apply/commons"); assert r.status_code == 200 and "Register my business" in r.text and "name=phone" in r.text
 assert anon.get("/apply/nope").status_code == 404
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge="Finding customers in the off season",
-            team_size="3", need="A scooter for deliveries, customers keep asking", share="Sewing machine evenings", contribute="yes", consent="1")
+            team_size="3", need="A scooter for deliveries, customers keep asking", share="Sewing machine evenings")
 r = anon.post("/apply/commons", data=form)
 assert r.status_code == 200 and "Mandrem Tailors" in r.text and "3210" in r.text and "98765" not in r.text, r.text[:400]
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
 a = apps[0]
-assert a["challenge"] == "Finding customers in the off season" and a["phone"] == "919876543210" and a["node_id"] == "commons/mandrem-tailors" and a["status"] == "new" and a["consent"] == 1 and a["contribute"] == "yes"
+assert a["challenge"] == "Finding customers in the off season" and a["phone"] == "919876543210" and a["node_id"] == "commons/mandrem-tailors" and a["status"] == "new"
 node = core.get_node(con, a["node_id"]); assert node["parent_id"] == "commons" and node["name"] == "Mandrem Tailors"
 assert core.is_role(con, a["node_id"], tre["id"], ("treasurer",))   # the pool's treasurer rides along into every business
 

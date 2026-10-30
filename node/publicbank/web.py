@@ -784,13 +784,11 @@ s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEvent
 <textarea name=need rows=3 required maxlength=500>{g('need')}</textarea></label>
 <label>What could you share with other businesses? <span class=hint>Equipment, space, a skill, a contact. Nothing is too small.</span>
 <textarea name=share rows=2 required maxlength=300>{g('share')}</textarea></label>
-<label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')])}</label>
 <label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
 <div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
-<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You can use my anonymised answers in research and publications about funding public goods.</span></label>
 <button>Register my business</button>
 </form>
-<p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
+<p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. By registering you agree to our <a href='/privacy'>privacy policy</a>.</p>"""
     return page(pool["name"], body)
 
 
@@ -841,6 +839,29 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
         body += f"<p>We'll WhatsApp the number ending in <b>{esc(a['phone'][-4:])}</b> with your business's join link. Open it and you're set up as the person who runs {esc(a['business'])} here; you'll get a link to share with your team.</p>"
     body += f"<p class=muted>Change something? Fill the form again from the same number and it updates. <a href='/b/{esc(pool['id'])}'>Live board</a></p>"
     return page(f"Thanks, {esc(a['applicant'].split()[0])}", body)
+
+
+CONTACT = os.environ.get("PB_CONTACT", "")
+
+
+@app.get("/privacy")
+def privacy():
+    who = f"write to <a href='mailto:{esc(CONTACT)}'>{esc(CONTACT)}</a>" if CONTACT else "message the number that sent your card, or ask in the WhatsApp group"
+    body = f"""<p>This is what happens to what you type into the registration form.</p>
+<h2>What we collect</h2>
+<p>Your business's name, your name and role, what the business does and where, how many people work there, what you need help with, one thing you would buy or run with other businesses, what you could share, and your WhatsApp number.</p>
+<h2>What it is for</h2>
+<p>To run the Commons: to send you your business's join link, to group similar needs into proposals, to count one vote per business, and to call you if we need to confirm a business is real. Nothing else. We do not sell it, share it with other businesses, or use it for advertising.</p>
+<h2>What is public</h2>
+<p>The live board and the export show business names, proposals, votes as totals, and the ledger of what was bought. They never show a person's name, a phone number, or a payment id.</p>
+<h2>Research</h2>
+<p>We may publish what we learn about funding shared goods this way. Anything published is anonymised: no person's name, no business's name, and nothing that would let a reader work out which business said what.</p>
+<h2>How long we keep it</h2>
+<p>Phone numbers and names are kept while the Commons runs and deleted within twelve months of the last round closing. The public record of decisions is kept.</p>
+<h2>Your choices</h2>
+<p>To see, correct or delete what we hold about you or your business, or to withdraw, {who}. Withdrawing removes your business from future rounds; decisions already made stay in the record.</p>
+<p class=muted>Run by {esc(BRAND)}. This is a private, independent pilot, not a bank or a government scheme.</p>"""
+    return page("Privacy", body)
 
 
 @app.get("/")
