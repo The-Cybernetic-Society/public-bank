@@ -104,6 +104,7 @@ button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}bu
 .muted{color:var(--muted);font-size:16px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
 code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px solid var(--line);padding:2px 6px;border-radius:3px}
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
+.consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone select{width:36%;flex:0 0 auto;padding:11px 4px 11px 8px}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}</style>"""
 
@@ -784,7 +785,7 @@ s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEvent
 <label>What could you share with other businesses? <span class=hint>Optional. Equipment, space, a skill, a contact. Nothing is too small.</span>
 <textarea name=share rows=2 maxlength=300>{g('share')}</textarea></label>
 <label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')], 'maybe')}</label>
-<label style='font-weight:400'><input type=checkbox name=consent value=1 style='width:auto'{' checked' if v.get('consent') else ''}> You may use my answers, without my name or my business's name, for research.</label>
+<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You may use my answers, with my name and my business's name removed, in research and publications about the Commons.<span class=hint>What we learn here is meant to be reused by other towns. Nothing identifiable ever leaves.</span></span></label>
 <button>Register my business</button>
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
