@@ -10,6 +10,7 @@ import tempfile
 
 os.environ["PB_DB"] = os.path.join(tempfile.mkdtemp(), "w.sqlite")
 os.environ["PB_SECRET"] = "test"
+os.environ["PB_TWIN_INLINE"] = "1"   # the twin runs inline, never in a racing thread
 os.environ["PB_WA_NUMBER"] = "+91 12345 67890"
 os.environ["PB_WA_POOL"] = "goa-biz"
 os.environ["PB_WA_VERIFY_TOKEN"] = "verify-me"

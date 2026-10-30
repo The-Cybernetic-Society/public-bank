@@ -111,7 +111,7 @@ table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",mono
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.drafting{color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);margin-right:8px;animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
-button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
+button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}.propose{margin:4px 0 14px}.propose summary{list-style:none;display:block;text-align:center;font:400 12px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);margin-top:0}.propose summary::-webkit-details-marker{display:none}.propose[open] summary{box-shadow:1px 1px 0 var(--shadow);transform:translate(2px,2px)}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
 .slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--a:50%;--b:50%}.poles{display:flex;justify-content:space-between;font-weight:500;color:var(--ink)}.poleword{text-align:center;margin:2px 0 6px}.poleword output{font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:6px 10px;border-radius:8px;display:inline-block;min-width:6ch}.axis .hint{margin-top:6px}
@@ -983,8 +983,9 @@ def _my_node_or_403(node_id: str, request: Request) -> tuple[dict, dict]:
 
 
 def _table_card(node: dict, parent: dict | None, m: dict, back: str, waiting: int = 0) -> str:
-    """Proposals in the pool's open round, with lead and back buttons; the business's own need when there are none;
-    and a box to propose something now."""
+    """Proposals in the pool's open round, with lead and back buttons; a prominent propose button on top; and,
+    while the business's own need has no draft yet, a drafting state that asks the server to draft (in a request,
+    not a background thread: Cloud Run gives no CPU after a response) and swaps the card in without a reload."""
     pool = parent or node
     rnd = core.current_round(con, pool["id"])
     if not rnd or rnd["status"] != "proposals":
@@ -992,8 +993,17 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str, waiting: in
     from .twin import rank_for
     props = rank_for(con, node["id"], db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at DESC", (rnd["id"],)).fetchall()), limit=10)
     names = {k["id"]: k["name"] for k in core.children(con, pool["id"])}
-    need_n = pool.get("cosign_min") or 1
-    out = "<div class='card rise'><h2 style='margin-top:0'>On the table</h2>"
+    need = core.needs_of(con, node["id"], include_children=False, status=None)
+    pending = bool(need) and any(n["status"] == "open" for n in need) and waiting < 3
+    out = f"<div class='card rise' id=table data-draft='/start/{esc(node['id'])}/draft' data-back='{esc(back)}'><h2 style='margin-top:0'>On the table</h2>"
+    out += (f"<details class=propose><summary>Propose something</summary><form method=post action='/n/{esc(pool['id'])}/propose?next={esc(back)}'>"
+            f"<label>What <input name=title required maxlength=120 placeholder='A shared delivery scooter for the market lane'></label>"
+            f"<label>About how much, in rupees <input name=ideal type=number inputmode=numeric min=1 required placeholder='60000'></label>"
+            f"<label>A line on how it would be shared <input name=text maxlength=500></label>"
+            f"<label>The vendor's UPI id, if you have a quote <span class=hint>Optional. The fund pays them directly once the plan is approved.</span><input name=upi maxlength=80 placeholder='shop@okaxis'></label>"
+            f"<input type=hidden name=lead value=on><button>Propose it, I'll lead it</button></form></details>")
+    if pending:
+        out += f"<p class=drafting id=drafting><span class=dot></span> Drafting a proposal from <i>{esc(need[-1]['text'])}</i>…</p>"
     if props:
         out += "<p class=muted>The ten that fit your business best, from what you told us. Back one if your business would use it.</p>"
         for p in props:
@@ -1009,29 +1019,35 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str, waiting: in
             elif p["lead_id"]:
                 out += "<span class=ok>backed ✓</span>"
             out += "</div></div>"
-    else:
-        need = core.needs_of(con, node["id"], include_children=False, status=None)
-        if need and any(n["status"] == "open" for n in need) and waiting < 5:
-            # the twin is drafting from this need in the background: look again in a few seconds
-            out += f"<p class=drafting><span class=dot></span> Drafting a proposal from <i>{esc(need[-1]['text'])}</i>…</p><meta http-equiv=refresh content='4;url={esc(back)}?w={waiting + 1}'>"
-        elif need:
-            out += f"<p>Your need is in: <i>{esc(need[-1]['text'])}</i>. When another business needs something similar, a draft appears here and on WhatsApp.</p>"
-        else:
-            out += "<p>Nothing yet. When businesses' needs line up, drafts appear here and on WhatsApp.</p>"
-    out += (f"<details><summary>Propose something now</summary><form method=post action='/n/{esc(pool['id'])}/propose?next={esc(back)}'>"
-            f"<label>What <input name=title required maxlength=120 placeholder='A shared delivery scooter for the market lane'></label>"
-            f"<label>About how much, in rupees <input name=ideal type=number inputmode=numeric min=1 required placeholder='60000'></label>"
-            f"<label>A line on how it would be shared <input name=text maxlength=500></label>"
-            f"<label>The vendor's UPI id, if you have a quote <span class=hint>Optional. The fund pays them directly once the plan is approved.</span><input name=upi maxlength=80 placeholder='shop@okaxis'></label>"
-            f"<input type=hidden name=lead value=on><button>Propose it, I'll lead it</button></form></details></div>")
-    out += """<script>(function(){document.querySelectorAll('.prop form').forEach(function(f){f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button'),row=f.closest('.prop');b.disabled=true;b.textContent='…';
+    elif not pending:
+        out += "<p class=muted>Nothing on the table yet.</p>"
+    out += "</div>"
+    out += """<script>(function(){if(window.__pbTable)return;window.__pbTable=1;
+document.addEventListener('submit',function(ev){var f=ev.target;if(!f.closest||!f.closest('.prop'))return;ev.preventDefault();var b=f.querySelector('button'),row=f.closest('.prop');b.disabled=true;b.textContent='…';
 fetch(f.action,{method:'POST',body:new FormData(f),headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.json().then(function(j){return [r.ok,j]})}).then(function(x){var ok=x[0],j=x[1];
-if(!ok){b.disabled=false;b.textContent=f.dataset.label||'Try again';var e=row.querySelector('.err')||row.appendChild(Object.assign(document.createElement('span'),{className:'muted err'}));e.textContent=' '+(j.error||'that did not work').replace(/_/g,' ');return}
+if(!ok){b.disabled=false;b.textContent='Try again';var e=row.querySelector('.err')||row.appendChild(Object.assign(document.createElement('span'),{className:'muted err'}));e.textContent=' '+(j.error||'that did not work').replace(/_/g,' ');return}
 var bk=row.querySelector('.backers');bk.textContent=j.backers.length?'backed by '+j.backers.join(', '):'';
 if(f.action.indexOf('/lead')>-1){f.remove()}
 if(j.signs.indexOf(row.dataset.me)>-1){var cf=row.querySelector('form[action*=cosign]');if(cf){cf.remove()}if(!row.querySelector('.ok')){row.querySelector('.row').appendChild(Object.assign(document.createElement('span'),{className:'ok',textContent:'backed ✓'}))}}
-row.classList.add('did');if(j.status==='eligible'&&!row.querySelector('.tag.vote')){row.insertBefore(Object.assign(document.createElement('span'),{className:'tag vote',textContent:'to the vote'}),row.firstChild)}}).catch(function(){b.disabled=false;b.textContent='Try again'})})})})()</script>"""
+row.classList.add('did');if(j.status==='eligible'&&!row.querySelector('.tag.vote')){row.insertBefore(Object.assign(document.createElement('span'),{className:'tag vote',textContent:'to the vote'}),row.firstChild)}}).catch(function(){b.disabled=false;b.textContent='Try again'})});
+function draft(){var t=document.getElementById('table');if(!t||!document.getElementById('drafting'))return;
+fetch(t.dataset.draft,{method:'POST',headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.text()}).then(function(h){var d=document.createElement('div');d.innerHTML=h;var n=d.querySelector('#table');if(n){t.replaceWith(n);n.classList.add('did')}}).catch(function(){var p=document.getElementById('drafting');if(p){p.textContent='Could not draft just now. Your need is saved.'}})}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',draft)}else{draft()}})()</script>"""
     return out
+
+
+@app.post("/start/{node_id:path}/draft")
+def start_draft(node_id: str, request: Request):
+    """The page asks for drafts from this business's need; the twin runs inside the request and the fresh card
+    comes back as HTML."""
+    node, m = _my_node_or_403(node_id, request)
+    parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
+    from . import twin
+    try:
+        twin.draft_from_needs(con, (parent or node)["id"])
+    except core.PBError:
+        pass
+    return HTMLResponse(_table_card(node, parent, m, f"/start/{node['id']}/done", waiting=9))
 
 
 @app.get("/start/{node_id:path}/values")
@@ -1082,8 +1098,9 @@ def start_done(node_id: str, request: Request):
                  f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a></div>")
         waiting = int(request.query_params.get("w", "0") or 0)
         body += _table_card(node, parent, m, f"/start/{node['id']}/done", waiting=waiting)
-        body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
-                 "then every business gets 100 points to split across the list.</p><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p></div>")
+        body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p>"
+                 "<p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
+                 "then every business gets 100 points to split across the list.</p></div>")
         body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"
     return page("You're in", body)
 

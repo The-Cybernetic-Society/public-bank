@@ -183,7 +183,14 @@ assert len(scooter) == 1 and "Mandrem Tailors" in scooter[0]["text"] and "Lane C
 assert all(n["status"] == "drafted" for n in core.needs_of(con, "commons", status=None))   # every need, including lone ones, is drafted
 r = T.get("/c/commons"); assert "The twin" in r.text and "drafts in this round" in r.text and "Draft proposals from needs" in r.text
 assert T.post("/c/commons/twin").headers["location"].endswith("?drafted=0")   # nothing left to group
-r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose something now" in r.text and ("Your need is in" in r.text or "suggested from what businesses" in r.text), r.text[:300]
+r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose something" in r.text and r.text.index("Propose something") < r.text.index("fit your business best"), r.text[:300]
+# the page asks the server to draft from an open need; the fresh card comes back as HTML with the draft on it
+with db.tx(con): con.execute("UPDATE needs SET status='open' WHERE node_id='commons/mandrem-tailors'")
+r = R.get("/start/commons/mandrem-tailors/done"); assert "Drafting a proposal from" in r.text and "data-draft='/start/commons/mandrem-tailors/draft'" in r.text
+r = R.post("/start/commons/mandrem-tailors/draft", headers={"X-Requested-With": "fetch"})
+assert r.status_code == 200 and "id=table" in r.text and "Drafting a proposal" not in r.text and "suggested from what businesses" in r.text, r.text[:400]
+assert all(n["status"] == "drafted" for n in core.needs_of(con, "commons/mandrem-tailors", include_children=False, status=None))
+assert client().post("/start/commons/mandrem-tailors/draft").status_code == 401
 r = R.post("/start/commons/mandrem-tailors/done", data={})  # nothing: pages are GET
 r = R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "A shared delivery scooter", "ideal": "60000", "text": "", "lead": "on"})
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
@@ -213,7 +220,7 @@ assert order[0].startswith("Shared:") and ranked[0]["suggested"] and "A shared d
 S2.post(f"/start/{pid2}/values", data={"earn": "10", "horizon": "5", "scope": "2", "means": "1", "risk": "1"})
 order2 = [p["title"] for p in twin.rank_for(con, pid2, allp)]
 assert order2.index(next(t for t in order2 if t.startswith("GST billing"))) < order2.index("A shared delivery scooter"), order2
-r = S2.get(f"/start/{pid2}/done"); assert r.text.index("GST billing") < r.text.index("A shared delivery scooter") and "The ten that fit" in r.text
+r = S2.get(f"/start/{pid2}/done"); lst = r.text[r.text.index("fit your business best"):]; assert lst.index("GST billing") < lst.index("A shared delivery scooter")
 assert "for you" in R.get("/start/commons/mandrem-tailors/done").text
 # a business with no sliders yet gets the neutral vector and still a stable order
 assert len(twin.rank_for(con, b2["node_id"], allp)) == len(allp)

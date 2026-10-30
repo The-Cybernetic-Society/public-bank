@@ -73,7 +73,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   onboarding table card and the WhatsApp COSIGN list show the top ten in that order.
   `twin.schedule(pool_id)` drafts in a background thread with its own connection (inline under `PB_TWIN_INLINE`); it runs
   after every charter acceptance (web and WhatsApp) and every recorded need, and from the "Draft proposals from needs"
-  button on `/c/<pool>`. Nothing else triggers the twin.
+  button on `/c/<pool>`. The onboarding page itself asks `POST /start/<node>/draft` while its need is open: Cloud Run
+  gives a background thread no CPU after the response, so the request is where drafting actually happens on prod.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
