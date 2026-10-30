@@ -120,10 +120,10 @@ gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=pu
 Deployed 29 Oct 2026: revision publicbank-00011 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
 the /apply front door in the site's look; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
-at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, match 500%, one business one vote, two co-signers)
+at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers)
 exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa-business-commons.
-Its first round (r_03402c8a498f, pot ₹5,00,000 as the match ceiling, closes early Dec) opened 29 Oct at the proposals stage. It was made with
-`python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --match-pct 500 --treasurer-telegram <id>`
+Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oct at the proposals stage. It was made with
+`python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`
 (no `--business`: businesses register themselves at `/apply/goa-business-commons`).
 
 Gotchas met: pass `--source` as the ABSOLUTE path to `node/` (a `cd node && gcloud run deploy --source .` once
@@ -135,9 +135,10 @@ Cloud SQL needs `--edition=ENTERPRISE` for `db-f1-micro`; the compute service ac
 
 The Edge City residencies are off the critical path. The deployment is a federation of ~40 Goan businesses
 from Ground Floor's programme, each business a node (owner = coordinator, staff = members, one node one
-vote in the pool), joined on WhatsApp, run in November through GCCI sessions. The pool is funded by the
-treasurer as a match on small business co-contributions; business money never enters the treasurer's
-account (each pays its share to the vendor). Strategy, contacts and open questions:
+vote in the pool), joined on WhatsApp, run in November through GCCI sessions. The pool is the treasurer's pot (₹5L);
+matching (`match_pct`) exists in core and the demo but is OFF for the real pool since 30 Oct: the user never
+described matching to the businesses. The form still asks whether a business would chip in; business money never
+enters the treasurer's account (each pays its share to the vendor). Strategy, contacts and open questions:
 `../../NOTES/edge-city-handoff-2026-10-28.md` (outside git). Built 29 Oct: WhatsApp adapter, pool round across
 nodes (co-sign, one vote per node, per-child ratification, contributions + match), needs + twin, live board,
 coordinator NEXT in both bots, demo seed. Next: Meta business number + templates (human setup), deploy, seed the
