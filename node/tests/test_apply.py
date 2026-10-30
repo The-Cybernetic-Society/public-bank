@@ -182,7 +182,7 @@ assert len(scooter) == 1 and "Mandrem Tailors" in scooter[0]["text"] and "Lane C
 assert all(n["status"] == "drafted" for n in core.needs_of(con, "commons", status=None))   # every need, including lone ones, is drafted
 r = T.get("/c/commons"); assert "The twin" in r.text and "drafts in this round" in r.text and "Draft proposals from needs" in r.text
 assert T.post("/c/commons/twin").headers["location"].endswith("?drafted=0")   # nothing left to group
-r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose something" in r.text and r.text.index("Propose something") < r.text.index("fit your business best"), r.text[:300]
+r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose your own" in r.text and r.text.index("Propose your own") < r.text.index("fit your business best"), r.text[:300]
 # the page asks the server to draft from an open need; the fresh card comes back as HTML with the draft on it
 with db.tx(con): con.execute("UPDATE needs SET status='open' WHERE node_id='commons/mandrem-tailors'")
 r = R.get("/start/commons/mandrem-tailors/done"); assert "Drafting a proposal from" in r.text and "data-draft='/start/commons/mandrem-tailors/draft'" in r.text
