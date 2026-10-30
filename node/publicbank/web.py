@@ -1100,7 +1100,7 @@ def start_done(node_id: str, request: Request):
                  "<p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  "then every business gets 100 points to split across the list.</p></div>")
         body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"
-    return page("On the table", body)
+    return page("You're in", body)
 
 
 @app.get("/start/{node_id:path}/finished")
