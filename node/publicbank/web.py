@@ -841,25 +841,24 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     return page(f"Thanks, {esc(a['applicant'].split()[0])}", body)
 
 
-CONTACT = os.environ.get("PB_CONTACT", "")
+GROUP = os.environ.get("PB_WA_GROUP", "https://chat.whatsapp.com/Bmvu9ldoM8jIr1QZ3Qkmgu")   # the WhatsApp group where the Commons talks
 
 
 @app.get("/privacy")
 def privacy():
-    who = f"write to <a href='mailto:{esc(CONTACT)}'>{esc(CONTACT)}</a>" if CONTACT else "message the number that sent your card, or ask in the WhatsApp group"
     body = f"""<p>This is what happens to what you type into the registration form.</p>
 <h2>What we collect</h2>
 <p>Your business's name, your name and role, what the business does and where, how many people work there, what you need help with, one thing you would buy or run with other businesses, what you could share, and your WhatsApp number.</p>
 <h2>What it is for</h2>
-<p>To run the Commons: to send you your business's join link, to group similar needs into proposals, to count one vote per business, and to call you if we need to confirm a business is real. Nothing else. We do not sell it, share it with other businesses, or use it for advertising.</p>
+<p>To run the Commons: to send you your business's join link, to group similar needs into proposals, to count one vote per business, and to call you if we need to confirm a business is real. We do not sell it or use it for advertising.</p>
+<h2>WhatsApp</h2>
+<p>The Commons runs on WhatsApp. Everyone in the <a href='{esc(GROUP)}'>group</a> can see everyone else's number, as in any WhatsApp group, and we may use your number to put you in touch with other businesses, for example the businesses backing the same proposal. Nothing more than that: we never hand numbers to anyone outside the Commons.</p>
 <h2>What is public</h2>
 <p>The live board and the export show business names, proposals, votes as totals, and the ledger of what was bought. They never show a person's name, a phone number, or a payment id.</p>
 <h2>Research</h2>
 <p>We may publish what we learn about funding shared goods this way. Anything published is anonymised: no person's name, no business's name, and nothing that would let a reader work out which business said what.</p>
-<h2>How long we keep it</h2>
-<p>Phone numbers and names are kept while the Commons runs and deleted within twelve months of the last round closing. The public record of decisions is kept.</p>
-<h2>Your choices</h2>
-<p>To see, correct or delete what we hold about you or your business, or to withdraw, {who}. Withdrawing removes your business from future rounds; decisions already made stay in the record.</p>
+<h2>How long we keep it, and how to leave</h2>
+<p>We keep it while the Commons runs, and delete names and numbers when it ends. You can leave at any time: message an admin of the <a href='{esc(GROUP)}'>WhatsApp group</a> and we will delete what we hold about you and your business. Decisions already made stay in the public record, without your name.</p>
 <p class=muted>Run by {esc(BRAND)}. This is a private, independent pilot, not a bank or a government scheme.</p>"""
     return page("Privacy", body)
 
