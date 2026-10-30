@@ -830,7 +830,7 @@ def has_need(con, node_id: str) -> bool:
 VALUE_DIMENSIONS = [   # (key, left pole, right pole, hint); a value of 1 is the left pole, 10 the right, the middle is "either"
     ("earn", "Earn more", "Spend less", "New customers and revenue, or lower costs and time saved."),
     ("horizon", "This season", "The long run", "Pays off within months, or an asset that pays off over years."),
-    ("scope", "My business", "The whole lane", "Helps me directly, like a licence for my shop, or helps all of us even if less for me, like bins and a clean beach road that bring people to every shop."),
+    ("scope", "My business", "The whole lane", "Helps me directly, like a licence for my shop. Or helps all of us even if less for me, like bins and a clean beach road that bring people to every shop."),
     ("means", "Things", "People", "Equipment and software, or skills, training and hands."),
     ("risk", "Proven", "New", "What already works for shops like mine, or trying something new."),
 ]
