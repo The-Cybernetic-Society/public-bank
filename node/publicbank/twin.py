@@ -259,10 +259,6 @@ def main() -> None:
         print(f"{d['title']:50s} ideal ₹{d['ideal_paise'] // 100:,}  {d.get('needs', '')}")
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
-
 
 # ----------------------------------------------------------------------------
 # what a draft is about, and which drafts a business should see first
@@ -329,3 +325,7 @@ def rank_for(con, node_id: str, proposals: list[dict], limit: int = 10) -> list[
     out.sort(key=lambda q: (-q["score"], q["_i"]))
     for q in out: q.pop("_i")
     return out[:limit]
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()
