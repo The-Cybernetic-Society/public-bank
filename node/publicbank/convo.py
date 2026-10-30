@@ -137,9 +137,9 @@ def coordinated(con, member_id: str) -> list[dict]:
     return db.rows(con.execute("SELECT n.* FROM nodes n JOIN memberships ms ON ms.node_id=n.id WHERE ms.member_id=? AND ms.role IN ('coordinator','treasurer') AND ms.status='active' ORDER BY n.parent_id IS NULL, n.id", (member_id,)).fetchall())
 
 
-def cosignable(con, member_id: str) -> list[tuple[dict, dict, list[dict]]]:
-    """(pool, round, proposals my node has not signed) for each pool whose round is taking proposals and where
-    this member coordinates a child."""
+def cosignable(con, member_id: str) -> list[tuple[dict, dict, list[dict], dict]]:
+    """(pool, round, proposals my node has not signed, my node) for each pool whose round is taking proposals and
+    where this member coordinates a child. Proposals come in the order that business should see them."""
     out = []
     for node in coordinated(con, member_id):
         if not node.get("parent_id") or not core.is_role(con, node["id"], member_id, ("coordinator",)):
@@ -150,7 +150,8 @@ def cosignable(con, member_id: str) -> list[tuple[dict, dict, list[dict]]]:
         props = [p for p in db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd["id"],)).fetchall())
                  if node["id"] not in db.j(p["cosign_nodes"], [])]
         if props:
-            out.append((core.get_node(con, node["parent_id"]), rnd, props))
+            from .twin import rank_for
+            out.append((core.get_node(con, node["parent_id"]), rnd, rank_for(con, node["id"], props, limit=10), node))
     return out
 
 

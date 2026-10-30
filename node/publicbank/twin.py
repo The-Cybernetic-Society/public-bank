@@ -169,3 +169,54 @@ def main() -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     main()
+
+
+# ----------------------------------------------------------------------------
+# what a draft is about, and which drafts a business should see first
+# ----------------------------------------------------------------------------
+TAG_WORDS = {   # five-letter stems, matching words(); the dimensions are core.VALUE_DIMENSIONS
+    "offseason": ["seaso", "monso", "winte", "offse", "off-s", "incom", "stead", "quiet", "slow", "regul", "year-", "local", "resid"],
+    "admin": ["billi", "invoi", "gst", "accou", "stock", "inven", "booki", "softw", "licen", "payme", "paper", "compl", "tally", "recor"],
+    "reach": ["deliv", "scoot", "onlin", "websi", "insta", "googl", "order", "custo", "marke", "promo", "reach", "found", "phone", "whats", "sign"],
+    "staff": ["staff", "train", "hire", "worke", "team", "skill", "cours", "learn", "emplo", "appre", "cook", "chef", "guide", "assis"],
+    "goa": ["clean", "waste", "plast", "beach", "green", "recyc", "traff", "parki", "water", "solar", "tree", "compo", "garba", "commu"],
+}
+
+
+def tags_for(text: str) -> dict[str, float]:
+    """How much a text is about each dimension, 0..1: the share of its tag hits per dimension, so a text about
+    delivery and staff splits between 'reach' and 'staff'. All zeros when nothing matches."""
+    w = words(text)
+    raw = {}
+    for dim, stems in TAG_WORDS.items():
+        hits = sum(1 for st in stems if any(x.startswith(st) or st.startswith(x) for x in w))
+        raw[dim] = hits
+    top = max(raw.values()) or 1
+    return {d: round(v / top, 3) for d, v in raw.items()}
+
+
+def business_vector(con, node_id: str) -> dict[str, int]:
+    vv = core.values_of(con, node_id, include_children=False)
+    return vv[-1]["vector"] if vv else {k: 5 for k, _, _ in core.VALUE_DIMENSIONS}
+
+
+def rank_for(con, node_id: str, proposals: list[dict], limit: int = 10) -> list[dict]:
+    """The proposals a business should see first: scored by its slider vector against each proposal's tags, with
+    a boost when the proposal was built from, or reads like, the business's own need. Each returned proposal
+    carries `score` and `suggested` (it matches their need). Ties keep the given order."""
+    vec = business_vector(con, node_id)
+    needs = core.needs_of(con, node_id, include_children=False, status=None)
+    need_w = words(" ".join(n["text"] for n in needs)) if needs else set()
+    node = core.get_node(con, node_id)
+    out = []
+    for i, p in enumerate(proposals):
+        t = tags_for(p["title"] + " " + (p.get("text") or ""))
+        fit = sum(t[d] * vec.get(d, 5) / 10 for d in t) / max(1, sum(1 for v in t.values() if v))
+        overlap = len(need_w & words(p["title"] + " " + (p.get("text") or "")))
+        mine = node["name"] in (p.get("text") or "")   # the twin names the businesses whose needs it grouped
+        suggested = mine or overlap >= 2
+        q = dict(p); q["score"] = round(fit + (0.6 if mine else 0) + 0.15 * min(overlap, 4), 3); q["suggested"] = suggested; q["_i"] = i
+        out.append(q)
+    out.sort(key=lambda q: (-q["score"], q["_i"]))
+    for q in out: q.pop("_i")
+    return out[:limit]

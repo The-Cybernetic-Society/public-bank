@@ -111,7 +111,7 @@ table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",mono
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}
-button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
+button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
 .slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--p:44%}
@@ -937,14 +937,17 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
     rnd = core.current_round(con, pool["id"])
     if not rnd or rnd["status"] != "proposals":
         return ""
-    props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY status, created_at DESC LIMIT 12", (rnd["id"],)).fetchall())
+    from .twin import rank_for
+    props = rank_for(con, node["id"], db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at DESC", (rnd["id"],)).fetchall()), limit=10)
     names = {k["id"]: k["name"] for k in core.children(con, pool["id"])}
+    need_n = pool.get("cosign_min") or 1
     out = "<div class='card rise'><h2 style='margin-top:0'>On the table</h2>"
     if props:
-        out += "<p class=muted>Lead it if you'd organise it and be reimbursed against receipts. Back it if your business wants it; two backers put it on the ballot.</p>"
+        out += (f"<p class=muted>The ten that fit your business best, from what you told us. Back one if your business would use it: once {need_n} businesses back it, "
+                f"it goes to the vote. Lead one if you'd organise it and be reimbursed against receipts.</p>")
         for p in props:
             signs = db.j(p["cosign_nodes"], [])
-            out += f"<div class=prop><b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
+            out += f"<div class=prop>" + ("<span class=tag>for you</span> " if p["suggested"] else "") + f"<b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
             if signs: out += "<br><span class=muted>backed by " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
             if p["source"] == "twin": out += "<br><span class=muted>suggested from what businesses said they need</span>"
             out += "<div class=row>"

@@ -647,9 +647,9 @@ def cosign(phone: str, m: dict | None) -> None:
     opts = cosignable(con, m["id"])
     if not opts:
         sender.text(phone, "Nothing to co-sign right now: either no pool round is taking proposals, or your business has backed everything on the list."); return
-    pool, rnd, props = opts[0]
-    sender.list(phone, f"{pool['name']}: which proposal does your business back? Needs {pool.get('cosign_min') or 1} nodes to reach the ballot.", "Pick",
-                [(f"cs:{p['id']}", p["title"], f"ideal {rupees(p['ideal_paise'])}" + ("" if p["lead_id"] else " · no lead yet")) for p in props])
+    pool, rnd, props, _node = opts[0]
+    sender.list(phone, f"{pool['name']}: which of these does your business want? Once {pool.get('cosign_min') or 1} businesses back one, it goes to the vote.", "Pick",
+                [(f"cs:{p['id']}", p["title"], ("for you · " if p.get("suggested") else "") + f"ideal {rupees(p['ideal_paise'])}" + ("" if p["lead_id"] else " · no lead yet")) for p in props])
 
 
 def cosign_pick(phone: str, m: dict, pid: str) -> None:

@@ -168,3 +168,24 @@ pid = re.search(r"name=pid value='([^']+)'", r.text).group(1)
 assert S2.post(f"/n/commons/cosign?next=/start/{pid2}/done", data={"pid": pid}).headers["location"] == f"/start/{pid2}/done"
 assert "backed ✓" in S2.get(f"/start/{pid2}/done").text and db.row(con.execute("SELECT status FROM proposals WHERE id=?", (pid,)).fetchone())["status"] == "eligible"
 print("APPLY OK · on the table")
+
+# personalised order: a business that cares about reach and needs a scooter sees the scooter first, marked for them;
+# one that cares about admin and needs billing sees billing first
+from publicbank import twin  # noqa: E402
+t = twin.tags_for("A shared delivery scooter for the market lane, orders to customers at home"); assert t["reach"] == 1.0 and t["admin"] < t["reach"], t
+t = twin.tags_for("One GST billing and stock software licence for several shops"); assert t["admin"] == 1.0 and t["reach"] < 1.0, t
+assert twin.tags_for("zzz") == {k: 0.0 for k in twin.TAG_WORDS}
+R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "GST billing software licence for several shops", "ideal": "20000", "text": "One licence, shared.", "lead": "on"})
+R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "Beach clean-up kit and bins for the lane", "ideal": "15000", "text": "", "lead": "on"})
+allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd2["id"],)).fetchall())
+R.post("/start/commons/mandrem-tailors/values", data={"offseason": "5", "admin": "2", "reach": "10", "staff": "3", "goa": "2"})
+order = [p["title"] for p in twin.rank_for(con, "commons/mandrem-tailors", allp)]
+assert order[0] == "A shared delivery scooter" and twin.rank_for(con, "commons/mandrem-tailors", allp)[0]["suggested"], order
+S2.post(f"/start/{pid2}/values", data={"offseason": "3", "admin": "10", "reach": "2", "staff": "3", "goa": "2"})
+order2 = [p["title"] for p in twin.rank_for(con, pid2, allp)]
+assert order2[0].startswith("GST billing"), order2
+r = S2.get(f"/start/{pid2}/done"); assert r.text.index("GST billing") < r.text.index("A shared delivery scooter") and "The ten that fit" in r.text
+assert "for you" in R.get("/start/commons/mandrem-tailors/done").text
+# a business with no sliders yet gets the neutral vector and still a stable order
+assert len(twin.rank_for(con, b2["node_id"], allp)) == 3
+print("APPLY OK · personalised order")

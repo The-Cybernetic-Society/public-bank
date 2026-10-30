@@ -64,6 +64,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
   to the plain path. Only need texts and business names go out. Drafts have no lead and no signatures.
+  `tags_for` scores a text on the five value dimensions by keyword stems; `rank_for(con, node_id, proposals)` orders
+  proposals for one business from its slider vector and its need (`suggested` = built from or like its need). The
+  onboarding table card and the WhatsApp COSIGN list show the top ten in that order.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
