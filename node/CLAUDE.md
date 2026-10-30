@@ -45,7 +45,11 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   prefilled, the manual bridge until the Meta number is live). Opening a card on the web (`/j/<join_coord>`)
   makes the opener coordinator, copies the form's need into `needs` (`core.claim_application`), shows the pool
   charter to accept (`POST /n/<node>/charter`) and a `join_team` link that joins staff at once (a plain `join`
-  link still needs approval). Pages share one paper theme (`CSS`, `PB_BRAND`), light and dark.
+  link still needs approval). Since 30 Oct a submit signs the applicant in at once as coordinator (`verified_by='web'`,
+  `core.enter_from_application`) and walks them through `/start/<node>/values` (five sliders → `value_vectors`,
+  `core.VALUE_DIMENSIONS`, phase before/after: the twin's objective and the outcome baseline) and `/start/<node>/done`
+  (charter, team link). Verification is post-hoc: `/c/<pool>` shows new/joined/verified with a Verify button.
+  Pages share one look (`CSS`, `FONTS`: Newsreader, Silkscreen, Plex Mono; motion off under reduced-motion).
 - `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
   texts, the ballot prompt, receipts. Add shared wording here, not in a bot.
 - `publicbank/whatsapp.py` — WhatsApp (Meta Cloud API) for nodes whose members live on WhatsApp (the Goan
