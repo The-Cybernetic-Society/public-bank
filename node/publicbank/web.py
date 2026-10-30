@@ -100,7 +100,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--gold);outline-of
 button{font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);cursor:pointer;width:100%;box-sizing:border-box;margin-top:22px}
 button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}button.quiet{box-shadow:none;margin-top:8px}
 .choice{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.choice label{flex:1 1 0;box-sizing:border-box;margin:0;border:2px solid var(--ink);border-radius:10px;padding:13px 6px;text-align:center;background:var(--card);box-shadow:3px 3px 0 var(--shadow);font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;white-space:nowrap;cursor:pointer}
-.choice input{position:absolute;opacity:0;width:0;height:0}.choice label:has(input:checked){background:var(--gold)}
+.choice input{position:absolute;opacity:0;width:0;height:0}.choice label:has(input:checked){background:var(--gold)}.choice.multi label{flex:1 1 30%;white-space:normal;line-height:1.3}
 .muted{color:var(--muted);font-size:16px}.row{display:flex;gap:8px;align-items:center}.row input{width:90px}
 code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px solid var(--line);padding:2px 6px;border-radius:3px}
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
@@ -759,6 +759,20 @@ APPLY_INTRO = os.environ.get("PB_APPLY_INTRO", (
     "an AI training. Each business says what it needs, similar needs are grouped, then we all vote on what we fund."))
 
 
+HELP_OPTIONS = [("equipment", "Equipment"), ("staff training", "Staff training"), ("marketing", "Marketing"), ("ai tools", "AI tools"),
+                ("transport or delivery", "Transport / delivery"), ("finance", "Finance")]
+SHARE_OPTIONS = [("equipment", "Equipment"), ("space", "Space"), ("staff time", "Staff time"), ("a skill or training", "A skill or training"),
+                 ("co-marketing", "Co-marketing"), ("contacts", "Contacts")]
+
+
+def _joined(picked: list[str], other: str, options) -> str:
+    allowed = {val for val, _ in options}
+    out = [x for x in picked if x in allowed]
+    if other.strip():
+        out.append(other.strip()[:120])
+    return ", ".join(out)
+
+
 def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | None = None) -> HTMLResponse:
     v = v or {}
     path = path or pool["id"]
@@ -766,6 +780,11 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
     def radio(name, options, default=""):
         cur = v.get(name, default)
         return "<div class=choice>" + "".join(f"<label><input type=radio name={name} value={val}{' checked' if cur == val else ''}{' required' if i == 0 else ''}>{lab}</label>" for i, (val, lab) in enumerate(options)) + "</div>"
+    def checks(name, options):
+        cur = set(v.get(name, []) if isinstance(v.get(name), list) else [x.strip() for x in str(v.get(name, "")).split(",") if x.strip()])
+        tiles = "".join(f"<label><input type=checkbox name={name} value='{esc(val)}'{' checked' if val in cur else ''}>{lab}</label>" for val, lab in options)
+        other = esc(v.get(name + "_other", ""))
+        return f"<div class='choice multi'>{tiles}</div><input name={name}_other placeholder='Something else?' maxlength=120 value='{other}'>"
     body = f"<p>{esc(APPLY_INTRO)}</p>"
     if error:
         body += f"<p class=bad>{esc(error)}</p>"
@@ -776,12 +795,11 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
 <label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
-<label>What do you need help with most? <textarea name=challenge rows=2 required maxlength=500>{g('challenge')}</textarea></label>
+<label>What do you need help with most? <span class=hint>Tick all that apply.</span>{checks('challenge', HELP_OPTIONS)}</label>
 <label>How many people work there, including you <input name=team_size type=number inputmode=numeric min=1 max=500 required value='{g('team_size') or 1}'></label>
-<label>One thing you would buy or run together with other businesses <span class=hint>A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
-<textarea name=need rows=3 required maxlength=500>{g('need')}</textarea></label>
-<label>What could you share with other businesses? <span class=hint>Equipment, space, a skill, a contact. Nothing is too small.</span>
-<textarea name=share rows=2 required maxlength=300>{g('share')}</textarea></label>
+<label>What would you buy or run together with other businesses? <span class=hint>One line. A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
+<textarea name=need rows=2 required maxlength=500>{g('need')}</textarea></label>
+<label>What could you share with other businesses? <span class=hint>Tick all that apply. Nothing is too small.</span>{checks('share', SHARE_OPTIONS)}</label>
 <label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
 <div class=phone><span class=cc><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><span class=ccv aria-hidden=true></span></span><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]'),v=document.querySelector('.ccv');if(!s||!v)return;function show(){{v.textContent=s.options[s.selectedIndex].dataset.short}}show();s.addEventListener('change',show)}})()</script>
@@ -822,14 +840,18 @@ def apply_get(pool_id: str):
 
 @app.post("/apply/{pool_id:path}")
 def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""), cc: str = Form("IN"),
-               about: str = Form(""), challenge: str = Form(""), team_size: str = Form(""), need: str = Form(""), share: str = Form(""), contribute: str = Form(""),
-               consent: str = Form(""), website: str = Form("")):
+               about: str = Form(""), challenge: list[str] = Form([]), challenge_other: str = Form(""), team_size: str = Form(""), need: str = Form(""),
+               share: list[str] = Form([]), share_other: str = Form(""), contribute: str = Form(""), consent: str = Form(""), website: str = Form("")):
     pool = _pool_or_404(pool_id)
     from .countries import DIAL
     cc = cc.upper() if cc.upper() in DIAL else "IN"
-    v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, challenge=challenge, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
+    v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, challenge=challenge, challenge_other=challenge_other, team_size=team_size,
+             need=need, share=share, share_other=share_other, contribute=contribute, consent=consent)
     if website:   # a bot filled the hidden field: say thanks, keep nothing
         return page("Thank you", "<p>We'll be in touch.</p>")
+    challenge = _joined(challenge, challenge_other, HELP_OPTIONS); share = _joined(share, share_other, SHARE_OPTIONS)
+    if not challenge or not share:
+        return _apply_form(pool, v, "Tick at least one box under 'help with' and under 'share'.", path=pool_id)
     if not core.normalize_phone(phone, DIAL[cc]):
         return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.", path=pool_id)
     try:

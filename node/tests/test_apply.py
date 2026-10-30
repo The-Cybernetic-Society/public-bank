@@ -34,13 +34,13 @@ assert anon.get("/apply/nope").status_code == 404
 web.ALIASES["g"] = "commons"
 assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.get("/apply/g").text and anon.get("/b/g").status_code == 200
 
-form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge="Finding customers in the off season",
-            team_size="3", need="A scooter for deliveries, customers keep asking", share="Sewing machine evenings")
+form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
+            team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings")
 r = anon.post("/apply/commons", data=form)
 assert r.status_code == 200 and "Mandrem Tailors" in r.text and "3210" in r.text and "98765" not in r.text, r.text[:400]
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
 a = apps[0]
-assert a["challenge"] == "Finding customers in the off season" and a["phone"] == "919876543210" and a["node_id"] == "commons/mandrem-tailors" and a["status"] == "new"
+assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210" and a["node_id"] == "commons/mandrem-tailors" and a["status"] == "new"
 node = core.get_node(con, a["node_id"]); assert node["parent_id"] == "commons" and node["name"] == "Mandrem Tailors"
 assert core.is_role(con, a["node_id"], tre["id"], ("treasurer",))   # the pool's treasurer rides along into every business
 
@@ -50,6 +50,8 @@ assert r.status_code == 200 and len(core.applications_of(con, "commons")) == 1
 a = next(x for x in core.applications_of(con, "commons") if x["node_id"] == "commons/mandrem-tailors"); assert a["business"] == "Mandrem Tailors & Co" and core.get_node(con, a["node_id"])["name"] == "Mandrem Tailors & Co"
 r = anon.post("/apply/commons", data=dict(form, phone="+91 91234 56789", applicant="Sunil"))
 assert {x["node_id"] for x in core.applications_of(con, "commons")} == {"commons/mandrem-tailors", "commons/mandrem-tailors-2"}
+# nothing ticked: the form comes back with the error and the same phone count
+assert "Tick at least one" in anon.post("/apply/commons", data=dict(form, share=[], share_other="")).text and len(core.applications_of(con, "commons")) == 2
 # a bot and a bad number
 assert anon.post("/apply/commons", data=dict(form, phone="5551112222", website="x")).status_code == 200 and len(core.applications_of(con, "commons")) == 2
 r = anon.post("/apply/commons", data=dict(form, phone="12")); assert "doesn't look like" in r.text and len(core.applications_of(con, "commons")) == 2
