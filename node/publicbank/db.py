@@ -201,6 +201,7 @@ CREATE TABLE IF NOT EXISTS applications (
   role          TEXT NOT NULL,                  -- owner | manager | staff
   phone         TEXT NOT NULL,                  -- WhatsApp number as typed, digits; never exported, never shown publicly
   about         TEXT,                           -- what the business does and where
+  challenge     TEXT,                           -- what the business needs help with most
   team_size     BIGINT,
   need          TEXT,                           -- one thing to buy or run together; copied into `needs` when the owner joins
   share         TEXT,
@@ -256,6 +257,7 @@ MIGRATIONS = [
     "ALTER TABLE nodes ADD COLUMN cosign_min BIGINT NOT NULL DEFAULT 0",
     "ALTER TABLE contributions ADD COLUMN to_round_id TEXT REFERENCES rounds(id)",
     "ALTER TABLE decisions ADD COLUMN detail TEXT",
+    "ALTER TABLE applications ADD COLUMN challenge TEXT",
 ]
 
 

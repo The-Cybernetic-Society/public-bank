@@ -757,8 +757,8 @@ def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "business"
 
 
-def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", team_size: int | None = None,
-          need: str = "", share: str = "", contribute: str = "", consent: bool = False, token_ttl: int = 30 * 86400) -> dict:
+def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", challenge: str = "",
+          team_size: int | None = None, need: str = "", share: str = "", contribute: str = "", consent: bool = False, token_ttl: int = 30 * 86400) -> dict:
     """Register a business under a pool from the public form. Makes the business node and an owner's card
     (a `join_coord` token). The same phone applying again updates its application instead of making a second
     node. Nobody is a member yet: the applicant becomes the coordinator when they open the card."""
@@ -771,12 +771,12 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     if role not in ("owner", "manager", "staff"):
         role = "staff"
     ts = max(1, min(int(team_size or 1), 500))
-    fields = (about.strip()[:200], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
+    fields = (about.strip()[:200], challenge.strip()[:500], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
               1 if consent else 0)
     cur = row(con.execute("SELECT * FROM applications WHERE pool_id=? AND phone=?", (pool_id, ph)).fetchone())
     if cur and cur["status"] == "new":
         with tx(con):
-            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,team_size=?,need=?,share=?,contribute=?,consent=?,updated_at=? WHERE id=?",
+            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,updated_at=? WHERE id=?",
                         (business, applicant, role, *fields, now(), cur["id"]))
             con.execute("UPDATE nodes SET name=? WHERE id=?", (business, cur["node_id"]))
         return row(con.execute("SELECT * FROM applications WHERE id=?", (cur["id"],)).fetchone())
@@ -793,7 +793,7 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
     aid = new_id("a_")
     with tx(con):
-        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,team_size,need,share,contribute,consent,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (aid, pool["id"], nid, business, applicant, role, ph, *fields, tok, "new", now(), now()))
     return row(con.execute("SELECT * FROM applications WHERE id=?", (aid,)).fetchone())
 

@@ -476,7 +476,7 @@ def applications_csv(node_id: str, request: Request):
     import io
     from fastapi.responses import Response
     buf = io.StringIO(); w = csv.writer(buf)
-    cols = ["business", "applicant", "role", "phone", "about", "team_size", "need", "share", "contribute", "consent", "status", "node_id", "created_at"]
+    cols = ["business", "applicant", "role", "phone", "about", "challenge", "team_size", "need", "share", "contribute", "consent", "status", "node_id", "created_at"]
     w.writerow(cols)
     for a in core.applications_of(con, node_id):
         w.writerow([a.get(c, "") for c in cols])
@@ -521,7 +521,8 @@ def coordinate(node_id: str, request: Request):
                 msg = f"Hi {a['applicant']}, welcome to {node['name']}. Open this to join as {a['business']}: {link}"
                 act = (f"<a href='https://wa.me/{esc(a['phone'])}?text={esc(urllib.parse.quote(msg))}'>Send card</a>" if a["status"] == "new"
                        else "<span class=ok>joined</span>")
-                body += (f"<tr><td><b>{esc(a['business'])}</b><br><span class=muted>{esc(a['about'] or '')}</span></td><td>{esc(a['applicant'])}<br><span class=muted>{esc(a['role'])}"
+                chal = f"<br><span class=muted>Needs help with: {esc(a['challenge'])}</span>" if a.get("challenge") else ""
+                body += (f"<tr><td><b>{esc(a['business'])}</b><br><span class=muted>{esc(a['about'] or '')}</span>{chal}</td><td>{esc(a['applicant'])}<br><span class=muted>{esc(a['role'])}"
                          + (" · would chip in" if a["contribute"] == "yes" else "") + f"</span></td><td>{a['team_size'] or ''}</td><td>{esc(a['need'] or '')}</td><td>{act}</td></tr>")
             body += "</table>"
         else:
@@ -763,7 +764,7 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
     g = lambda k: esc(v.get(k, ""))  # noqa: E731
     def radio(name, options, default=""):
         cur = v.get(name, default)
-        return "<div class=choice>" + "".join(f"<label><input type=radio name={name} value={val}{' checked' if cur == val else ''}{' required' if i == 0 and name == 'role' else ''}>{lab}</label>" for i, (val, lab) in enumerate(options)) + "</div>"
+        return "<div class=choice>" + "".join(f"<label><input type=radio name={name} value={val}{' checked' if cur == val else ''}{' required' if i == 0 else ''}>{lab}</label>" for i, (val, lab) in enumerate(options)) + "</div>"
     body = f"<p>{esc(APPLY_INTRO)}</p>"
     if error:
         body += f"<p class=bad>{esc(error)}</p>"
@@ -772,20 +773,21 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLRespo
 <label>Business name <input name=business required maxlength=80 value='{g('business')}'></label>
 <label>Your name <input name=applicant required maxlength=80 value='{g('applicant')}'></label>
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
-<label>WhatsApp number <span class=hint>We send your business's join link here. Never published.</span>
+<label>WhatsApp number <span class=hint>We may call you to verify your eligibility. Never published.</span>
 <div class=phone><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]');if(!s)return;var o=[].slice.call(s.options);o.forEach(function(x){{x.dataset.short=x.textContent}});
 function long(){{o.forEach(function(x){{x.textContent=x.dataset.short+'  '+x.dataset.name}})}}function short(){{o.forEach(function(x){{x.textContent=x.dataset.short}})}}
 s.addEventListener('focus',long);s.addEventListener('mousedown',long);s.addEventListener('blur',short);s.addEventListener('change',function(){{short();s.blur()}})}})()</script>
 <label>What the business does, and where <span class=hint>e.g. tailoring, Mandrem market road</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
+<label>What does your business need help with most? <textarea name=challenge rows=2 required maxlength=500>{g('challenge')}</textarea></label>
 <label>How many people work there, including you <input name=team_size type=number inputmode=numeric min=1 max=500 required value='{g('team_size') or 1}'></label>
 <label>One thing you would buy or run together with other businesses <span class=hint>A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
 <textarea name=need rows=3 required maxlength=500>{g('need')}</textarea></label>
-<label>What could you share with other businesses? <span class=hint>Optional. Equipment, space, a skill, a contact. Nothing is too small.</span>
-<textarea name=share rows=2 maxlength=300>{g('share')}</textarea></label>
-<label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')], 'maybe')}</label>
-<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You may use my answers, with my name and my business's name removed, in research and publications about the Commons.<span class=hint>What we learn here is meant to be reused by other towns. Nothing identifiable ever leaves.</span></span></label>
+<label>What could you share with other businesses? <span class=hint>Equipment, space, a skill, a contact. Nothing is too small.</span>
+<textarea name=share rows=2 required maxlength=300>{g('share')}</textarea></label>
+<label>Would your business put in a small amount, ₹500 to ₹2,000, towards something it would share? {radio('contribute', [('yes', 'Yes'), ('maybe', 'Maybe'), ('no', 'No')])}</label>
+<label class=consent><input type=checkbox name=consent value=1{' checked' if v.get('consent') else ''}><span><b>Help us show this works.</b> You can use my anonymised answers in open-source research and publications about funding public goods.</span></label>
 <button>Register my business</button>
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. Don't put anything confidential here. <a href='/b/{esc(pool['id'])}'>See the live board</a>.</p>"""
@@ -815,18 +817,18 @@ def apply_get(pool_id: str):
 
 @app.post("/apply/{pool_id:path}")
 def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""), cc: str = Form("IN"),
-               about: str = Form(""), team_size: str = Form(""), need: str = Form(""), share: str = Form(""), contribute: str = Form(""),
+               about: str = Form(""), challenge: str = Form(""), team_size: str = Form(""), need: str = Form(""), share: str = Form(""), contribute: str = Form(""),
                consent: str = Form(""), website: str = Form("")):
     pool = _pool_or_404(pool_id)
     from .countries import DIAL
     cc = cc.upper() if cc.upper() in DIAL else "IN"
-    v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
+    v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, challenge=challenge, team_size=team_size, need=need, share=share, contribute=contribute, consent=consent)
     if website:   # a bot filled the hidden field: say thanks, keep nothing
         return page("Thank you", "<p>We'll be in touch.</p>")
     if not core.normalize_phone(phone, DIAL[cc]):
         return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.")
     try:
-        a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about,
+        a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about, challenge=challenge,
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent))
     except core.PBError:
         return _apply_form(pool, v, "Check the business name and your name.")
