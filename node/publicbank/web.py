@@ -111,7 +111,7 @@ table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",mono
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
 .bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}
-button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
+button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
 .slider input{flex:1;margin:0;padding:0;border:0;background:transparent;-webkit-appearance:none;appearance:none;height:28px;--p:44%}
@@ -427,17 +427,29 @@ def propose(node_id: str, request: Request, title: str = Form(...), text: str = 
 @app.post("/n/{node_id:path}/lead")
 def lead(node_id: str, request: Request, pid: str = Form(...), next: str = ""):
     m = _require(request)
-    try: core.lead_proposal(con, pid, m["id"])
-    except core.PBError as e: raise HTTPException(400, e.code)
+    try: p = core.lead_proposal(con, pid, m["id"])
+    except core.PBError as e:
+        if request.headers.get("x-requested-with") == "fetch": return JSONResponse({"error": e.code}, status_code=400)
+        raise HTTPException(400, e.code)
+    if request.headers.get("x-requested-with") == "fetch": return JSONResponse(_prop_state(node_id, p))
     return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
+
+
+def _prop_state(pool_id: str, p: dict) -> dict:
+    names = {k["id"]: k["name"] for k in core.children(con, pool_id)}
+    signs = db.j(p["cosign_nodes"], [])
+    return {"id": p["id"], "status": p["status"], "lead": bool(p["lead_id"]), "backers": [names.get(x, x) for x in signs], "signs": signs}
 
 
 @app.post("/n/{node_id:path}/cosign")
 def cosign(node_id: str, request: Request, pid: str = Form(...), next: str = ""):
     m = _require(request)
     via = core.require_in_tree(con, node_id, m["id"])
-    try: core.cosign_proposal(con, pid, via["id"], m["id"])
-    except core.PBError as e: raise HTTPException(400, e.code)
+    try: p = core.cosign_proposal(con, pid, via["id"], m["id"])
+    except core.PBError as e:
+        if request.headers.get("x-requested-with") == "fetch": return JSONResponse({"error": e.code}, status_code=400)
+        raise HTTPException(400, e.code)
+    if request.headers.get("x-requested-with") == "fetch": return JSONResponse(_prop_state(node_id, p))
     return RedirectResponse(_back(next, f"/n/{node_id}"), status_code=303)
 
 
@@ -947,8 +959,8 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
                 f"it goes to the vote. Lead one if you'd organise it and be reimbursed against receipts.</p>")
         for p in props:
             signs = db.j(p["cosign_nodes"], [])
-            out += f"<div class=prop>" + ("<span class=tag>for you</span> " if p["suggested"] else "") + f"<b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
-            if signs: out += "<br><span class=muted>backed by " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
+            out += f"<div class=prop data-pid='{esc(p['id'])}' data-me='{esc(node['id'])}'>" + ("<span class=tag>for you</span> " if p["suggested"] else "") + f"<b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
+            out += "<br><span class='muted backers'>" + ("backed by " + ", ".join(esc(names.get(x, x)) for x in signs) if signs else "") + "</span>"
             if p["source"] == "twin": out += "<br><span class=muted>suggested from what businesses said they need</span>"
             out += "<div class=row>"
             if not p["lead_id"]:
@@ -969,6 +981,13 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
             f"<label>About how much, in rupees <input name=ideal type=number inputmode=numeric min=1 required placeholder='60000'></label>"
             f"<label>A line on how it would be shared <input name=text maxlength=500></label>"
             f"<input type=hidden name=lead value=on><button>Propose it, I'll lead it</button></form></details></div>")
+    out += """<script>(function(){document.querySelectorAll('.prop form').forEach(function(f){f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button'),row=f.closest('.prop');b.disabled=true;b.textContent='…';
+fetch(f.action,{method:'POST',body:new FormData(f),headers:{'X-Requested-With':'fetch'},credentials:'same-origin'}).then(function(r){return r.json().then(function(j){return [r.ok,j]})}).then(function(x){var ok=x[0],j=x[1];
+if(!ok){b.disabled=false;b.textContent=f.dataset.label||'Try again';var e=row.querySelector('.err')||row.appendChild(Object.assign(document.createElement('span'),{className:'muted err'}));e.textContent=' '+(j.error||'that did not work').replace(/_/g,' ');return}
+var bk=row.querySelector('.backers');bk.textContent=j.backers.length?'backed by '+j.backers.join(', '):'';
+if(f.action.indexOf('/lead')>-1){f.remove()}
+if(j.signs.indexOf(row.dataset.me)>-1){var cf=row.querySelector('form[action*=cosign]');if(cf){cf.remove()}if(!row.querySelector('.ok')){row.querySelector('.row').appendChild(Object.assign(document.createElement('span'),{className:'ok',textContent:'backed ✓'}))}}
+row.classList.add('did');if(j.status==='eligible'&&!row.querySelector('.tag.vote')){row.insertBefore(Object.assign(document.createElement('span'),{className:'tag vote',textContent:'to the vote'}),row.firstChild)}}).catch(function(){b.disabled=false;b.textContent='Try again'})})})})()</script>"""
     return out
 
 

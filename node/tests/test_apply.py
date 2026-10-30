@@ -189,3 +189,11 @@ assert "for you" in R.get("/start/commons/mandrem-tailors/done").text
 # a business with no sliders yet gets the neutral vector and still a stable order
 assert len(twin.rank_for(con, b2["node_id"], allp)) == 3
 print("APPLY OK · personalised order")
+# backing from the page script answers JSON and the row updates without a reload
+pid3 = next(p["id"] for p in allp if p["title"].startswith("GST billing"))
+r = client(tre["id"]).post("/n/commons/cosign", data={"pid": pid3}, headers={"X-Requested-With": "fetch"})
+assert r.status_code == 400 and r.json()["error"] in ("not_coordinator", "not_a_child", "not_a_member"), r.text
+r = S2.post("/n/commons/cosign", data={"pid": pid3}, headers={"X-Requested-With": "fetch"})
+assert r.status_code == 200 and r.json()["status"] == "eligible" and "Lane Cafe" in r.json()["backers"] and pid2 in r.json()["signs"], r.text
+r = S2.post("/n/commons/cosign", data={"pid": pid3}, headers={"X-Requested-With": "fetch"}); assert r.status_code in (200, 400)
+print("APPLY OK · in-place backing")
