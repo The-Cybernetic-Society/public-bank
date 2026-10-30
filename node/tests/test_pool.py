@@ -120,6 +120,7 @@ assert ex["node"]["pool_vote"] == "nodes" and ex["node"]["match_pct"] == 500 and
 assert {k: v for k, v in ex["tallies"][0]["children"]["pool/b"].items() if k != "voted"} == {"eligible": 2, "approvals": 2, "rejections": 0, "pct": 60, "ok": True}
 assert sum(c["amount"] for c in ex["contributions"] if c["to_round"] == rnd["id"]) == 1500 * 100
 assert "wa_phone" not in str(ex) and "9190000" not in str(ex)
+assert all(c["registered_at_ist"].endswith(" IST") and c["registered_at"] > 0 for c in ex["node"]["children"])   # when each business joined is public
 
 # advance() walks a plain node's round the same way the web button does
 core.create_node(con, "solo", "Solo", kind="group")

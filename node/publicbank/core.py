@@ -738,6 +738,14 @@ def mark_paid(con, payout_id: str, reference: str, note: str = "") -> None:
 # ----------------------------------------------------------------------------
 # the five protocol objects
 # ----------------------------------------------------------------------------
+def _ist(ts: int | None) -> str | None:
+    """An epoch second as a readable Indian Standard Time stamp, for the public record."""
+    if not ts:
+        return None
+    import datetime
+    return datetime.datetime.fromtimestamp(ts, datetime.timezone(datetime.timedelta(hours=5, minutes=30))).strftime("%Y-%m-%d %H:%M IST")
+
+
 def export_node(con, node_id: str) -> dict[str, Any]:
     """Everything another node (or an auditor) may see. No member identities, no UPI ids."""
     node = get_node(con, node_id)
@@ -748,7 +756,8 @@ def export_node(con, node_id: str) -> dict[str, Any]:
                  "members": members_n, "ratification": {"rule": node["ratify_rule"], "threshold_pct": node["ratify_pct"]},
                  "allocation_rule": node["allocation_rule"], "levy_pct": node["levy_pct"],
                  "pool_vote": node.get("pool_vote", "members"), "match_pct": node.get("match_pct", 0), "cosign_min": node.get("cosign_min", 0),
-                 "children": [{"id": k["id"], "name": k["name"], "members": len(active_members(con, k["id"])), "charter_accepted": bool(k.get("charter_at"))}
+                 "children": [{"id": k["id"], "name": k["name"], "members": len(active_members(con, k["id"])), "charter_accepted": bool(k.get("charter_at")),
+                               "registered_at": k["created_at"], "registered_at_ist": _ist(k["created_at"])}
                               for k in children(con, node_id)]},
         "offers": [], "proposals": [], "decisions": [], "tallies": [], "contributions": [],
     }

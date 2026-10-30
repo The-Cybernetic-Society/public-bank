@@ -798,9 +798,9 @@ def board(node_id: str):
         if rnd:
             for c in db.rows(con.execute("SELECT from_node_id, SUM(amount_paise) AS a FROM contributions WHERE to_round_id=? GROUP BY from_node_id", (rnd["id"],)).fetchall()):
                 contributed[c["from_node_id"]] = c["a"]
-        body += f"<h2>{len(kids)} nodes · {'one vote each' if node.get('pool_vote') == 'nodes' else 'every member votes'}</h2><table><tr><th>Node</th><th>Members</th><th>In the pool</th><th>Contributed</th></tr>"
-        for k in kids:
-            body += f"<tr><td>{esc(k['name'])}</td><td>{len(core.active_members(con, k['id']))}</td><td>{'yes' if k.get('charter_at') else '—'}</td><td>{_rupees(contributed[k['id']]) if k['id'] in contributed else '—'}</td></tr>"
+        body += f"<h2>{len(kids)} nodes · {'one vote each' if node.get('pool_vote') == 'nodes' else 'every member votes'}</h2><table><tr><th>Node</th><th>Members</th><th>In the pool</th><th>Joined</th><th>Contributed</th></tr>"
+        for k in sorted(kids, key=lambda k: k["created_at"]):
+            body += f"<tr><td>{esc(k['name'])}</td><td>{len(core.active_members(con, k['id']))}</td><td>{'yes' if k.get('charter_at') else '—'}</td><td class=muted>{esc(core._ist(k['created_at']) or '')}</td><td>{_rupees(contributed[k['id']]) if k['id'] in contributed else '—'}</td></tr>"
         body += "</table>"
     needs = core.needs_of(con, node_id) if (not rnd or rnd["status"] == "proposals") else []
     if needs:
