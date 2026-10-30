@@ -37,7 +37,7 @@ import urllib.parse
 
 import httpx
 
-from . import convo, core, db
+from . import convo, core, db, twin
 from .convo import (NEXT_STEP, RULE_NAMES, STAGES, advanceable, ballot_prompt, coordinated, cosignable, err_text, parse_points, parse_rupees,
                     plan_lines, proposal_summary, receipt_line, rounds_at, rupees)
 
@@ -396,7 +396,7 @@ def finish_self_join(phone: str, name: str | None, m: dict | None, text: str) ->
 
 def ask_charter(phone: str, node: dict) -> None:
     parent = core.get_node(con, node["parent_id"])
-    sender.buttons(phone, f"{parent['name']} works like this:\n\n{CHARTER}\n\nJoin {parent['name']} with {node['name']}?",
+    sender.buttons(phone, f"{parent['name']}: five rules.\n\n{CHARTER}\n\nAgree, for {node['name']}?",
                    [(f"ch:{node['id']}:y", "Accept"), (f"ch:{node['id']}:n", "Not now")])
 
 
@@ -410,6 +410,7 @@ def charter_answer(phone: str, m: dict, node_id: str, ans: str) -> None:
         con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
     sender.text(phone, f"Accepted. {node['name']} is in {core.get_node(con, node['parent_id'])['name']}.")
     send_staff_link(phone, node)
+    twin.schedule(node["parent_id"])
     if core.has_need(con, node_id):   # the form already asked
         return
     set_state(phone, "n_text", {"node_id": node_id})
@@ -639,6 +640,9 @@ def need(phone: str, m: dict | None, text: str, node_id: str | None = None) -> N
     except core.PBError as e:
         sender.text(phone, err_text(e)); return
     sender.text(phone, "Noted. When the round opens, similar needs across businesses show up as draft proposals you can lead or back.")
+    parent = core.get_node(con, node_id).get("parent_id")
+    if parent:
+        twin.schedule(parent)
 
 
 def cosign(phone: str, m: dict | None) -> None:

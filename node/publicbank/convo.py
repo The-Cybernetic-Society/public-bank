@@ -11,9 +11,12 @@ import re
 from . import core, db
 
 CHARTER = os.environ.get("PB_WA_CHARTER", (
-    "One business, one vote. Businesses say what they need, back each other's proposals, and split 100 points "
-    "across them. A plan stands when most of the businesses that vote approve it. The fund then pays the vendor "
-    "directly, and every rupee is on a public board anyone can check."))
+    "One business, one vote.\n"
+    "Say what you need. Back what you'd use.\n"
+    "Split 100 points across the list.\n"
+    "A plan stands when most businesses that vote approve it.\n"
+    "The fund pays vendors directly. Every rupee is public."))
+CHARTER_LINES = [ln for ln in CHARTER.split("\n") if ln.strip()]
 
 RULE_NAMES = {"mes": "Equal Shares", "nash": "Nash", "utilitarian": "Most points", "maximin": "Help the least served"}
 ERRORS = {

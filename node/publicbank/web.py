@@ -110,7 +110,7 @@ code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px s
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
-.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}
+.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
 button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
@@ -230,8 +230,8 @@ def _coordinator_welcome(node: dict, m: dict, request: Request) -> HTMLResponse:
     body = f"<p>You run <b>{esc(node['name'])}</b> here: you decide who is in, and you cast its vote.</p>"
     parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
     if parent and not node.get("charter_at"):
-        body += (f"<div class=card><h2 style='margin-top:0'>{esc(parent['name'])} works like this</h2><p>{esc(convo.CHARTER)}</p>"
-                 f"<form method=post action='/n/{esc(node['id'])}/charter'><button>Join {esc(parent['name'])} with {esc(node['name'])}</button></form></div>")
+        body += (f"<div class=card><h2 style='margin-top:0'>{esc(parent['name'])} works like this</h2><ol class=rules>" + "".join(f"<li>{esc(ln)}</li>" for ln in convo.CHARTER_LINES) + "</ol>"
+                 f"<form method=post action='/n/{esc(node['id'])}/charter'><button>Agree and continue</button></form></div>")
     elif parent:
         body += f"<p class=ok>{esc(node['name'])} is in {esc(parent['name'])}.</p>"
     link = f"{base}/j/{tok}"
@@ -251,6 +251,10 @@ def accept_charter(node_id: str, request: Request, next: str = ""):
     if not core.is_role(con, node_id, m["id"], ("coordinator",)): raise HTTPException(403)
     with db.tx(con):
         con.execute("UPDATE nodes SET charter_at=COALESCE(charter_at,?) WHERE id=?", (db.now(), node_id))
+    node = core.get_node(con, node_id)
+    if node.get("parent_id"):
+        from . import twin
+        twin.schedule(node["parent_id"])   # another business is in: see whether needs now line up
     dest = next if next.startswith("/") and not next.startswith("//") else f"/c/{node_id}"
     return RedirectResponse(dest, status_code=303)
 
@@ -539,9 +543,15 @@ def coordinate(node_id: str, request: Request):
     if node.get("parent_id") and not node.get("charter_at") and core.is_role(con, node_id, m["id"], ("coordinator",)):
         from . import convo
         par = core.get_node(con, node["parent_id"])
-        body += (f"<div class=card><h2 style='margin-top:0'>{esc(par['name'])} works like this</h2><p>{esc(convo.CHARTER)}</p>"
-                 f"<form method=post action='/n/{esc(node_id)}/charter'><button>Join {esc(par['name'])} with {esc(node['name'])}</button></form></div>")
+        body += (f"<div class=card><h2 style='margin-top:0'>{esc(par['name'])} works like this</h2><ol class=rules>" + "".join(f"<li>{esc(ln)}</li>" for ln in convo.CHARTER_LINES) + "</ol>"
+                 f"<form method=post action='/n/{esc(node_id)}/charter'><button>Agree and continue</button></form></div>")
     if not node.get("parent_id"):
+        rnd_p = core.current_round(con, node_id)
+        open_needs = core.needs_of(con, node_id)
+        drafts_n = db.row(con.execute("SELECT COUNT(*) AS c FROM proposals WHERE round_id=? AND source='twin'", (rnd_p["id"],)).fetchone())["c"] if rnd_p else 0
+        body += (f"<h2>The twin</h2><p class=muted>{len(open_needs)} open need{'s' if len(open_needs) != 1 else ''} from {len({n['node_id'] for n in open_needs})} businesses · {drafts_n} draft{'s' if drafts_n != 1 else ''} in this round. "
+                 "It runs on its own after each business joins; this runs it now.</p>"
+                 f"<form method=post action='/c/{esc(node_id)}/twin'><button class=small>Draft proposals from needs</button></form>")
         apps = core.applications_of(con, node_id)
         body += f"<h2>Registered businesses</h2><p class=muted>From <a href='/apply/{esc(node_id)}'>{esc(base)}/apply/{esc(node_id)}</a>. "
         body += f"A business registers and runs itself at once; “Verify” is your note that you've checked it is real. “Send card” is for owners who registered but never continued. <a href='/c/{esc(node_id)}/applications.csv'>Download CSV</a>.</p>"
@@ -574,6 +584,18 @@ def coordinate(node_id: str, request: Request):
         from . import whatsapp
         body += f"<p>WhatsApp: <code>{esc(whatsapp.join_link(tok))}</code> · <a href='/j/{esc(tok)}/poster.png?via=wa'>card</a></p>"
     return page(f"Coordinate · {node['name']}", body)
+
+
+@app.post("/c/{node_id:path}/twin")
+def run_twin(node_id: str, request: Request):
+    m = _require(request)
+    if not core.is_role(con, node_id, m["id"], ("coordinator", "treasurer")): raise HTTPException(403)
+    from . import twin
+    try:
+        made = twin.draft_from_needs(con, node_id)
+    except core.PBError as e:
+        raise HTTPException(400, e.code)
+    return RedirectResponse(f"/c/{node_id}?drafted={len(made)}", status_code=303)
 
 
 @app.post("/c/{node_id:path}/verify")
@@ -1034,8 +1056,8 @@ def start_done(node_id: str, request: Request):
     body = _steps(2) + "<div class=tick><svg viewBox='0 0 52 52'><circle cx=26 cy=26 r=24 fill=none /><path fill=none d='M14 27l8 8 16-16'/></svg></div>"
     body += f"<p class=rise>You run <b>{esc(node['name'])}</b> in {esc(parent['name']) if parent else esc(BRAND)}. You decide who is in, and you cast its vote.</p>"
     if parent and not node.get("charter_at"):
-        body += (f"<div class='card rise'><h2 style='margin-top:0'>How {esc(parent['name'])} works</h2><p>{esc(convo.CHARTER)}</p>"
-                 f"<form method=post action='/n/{esc(node['id'])}/charter?next=/start/{esc(node['id'])}/done'><button>I'm in</button></form></div>")
+        body += (f"<div class='card rise'><h2 style='margin-top:0'>Five rules</h2><ol class=rules>" + "".join(f"<li>{esc(ln)}</li>" for ln in convo.CHARTER_LINES) + "</ol>"
+                 f"<form method=post action='/n/{esc(node['id'])}/charter?next=/start/{esc(node['id'])}/done'><button>Agree and continue</button></form></div>")
     else:
         body += (f"<div class='card rise'><h2 style='margin-top:0'>Your team</h2><p>Share this with the people who work with you so they can vote too. Anyone who opens it joins "
                  f"{esc(node['name'])} straight away. It works for a week.</p><p><code style='word-break:break-all'>{esc(link)}</code></p>"
@@ -1043,7 +1065,29 @@ def start_done(node_id: str, request: Request):
         body += _table_card(node, parent, m, f"/start/{node['id']}/done")
         body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  "then every business gets 100 points to split across the list.</p><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p></div>")
+        body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"
     return page("You're in", body)
+
+
+@app.get("/start/{node_id:path}/finished")
+def start_finished(node_id: str, request: Request):
+    """The last screen: a small celebration, then the two things worth keeping."""
+    node, m = _my_node_or_403(node_id, request)
+    parent = core.get_node(con, node["parent_id"]) if node.get("parent_id") else None
+    base = str(request.base_url).rstrip("/")
+    tok = core.mint_token(con, "join_team", node_id=node["id"], ttl=core.TOKEN_TTL_JOIN)
+    link = f"{base}/j/{tok}"
+    import random
+    rnd = random.Random(node_id)
+    bits = "".join(f"<i style='left:{rnd.randint(2, 98)}%;animation-delay:{rnd.random() * .9:.2f}s;animation-duration:{1.6 + rnd.random() * 1.4:.2f}s;background:{rnd.choice(['#d9a33d', '#20201d', '#2f6b3f', '#e0b2a9', '#86bcc1'])};transform:rotate({rnd.randint(0, 360)}deg)'></i>" for _ in range(42))
+    body = f"<div class=confetti aria-hidden=true>{bits}</div>" + _steps(3)
+    body += ("<div class='tick big'><svg viewBox='0 0 52 52'><circle cx=26 cy=26 r=24 fill=none /><path fill=none d='M14 27l8 8 16-16'/></svg></div>"
+             f"<p class='rise lead'>{esc(node['name'])} is in {esc(parent['name']) if parent else esc(BRAND)}. That's it.</p>")
+    body += (f"<div class='card rise'><h2 style='margin-top:0'>One thing to do now</h2><p>Send your team the link so they can vote too.</p>"
+             f"<a class=btn href='https://wa.me/?text={esc(urllib.parse.quote(f'Join {node['name']} on {parent['name'] if parent else BRAND}: {link}'))}'>Send it on WhatsApp</a>"
+             f"<p class=muted style='margin-top:10px'><code style='word-break:break-all'>{esc(link)}</code></p></div>")
+    body += f"<p class='rise muted'>We'll reach out in the WhatsApp group when it's time to vote. The round is always visible on the <a href='/b/{esc(parent['id']) if parent else esc(node['id'])}'>live board</a>.</p>"
+    return page("Done", body)
 
 
 @app.get("/")

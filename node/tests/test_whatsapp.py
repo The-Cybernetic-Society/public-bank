@@ -83,7 +83,7 @@ assert r[1] == "text" and "join link" in r[2], r
 
 # the owner scans the card: coordinator, then the charter
 r = say(OWNER, f"JOIN {card}", name="Rekha")
-assert r[1] == "buttons" and "Goa Business Pool works like this" in r[2] and ids(r[3]) == ["ch:goa-biz/tailors:y", "ch:goa-biz/tailors:n"], r
+assert r[1] == "buttons" and "Goa Business Pool: five rules" in r[2] and ids(r[3]) == ["ch:goa-biz/tailors:y", "ch:goa-biz/tailors:n"], r
 owner = whatsapp.member_for(OWNER)
 assert owner and owner["verified_by"] == "whatsapp" and owner["display"] == "Rekha" and owner["wa_opt_in_at"], owner
 assert core.is_role(con, "goa-biz/tailors", owner["id"], ("coordinator",))

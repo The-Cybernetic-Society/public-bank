@@ -7,6 +7,8 @@ import tempfile
 
 os.environ["PB_DB"] = os.path.join(tempfile.mkdtemp(), "a.sqlite")
 os.environ["PB_SECRET"] = "test"
+os.environ["PB_TWIN_INLINE"] = "1"
+os.environ.pop("ANTHROPIC_API_KEY", None)
 os.environ.pop("PB_WA_NUMBER", None)
 os.environ["PB_WA_PHONE_ID"] = "1"; os.environ["PB_WA_TOKEN"] = "t"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -58,10 +60,12 @@ assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem
 vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"earn": 9, "horizon": 3, "scope": 7, "means": 5, "risk": 10} and vv[0]["node_name"] == "Mandrem Tailors"
 R.post("/start/commons/mandrem-tailors/values", data={"earn": "0"}); assert core.values_of(con, "commons")[0]["vector"]["earn"] == 0 and len(core.values_of(con, "commons")) == 1
 # step 3: the charter, then the team link
-r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "How Goa Business Commons works" in r.text and "I'm in" in r.text and "/j/" not in r.text
+r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "Five rules" in r.text and "Agree and continue" in r.text and "One business, one vote." in r.text and "/j/" not in r.text
 assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
 assert core.get_node(con, a["node_id"])["charter_at"]
-r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" in r.text and "/j/" in r.text and "What happens next" in r.text
+r = R.get("/start/commons/mandrem-tailors/done"); assert "Your team" in r.text and "/j/" in r.text and "What happens next" in r.text and "Finish" in r.text
+r = R.get("/start/commons/mandrem-tailors/finished"); assert r.status_code == 200 and "That's it" in r.text and "confetti" in r.text and "/j/" in r.text
+assert client().get("/start/commons/mandrem-tailors/finished").status_code == 401
 import re  # noqa: E402
 team = re.search(r"/j/([A-Za-z0-9_-]+)", r.text).group(1)
 S = client(); r = S.get(f"/j/{team}"); assert r.status_code == 200 and "You're in" in r.text
@@ -91,6 +95,8 @@ S3 = client(); S3.post("/apply/commons", data=dict(form, business="Lane Cafe", p
 pid2 = next(x["node_id"] for x in core.applications_of(con, "commons") if x["business"] == "Lane Cafe")
 S3.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
 assert {k["id"] for k in core.affected_children(con, "commons")} == {"commons/mandrem-tailors"}
+# no round at proposals right now (the first one was closed above), so the twin had nothing to draft into; the admin button says so
+assert T.post("/c/commons/twin").status_code == 400
 rc = core.open_round(con, "commons", 100000 * 100)
 assert {v["id"] for v in core.voters(con, rc)} == {owner_id}
 cafe_owner = web.signer.loads(S3.cookies.get("pb"))["m"]
@@ -168,15 +174,23 @@ print("APPLY OK · country code")
 
 # the last step shows the business's own need, lets it propose, and shows drafts from others with lead/back buttons
 rnd2 = core.current_round(con, "commons")
-r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Your need is in" in r.text and "Propose something now" in r.text, r.text[:300]
+# with a round at proposals, re-accepting a charter triggers the twin: the two scooter needs become one draft
+core.add_need(con, pid2, cafe_owner, "A delivery scooter for lunch orders to customers on the lane")
+S3.post(f"/n/{pid2}/charter?next=/start/{pid2}/done")
+tw = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND source='twin'", (rnd2["id"],)).fetchall())
+assert len(tw) == 1 and "Mandrem Tailors" in tw[0]["text"] and "Lane Cafe" in tw[0]["text"], tw
+r = T.get("/c/commons"); assert "The twin" in r.text and "1 draft" in r.text and "Draft proposals from needs" in r.text
+assert T.post("/c/commons/twin").headers["location"].endswith("?drafted=0")   # nothing left to group
+r = R.get("/start/commons/mandrem-tailors/done"); assert "On the table" in r.text and "Propose something now" in r.text and ("Your need is in" in r.text or "suggested from what businesses" in r.text), r.text[:300]
 r = R.post("/start/commons/mandrem-tailors/done", data={})  # nothing: pages are GET
 r = R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"title": "A shared delivery scooter", "ideal": "60000", "text": "", "lead": "on"})
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
-r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text and "I'll lead this" not in r.text
+r = R.get("/start/commons/mandrem-tailors/done"); assert "A shared delivery scooter" in r.text and "backed by Mandrem Tailors" in r.text   # the twin's draft (no lead) also sits on the table
 # the second business backs it from its own last step
 S2 = S3
 r = S2.get(f"/start/{pid2}/done"); assert "Back this" in r.text
-pid = re.search(r"name=pid value='([^']+)'", r.text).group(1)
+pid = db.row(con.execute("SELECT id FROM proposals WHERE round_id=? AND title='A shared delivery scooter'", (rnd2["id"],)).fetchone())["id"]
+assert f"value='{pid}'" in r.text
 assert S2.post(f"/n/commons/cosign?next=/start/{pid2}/done", data={"pid": pid}).headers["location"] == f"/start/{pid2}/done"
 assert "backed ✓" in S2.get(f"/start/{pid2}/done").text and db.row(con.execute("SELECT status FROM proposals WHERE id=?", (pid,)).fetchone())["status"] == "eligible"
 print("APPLY OK · on the table")
@@ -193,14 +207,14 @@ R.post("/n/commons/propose?next=/start/commons/mandrem-tailors/done", data={"tit
 allp = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd2["id"],)).fetchall())
 R.post("/start/commons/mandrem-tailors/values", data={"earn": "1", "horizon": "5", "scope": "2", "means": "1", "risk": "5"})
 ranked = twin.rank_for(con, "commons/mandrem-tailors", allp); order = [p["title"] for p in ranked]
-assert order[0] == "A shared delivery scooter" and ranked[0]["suggested"], order
+assert order[0].startswith("Shared:") and ranked[0]["suggested"] and order[1] == "A shared delivery scooter", order   # the twin's draft from its own need first, then the scooter
 S2.post(f"/start/{pid2}/values", data={"earn": "10", "horizon": "5", "scope": "2", "means": "1", "risk": "1"})
 order2 = [p["title"] for p in twin.rank_for(con, pid2, allp)]
-assert order2[0].startswith("GST billing"), order2
+assert order2.index(next(t for t in order2 if t.startswith("GST billing"))) < order2.index("A shared delivery scooter"), order2
 r = S2.get(f"/start/{pid2}/done"); assert r.text.index("GST billing") < r.text.index("A shared delivery scooter") and "The ten that fit" in r.text
 assert "for you" in R.get("/start/commons/mandrem-tailors/done").text
 # a business with no sliders yet gets the neutral vector and still a stable order
-assert len(twin.rank_for(con, b2["node_id"], allp)) == 3
+assert len(twin.rank_for(con, b2["node_id"], allp)) == len(allp)
 # the slider page shows poles, not a 1-10 scale
 r = R.get("/start/commons/mandrem-tailors/values"); assert "Earn more" in r.text and "Spend less" in r.text and "The whole lane" in r.text and "not at all" not in r.text
 print("APPLY OK · personalised order")

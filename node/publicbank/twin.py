@@ -155,6 +155,32 @@ def draft_from_needs(con, pool_id: str, min_nodes: int = 2, dry_run: bool = Fals
     return drafts
 
 
+def schedule(pool_id: str) -> None:
+    """Draft from the pool's open needs without holding up a request: a thread with its own connection. Harmless
+    when there is nothing to group (fewer than two businesses with needs, or no round at proposals). Inline when
+    PB_TWIN_INLINE is set (tests)."""
+    import os
+    import threading
+
+    def run():
+        try:
+            con = db.connect()
+            try:
+                draft_from_needs(con, pool_id)
+            finally:
+                try: con.close()
+                except Exception: pass
+        except core.PBError:
+            pass
+        except Exception as e:  # never surface to a user; the next trigger tries again
+            log.info("twin: background draft skipped: %s", type(e).__name__)
+
+    if os.environ.get("PB_TWIN_INLINE"):
+        run()
+    else:
+        threading.Thread(target=run, name="twin", daemon=True).start()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pool", required=True)

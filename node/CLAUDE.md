@@ -49,7 +49,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `core.enter_from_application`) and walks them through `/start/<node>/values` (five TRADE-OFF sliders → `value_vectors`,
   `core.VALUE_DIMENSIONS`: earn more↔spend less, this season↔the long run, my business↔the whole lane, things↔people,
   proven↔new; 1 = left pole, 10 = right, phase before/after: the twin's objective and the outcome baseline) and `/start/<node>/done`
-  (charter, team link). Verification is post-hoc: `/c/<pool>` shows new/joined/verified with a Verify button.
+  (the five-rule charter with Agree and continue, team link, the table, Finish → `/start/<node>/finished`, a
+  confetti page). Verification is post-hoc: `/c/<pool>` shows new/joined/verified with a Verify button.
   Pages share one look (`CSS`, `FONTS`: Newsreader, Silkscreen, Plex Mono; motion off under reduced-motion).
 - `publicbank/convo.py` — pure helpers both chat transports share: rupee/points parsers, rule names, error
   texts, the ballot prompt, receipts. Add shared wording here, not in a bot.
@@ -68,6 +69,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `tags_for` places a text on each axis (-1..+1, left/right stem lists in `TAG_WORDS`, `_conf` says which axes it spoke to);
   `rank_for(con, node_id, proposals)` orders proposals for one business by closeness to its slider positions plus its need (`suggested` = built from or like its need). The
   onboarding table card and the WhatsApp COSIGN list show the top ten in that order.
+  `twin.schedule(pool_id)` drafts in a background thread with its own connection (inline under `PB_TWIN_INLINE`); it runs
+  after every charter acceptance (web and WhatsApp) and every recorded need, and from the "Draft proposals from needs"
+  button on `/c/<pool>`. Nothing else triggers the twin.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
