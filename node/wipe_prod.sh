@@ -9,7 +9,7 @@ IMG=$(gcloud run services describe publicbank --region "$REGION" --project "$PRO
 B64=$(base64 < "$HERE/publicbank/wipe_businesses.py" | tr -d '\n')
 # the job's image predates this file, so the script travels inside the command; '@@' is the argument delimiter
 gcloud run jobs update publicbank-seed --region "$REGION" --project "$PROJECT" --image "$IMG" --command=sh \
-  --args="^@@^-c@@echo $B64 | base64 -d > /tmp/w.py && cd /app 2>/dev/null || true; PYTHONPATH=. python /tmp/w.py --pool $POOL --yes" --quiet
+  --args="^@@^-c@@cd /app && echo $B64 | base64 -d > publicbank/wipe_businesses.py && python -m publicbank.wipe_businesses --pool $POOL --yes" --quiet
 gcloud run jobs execute publicbank-seed --region "$REGION" --project "$PROJECT" --wait --quiet
 sleep 8
 gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed" --project "$PROJECT" --limit=30 --format='value(textPayload)' --freshness=3m | grep -E "businesses|Error|Traceback" | head -3
