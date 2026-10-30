@@ -57,7 +57,7 @@ def slug(s: str) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pool", default="goa-biz-demo")
-    ap.add_argument("--name", default="Goa Business Pool (demo)")
+    ap.add_argument("--name", default="Goa Business Commons")
     ap.add_argument("--stage", choices=STAGES, default="ratifying")
     ap.add_argument("--treasurer-telegram", type=int)
     ap.add_argument("--base-url", default=os.environ.get("PB_BASE_URL", "http://localhost:8000"))
