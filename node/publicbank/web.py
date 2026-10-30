@@ -261,14 +261,26 @@ def accept_charter(node_id: str, request: Request, next: str = ""):
 
 @app.get("/l/{token}")
 def login_link(token: str, next: str = ""):
-    """A one-tap login the bots send: turns a short-lived login token into the signed session cookie.
-    `next` is an optional path on this site to land on (a node page, say) instead of /me."""
+    """A login link the bots send. Chat apps fetch every link they show, to build a preview, so a GET must not
+    spend the token: it shows a Continue button, and the POST below signs the person in. `next` is an optional
+    path on this site to land on instead of /me."""
+    try:
+        t = core.read_token(con, token, "login")
+    except core.PBError:
+        return page("Link expired", "<p>Ask the bot for a fresh link with /me.</p>")
+    m = db.row(con.execute("SELECT display FROM members WHERE id=?", (t["member_id"],)).fetchone())
+    dest = _back(next, "/me")
+    return page("Continue", f"<p>Sign in as <b>{esc((m or {}).get('display') or 'yourself')}</b> on this phone.</p>"
+                            f"<form method=post action='/l/{esc(token)}'><input type=hidden name=next value='{esc(dest)}'><button>Continue</button></form>")
+
+
+@app.post("/l/{token}")
+def login_link_go(token: str, next: str = Form("")):
     try:
         t = core.read_token(con, token, "login", consume=True)
     except core.PBError:
         return page("Link expired", "<p>Ask the bot for a fresh link with /me.</p>")
-    dest = next if next.startswith("/") and not next.startswith("//") else "/me"
-    return _set_session(RedirectResponse(dest, status_code=303), t["member_id"])
+    return _set_session(RedirectResponse(_back(next, "/me"), status_code=303), t["member_id"])
 
 
 @app.get("/signin")

@@ -177,8 +177,10 @@ async def run():
     # the login link in the reply opens a web session
     link = msg.replies[0][0].split("Your page: ")[1].strip()
     c = TestClient(web_app)
-    r = c.get(link.replace("http://localhost:8000", ""), follow_redirects=False)
-    assert r.status_code == 303 and "pb_s" in r.headers.get("set-cookie", "") or r.status_code == 303
+    path = link.replace("http://localhost:8000", "")
+    r = c.get(path, follow_redirects=False); assert r.status_code == 200 and "Continue" in r.text   # a preview fetch spends nothing
+    r = c.post(path.split("?")[0], data={"next": "/me"}, follow_redirects=False)
+    assert r.status_code == 303 and "pb=" in r.headers.get("set-cookie", "")
 
     # coordinator approves; /me shows active
     core.approve_member(con, "v/r", m["id"], treas["id"])

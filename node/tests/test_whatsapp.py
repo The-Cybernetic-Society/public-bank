@@ -275,7 +275,10 @@ with TestClient(main.app) as c:
     assert len(sent) == before + 1 and sent[-1][0] == STAFF1 and "Mandrem Tailors" in sent[-1][2], sent[-1]   # second delivery ignored
     # the login link the status message carries opens the member's page
     link = sent[-1][2].split("Open: ", 1)[1].strip()
-    page = c.get(link.replace(whatsapp.BASE_URL, ""), follow_redirects=True)
+    path = link.replace(whatsapp.BASE_URL, "")
+    assert "Continue" in c.get(path).text   # WhatsApp's preview fetch spends nothing
+    nxt = path.split("next=", 1)[1] if "next=" in path else "/me"
+    page = c.post(path.split("?")[0], data={"next": nxt}, follow_redirects=True)
     assert page.status_code == 200 and "Mandrem Tailors" in page.text
     # a wa.me poster for the owner's card
     assert c.get(f"/j/{card}/poster.png?via=wa").headers["content-type"] == "image/png"

@@ -228,3 +228,12 @@ r = S2.post("/n/commons/cosign", data={"pid": pid3}, headers={"X-Requested-With"
 assert r.status_code == 200 and r.json()["status"] == "eligible" and "Lane Cafe" in r.json()["backers"] and pid2 in r.json()["signs"], r.text
 r = S2.post("/n/commons/cosign", data={"pid": pid3}, headers={"X-Requested-With": "fetch"}); assert r.status_code in (200, 400)
 print("APPLY OK · in-place backing")
+
+# a login link survives a chat app's preview fetch: GET shows Continue and spends nothing; POST signs in
+lt = core.mint_token(con, "login", member_id=tre["id"])
+c0 = client(); r = c0.get(f"/l/{lt}?next=/c/commons"); assert r.status_code == 200 and "Continue" in r.text and "treasurer" in r.text and not c0.cookies.get("pb")
+r = c0.get(f"/l/{lt}"); assert r.status_code == 200 and "Continue" in r.text   # a second preview fetch is still fine
+r = c0.post(f"/l/{lt}", data={"next": "/c/commons"}); assert r.status_code == 303 and r.headers["location"] == "/c/commons" and c0.cookies.get("pb")
+assert c0.get("/c/commons").status_code == 200
+assert "Link expired" in client().post(f"/l/{lt}", data={}).text   # spent
+print("APPLY OK · login link two-step")
