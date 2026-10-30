@@ -955,8 +955,7 @@ def _table_card(node: dict, parent: dict | None, m: dict, back: str) -> str:
     need_n = pool.get("cosign_min") or 1
     out = "<div class='card rise'><h2 style='margin-top:0'>On the table</h2>"
     if props:
-        out += (f"<p class=muted>The ten that fit your business best, from what you told us. Back one if your business would use it: once {need_n} businesses back it, "
-                f"it goes to the vote. Lead one if you'd organise it and be reimbursed against receipts.</p>")
+        out += "<p class=muted>The ten that fit your business best, from what you told us. Back one if your business would use it.</p>"
         for p in props:
             signs = db.j(p["cosign_nodes"], [])
             out += f"<div class=prop data-pid='{esc(p['id'])}' data-me='{esc(node['id'])}'>" + ("<span class=tag>for you</span> " if p["suggested"] else "") + f"<b>{esc(p['title'])}</b> <span class=muted>· ideal {_rupees(p['ideal_paise'])}</span>"
