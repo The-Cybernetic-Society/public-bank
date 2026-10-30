@@ -848,7 +848,8 @@ GROUP = os.environ.get("PB_WA_GROUP", "https://chat.whatsapp.com/Bmvu9ldoM8jIr1Q
 def privacy():
     body = f"""<p>This is what happens to what you type into the registration form.</p>
 <h2>What we collect</h2>
-<p>Your business's name, your name and role, what the business does and where, how many people work there, what you need help with, one thing you would buy or run with other businesses, what you could share, and your WhatsApp number.</p>
+<p>From the form: your business's name, your name and role, what the business does and where, how many people work there, what you need help with, one thing you would buy or run with other businesses, what you could share, and your WhatsApp number.</p>
+<p>From taking part: what you propose, back, vote for and approve; what you write to the Commons number or to the group; and what you say to any assistant we run, human or AI, that helps group needs, draft proposals or answer questions.</p>
 <h2>What it is for</h2>
 <p>To run the Commons: to send you your business's join link, to group similar needs into proposals, to count one vote per business, and to call you if we need to confirm a business is real. We do not sell it or use it for advertising.</p>
 <h2>WhatsApp</h2>
@@ -856,7 +857,7 @@ def privacy():
 <h2>What is public</h2>
 <p>The live board and the export show business names, proposals, votes as totals, and the ledger of what was bought. They never show a person's name, a phone number, or a payment id.</p>
 <h2>Research</h2>
-<p>We may publish what we learn about funding shared goods this way. Anything published is anonymised: no person's name, no business's name, and nothing that would let a reader work out which business said what.</p>
+<p>The Commons is an experiment, and we study it: the form answers, the votes and decisions, messages in the group and to the Commons number, and conversations with our assistants, including AI ones, may be read, analysed and summarised, by people and by software. We may publish what we learn about funding shared goods this way. Anything published is anonymised: no person's name, no business's name, and nothing that would let a reader work out which business said what. Messages are paraphrased, or quoted only in a form that does not identify who wrote them. If you would rather something you said stayed out of any publication, tell a group admin and it will.</p>
 <h2>How long we keep it, and how to leave</h2>
 <p>We keep it while the Commons runs, and delete names and numbers when it ends. You can leave at any time: message an admin of the <a href='{esc(GROUP)}'>WhatsApp group</a> and we will delete what we hold about you and your business. Decisions already made stay in the public record, without your name.</p>
 <p class=muted>Run by {esc(BRAND)}. This is a private, independent pilot, not a bank or a government scheme.</p>"""
