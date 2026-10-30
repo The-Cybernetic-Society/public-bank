@@ -754,7 +754,7 @@ def board(node_id: str):
 APPLY_INTRO = os.environ.get("PB_APPLY_INTRO", (
     "A shared fund for things businesses can buy or run together: a delivery scooter for a lane, one software licence "
     "for several shops, a cold store, a trainer. Each business says what it needs, similar needs are grouped, then we "
-    "all vote on what we fund. Winning items are bought against receipts. Two minutes, one form per business."))
+    "all vote on what we fund."))
 
 
 def _apply_form(pool: dict, v: dict | None = None, error: str = "") -> HTMLResponse:
