@@ -205,8 +205,8 @@ def tags_for(text: str) -> dict[str, float]:
 
 
 def position(v: int | float) -> float:
-    """A slider value 1..10 as -1..+1."""
-    return (float(v) - 5.5) / 4.5
+    """A slider value 0..10 as -1..+1, 5 being the centre."""
+    return (float(v) - 5) / 5
 
 
 def business_vector(con, node_id: str) -> dict[str, int]:

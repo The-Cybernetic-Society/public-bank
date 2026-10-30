@@ -827,7 +827,7 @@ def has_need(con, node_id: str) -> bool:
 # ----------------------------------------------------------------------------
 # onboarding: the applicant enters at once; verification is a later, human step
 # ----------------------------------------------------------------------------
-VALUE_DIMENSIONS = [   # (key, left pole, right pole, hint); a value of 1 is the left pole, 10 the right, the middle is "either"
+VALUE_DIMENSIONS = [   # (key, left pole, right pole, hint); a value of 0 is the left pole, 10 the right, 5 is "either"
     ("earn", "Earn more", "Spend less", "New customers and revenue, or lower costs and time saved."),
     ("horizon", "This season", "The long run", "Pays off within months, or an asset that pays off over years."),
     ("scope", "My business", "The whole lane", "Helps me directly, like a licence for my shop. Or helps all of us even if less for me, like bins and a clean beach road that bring people to every shop."),
@@ -864,7 +864,7 @@ def verify_application(con, application_id: str, by_member_id: str) -> dict:
 def set_values(con, node_id: str, member_id: str, vector: dict, phase: str = "before") -> dict:
     """One answer per member per phase; a second submit replaces the first."""
     keys = {k for k, *_ in VALUE_DIMENSIONS}
-    v = {k: max(1, min(10, int(vector.get(k, 5) or 5))) for k in keys}
+    v = {k: max(0, min(10, int(vector.get(k, 5) if vector.get(k) not in (None, "") else 5))) for k in keys}
     with tx(con):
         con.execute("DELETE FROM value_vectors WHERE node_id=? AND member_id=? AND phase=?", (node_id, member_id, phase))
         con.execute("INSERT INTO value_vectors (id,node_id,member_id,phase,vector,created_at) VALUES (?,?,?,?,?,?)",

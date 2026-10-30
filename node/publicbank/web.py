@@ -999,12 +999,12 @@ def start_values(node_id: str, request: Request):
     body += f"<form method=post action='/start/{esc(node_id)}/values'>"
     for k, left, right, hint in core.VALUE_DIMENSIONS:
         body += (f"<div class='card rise axis'><div class=poles><span class=pole>{esc(left)}</span><span class=pole>{esc(right)}</span></div>"
-                 f"<div class=slider><input id=v_{k} name={k} type=range min=1 max=10 value=5 aria-label='{esc(left)} or {esc(right)}'></div>"
+                 f"<div class=slider><input id=v_{k} name={k} type=range min=0 max=10 value=5 aria-label='{esc(left)} or {esc(right)}'></div>"
                  f"<div class=poleword><output for=v_{k} data-l='{esc(left)}' data-r='{esc(right)}'>either</output></div><span class=hint>{esc(hint)}</span></div>")
     body += "<button>Next</button></form>"
-    body += ("<script>document.querySelectorAll('.axis input').forEach(function(i){var o=i.closest('.axis').querySelector('output');function f(){var v=+i.value,c=(v-1)/9*100;"
+    body += ("<script>document.querySelectorAll('.axis input').forEach(function(i){var o=i.closest('.axis').querySelector('output');function f(){var v=+i.value,c=v*10;"
              "i.style.setProperty('--a',Math.min(c,50)+'%');i.style.setProperty('--b',Math.max(c,50)+'%');"
-             "o.textContent=v<=4?'\u2190 '+o.dataset.l+(v<=2?', strongly':''):v>=7?o.dataset.r+(v>=9?', strongly':'')+' \u2192':'either'}i.addEventListener('input',f);f()})</script>")
+             "o.textContent=v<5?'\u2190 '+o.dataset.l+(v<=1?', strongly':''):v>5?o.dataset.r+(v>=9?', strongly':'')+' \u2192':'either'}i.addEventListener('input',f);f()})</script>")
     return page("What matters to you", body)
 
 

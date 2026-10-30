@@ -55,7 +55,7 @@ assert client().get("/start/commons/mandrem-tailors/values").status_code == 401
 r = R.post("/start/commons/mandrem-tailors/values", data={"earn": "9", "horizon": "3", "scope": "7", "means": "5", "risk": "10"})
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/done"
 vv = core.values_of(con, "commons"); assert len(vv) == 1 and vv[0]["vector"] == {"earn": 9, "horizon": 3, "scope": 7, "means": 5, "risk": 10} and vv[0]["node_name"] == "Mandrem Tailors"
-R.post("/start/commons/mandrem-tailors/values", data={"earn": "1"}); assert core.values_of(con, "commons")[0]["vector"]["earn"] == 1 and len(core.values_of(con, "commons")) == 1
+R.post("/start/commons/mandrem-tailors/values", data={"earn": "0"}); assert core.values_of(con, "commons")[0]["vector"]["earn"] == 0 and len(core.values_of(con, "commons")) == 1
 # step 3: the charter, then the team link
 r = R.get("/start/commons/mandrem-tailors/done"); assert r.status_code == 200 and "How Goa Business Commons works" in r.text and "I'm in" in r.text and "/j/" not in r.text
 assert R.post("/n/commons/mandrem-tailors/charter?next=/start/commons/mandrem-tailors/done").headers["location"] == "/start/commons/mandrem-tailors/done"
