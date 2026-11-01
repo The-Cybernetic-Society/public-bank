@@ -273,7 +273,7 @@ web.HOME_POOL = "commons"
 r = anon.get("/"); assert r.status_code == 200
 assert "Register your business" in r.text and "action='/apply/commons'" in r.text and "class=track" in r.text and "remaining ₹" in r.text and "asked for ₹" in r.text, r.text[:500]
 assert "How it works" in r.text and r.text.count("<li class=") == 8 and "<li class='now'>" in r.text and "On the table" in r.text and "class=chip" in r.text and "/notes/simulating-a-thousand-businesses" in r.text
-assert r.text.index("On the table") < r.text.index("Register your business") < r.text.index("How it works") < r.text.index("Who's in") < r.text.index("Where the money stands") < r.text.index("For the record")
+assert r.text.index("class='card hero'") < r.text.index("class=track") < r.text.index("Register your business") < r.text.index("On the table") < r.text.index("Who's in") < r.text.index("How it works") < r.text.index("Where the money stands") < r.text.index("For the record")
 assert "class=primary" in r.text
 assert "class=thumb" in r.text and "href='/apply/commons?for=" in r.text   # the thumb count on each proposal leads into registering
 b = web._budget(core.get_node(con, "commons"), core.current_round(con, "commons"))
