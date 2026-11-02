@@ -1483,9 +1483,9 @@ def _steps_strip(stage: str | None, anyone_in: bool) -> str:
 
 
 LAUNCH = _date(2026, 11, 2)   # the day the Commons opened for registration; the timeline counts from it
-TIMELINE = ((30, "First round closes", "Proposals in, points cast, the plan approved and the vendors paid."),
+TIMELINE = ((30, "First round closes", "Proposals in, votes cast, the budget approved and paid out."),
             (60, "Second round closes", "If money remains after the first. Same steps, shorter."),
-            (182, "Final report", "Every rupee on the public board, and what the businesses made of it."))
+            (182, "Final report", "Every rupee on the public board, with a final outcomes report from the businesses."))
 
 
 def _timeline(today: "_date | None" = None) -> str:
@@ -1564,7 +1564,7 @@ def home():
         body += f"<p class='muted how'>{note}</p>"
         body += commonsmap.twin_section()
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
-        body += "<h2>Timeline</h2>" + _timeline() + "<p class='muted how'>The fund pays vendors directly, and nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
+        body += "<h2>Timeline</h2>" + _timeline()
         body += "<h2>Blog</h2>" + "".join(
             f"<a class=post href='/notes/{esc(k)}'><span class=muted>{esc(NOTE_META.get(k, ('', ''))[0])}</span><b>{esc(v)}</b><span class=blurb>{esc(NOTE_META.get(k, ('', ''))[1])}</span><span class=more>Read it →</span></a>"
             for k, v in NOTES.items())
