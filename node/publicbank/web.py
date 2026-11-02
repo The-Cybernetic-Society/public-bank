@@ -1233,7 +1233,11 @@ table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin:14px 0 0;text-al
 .strip li.done{border-color:var(--ink);color:var(--ink)}.strip li.done svg{stroke:var(--ink)}
 .strip li.now{border-color:var(--ink);background:var(--gold);color:var(--ink);box-shadow:3px 3px 0 var(--shadow)}.strip li.now svg{stroke:var(--ink)}
 .strip em{position:absolute;top:8px;right:8px;font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;color:var(--ink)}
-.board{list-style:none;margin:0;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--card)}.board li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);margin:0}.board li:first-child{border-top:0}.board .n{flex:0 0 18px;font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;color:var(--muted)}.board li>div{flex:1 1 auto;min-width:0}.board b{display:block;font-size:17px;font-weight:500;line-height:1.25}.board .muted{display:block;font-size:13px;line-height:1.3;margin-top:1px}.board.sample b{color:var(--muted)}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);padding:6px 11px;text-decoration:none;font:500 14px 'IBM Plex Mono',monospace}.thumb svg{width:18px;height:18px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:hover{background:var(--gold)}.thumb:active{transform:translateY(1px)}
+.board{list-style:none;margin:0;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--card)}.board li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);margin:0}.board li:first-child{border-top:0}.board .n{flex:0 0 18px;font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;color:var(--muted)}.board li>div{flex:1 1 auto;min-width:0}.board b{display:block;font-size:17px;font-weight:500;line-height:1.25}.board .muted{display:block;font-size:13px;line-height:1.3;margin-top:1px}.board.sample b{color:var(--muted)}
+.board .row-main{cursor:pointer}.board .row-main:focus{outline:3px solid var(--gold);outline-offset:2px;border-radius:3px}.board .row-main u{text-decoration:none}
+.board .more{display:none;margin-top:8px;font-size:15px;line-height:1.45;color:var(--text)}.board .more p{margin:4px 0}.board li.open .more{display:block}.board li.open .row-main u{display:none}
+.board .more a.btn.small{display:inline-block;width:auto;padding:10px 14px;margin-top:8px;font-size:10px}
+.board li{align-items:flex-start}.board .thumb{margin-top:2px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);padding:6px 11px;text-decoration:none;font:500 14px 'IBM Plex Mono',monospace}.thumb svg{width:18px;height:18px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:hover{background:var(--gold)}.thumb:active{transform:translateY(1px)}
 .post{display:block;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:6px 6px 0 #20201dcc;padding:16px 18px;margin:14px 0;text-decoration:none;color:var(--ink)}.post .muted{display:block;font:400 13px 'IBM Plex Mono',monospace;margin-bottom:6px}.post b{display:block;font:500 22px/1.2 Newsreader,Georgia,serif}.post .blurb{display:block;font-size:16px;line-height:1.45;color:var(--muted);margin-top:6px}.post .more{display:inline-block;margin-top:10px;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:3px}.post:hover b{text-decoration:underline;text-decoration-color:var(--gold)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
@@ -1290,24 +1294,35 @@ def home():
         first = min((k["created_at"] for k in kids), default=None)
         proof = (f"{len(kids)} business{'es' if len(kids) != 1 else ''} in since {core._ist(first)[:10]}" if kids else "Opening now") + (f" · {STAGE_WORDS.get(b['stage'], b['stage'])}" if b["stage"] else "")
         cta = f"<form method=get action='/apply/{esc(HOME_POOL)}' class=cta><button class=primary>Register your business <span aria-hidden=true>→</span></button></form>"
-        body = "<p class=lead>A ₹5 lakh fund that Goan businesses spend together. You say what your shop needs; the businesses vote; the fund pays the vendor.</p>"
+        body = ("<p class=lead>A ₹5 lakh common fund for what Goan businesses buy and run together: a shared scooter, a trainer, one licence for "
+                "several shops. Say what you'd share; the businesses vote; the fund pays the vendor.</p>")
         # the hero: the fund as a bar (paid, approved, asked for, remaining), the stage, and the button straight under it
         body += (f"<div class='card hero'><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
                  f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}</div>")
         body += cta + f"<p class='muted proof'>{esc(proof)}</p>"
-        # then what is on the table, most backed first, each with a thumb that leads into registering
+        # then the funding proposals, every one, most backed first; a tap opens the proposal, the thumb leads into registering
         props = []
         if rnd and rnd["status"] == "proposals":
             props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
             props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
-            props = props[:6]
-        body += "<h2 class=first>On the table</h2>"
+        body += "<h2 class=first>Funding proposals</h2>"
         if props:
-            body += "<ol class=board>" + "".join(
-                f"<li><span class=n>{i}</span><div><b>{esc(p['title'])}</b><span class=muted>about {_rupees(p['ideal_paise'])}</span></div>"
-                f"<a class=thumb href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}' title='Back this: register your business'><svg viewBox='0 0 24 24' aria-hidden=true><path d='M7 11v9H4v-9z M7 11l4-7c2 0 3 1 3 3v3h5c1 0 2 1 2 2l-1.5 7c0 1-1 1-2 1H7'/></svg><span>{len(db.j(p['cosign_nodes'], []))}</span></a></li>"
-                for i, p in enumerate(props, 1)) + "</ol>"
-            note = "Written from what businesses said they need, most backed first. The number is how many businesses back one; tap it to add yours."
+            names = {k["id"]: k["name"] for k in kids}
+            rows_html = ""
+            for i, p in enumerate(props, 1):
+                signs = [names.get(x, x.rsplit("/", 1)[-1]) for x in db.j(p["cosign_nodes"], [])]
+                who = "Suggested from what businesses said they need" if p["source"] == "twin" else "Proposed by a business"
+                more = (f"<div class=more id='prop-{esc(p['id'])}'><p>{esc(p['text'] or '').replace(chr(10), '<br>')}</p>"
+                        f"<p class=muted>{who}" + (f" · backed by {esc(', '.join(signs))}" if signs else " · nobody backs it yet")
+                        + (f" · at least {_rupees(p['min_paise'])}, ideally {_rupees(p['ideal_paise'])}" if p["min_paise"] else f" · ideally {_rupees(p['ideal_paise'])}") + "</p>"
+                        f"<a class='btn small' href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}'>Back this with my business</a></div>")
+                rows_html += (f"<li><span class=n>{i}</span><div class=row-main role=button tabindex=0 aria-expanded=false aria-controls='prop-{esc(p['id'])}'><b>{esc(p['title'])}</b>"
+                              f"<span class=muted>about {_rupees(p['ideal_paise'])}<u> · tap to read</u></span>{more}</div>"
+                              f"<a class=thumb href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}' title='Back this: register your business'><svg viewBox='0 0 24 24' aria-hidden=true><path d='M7 11v9H4v-9z M7 11l4-7c2 0 3 1 3 3v3h5c1 0 2 1 2 2l-1.5 7c0 1-1 1-2 1H7'/></svg><span>{len(signs)}</span></a></li>")
+            body += ("<ol class=board>" + rows_html + "</ol>"
+                     "<script>(function(){document.querySelectorAll('.board .row-main').forEach(function(d){function go(){var li=d.closest('li'),o=li.classList.toggle('open');d.setAttribute('aria-expanded',o?'true':'false')}"
+                     "d.addEventListener('click',function(e){if(e.target.closest('a'))return;go()});d.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})})()</script>")
+            note = f"All {len(props)} proposals this round, most backed first. Tap one to read it; the number is how many businesses back it, and tapping that adds yours."
         else:
             body += "<ol class='board sample'>" + "".join(f"<li><span class=n>{i}</span><div><b>{t}</b><span class=muted>about {r}</span></div></li>" for i, (t, r) in enumerate(
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
