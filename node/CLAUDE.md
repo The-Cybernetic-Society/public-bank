@@ -115,10 +115,12 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   businesses`); the map draws a count marker per place (`c`, each feature's representative point) and the card lists the names.
   WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
   Front page order (2 Nov): intro, fund bar + Register, Who's in as seals (`_seals`), `commonsmap.map_section` (dots and the
-  most-backed proposal's connections, no controls), Funding proposals, `commonsmap.twin_section` (three paragraphs on the twin,
-  the AI drafting and the simulation, then the two sliders as a live demo whose best-fit draft also drives the map's lines),
-  How it works, money, blog, record. The sliders are a demonstration, not a control: untouched, the map shows the most-backed
-  proposal; touched, it follows the lean (`touched`, kept in the hash).
+  most-backed proposal's connections, no controls; the map script ships with it), Funding proposals, `commonsmap.twin_section`
+  (two paragraphs: the twin, and the AI drafting from it; the slider demo and the simulation paragraph were cut on 2 Nov),
+  How it works, Timeline, blog, record. The Timeline (`LAUNCH`, `TIMELINE`, `_timeline`) counts from launch day, 2 Nov 2026:
+  first round closes at 30 days (2 Dec 2026), second round at 60 days if money remains (1 Jan 2027), final report at six
+  months (3 May 2027); passed dates draw dark, the next one lit, like the steps strip. The JS still reads the hash's
+  `commons=` lean for an old link, but nothing on the page sets it now.
   `publicbank/commonsmap.py` — the front page's map IS the Commons (2 Nov, replacing the place-twin section there): every
   business of the home pool as a dot in its place (`businesses`: node or application `place_id` → the map file's `c`,
   fanned in a ring when several share a place; dashed = not yet verified), the talukas faint behind, two of the five

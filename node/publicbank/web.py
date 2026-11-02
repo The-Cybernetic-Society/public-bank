@@ -22,6 +22,7 @@ import json
 import os
 import re
 import urllib.parse
+from datetime import date as _date, timedelta as _timedelta
 from typing import Any
 
 import httpx
@@ -1428,6 +1429,7 @@ table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin:14px 0 0;text-al
 .strip svg{display:block;width:30px;height:30px;stroke:var(--muted);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
 .strip li.done{border-color:var(--ink);color:var(--ink)}.strip li.done svg{stroke:var(--ink)}
 .strip li.now{border-color:var(--ink);background:var(--gold);color:var(--ink);box-shadow:3px 3px 0 var(--shadow)}.strip li.now svg{stroke:var(--ink)}
+.strip.timeline{grid-template-columns:repeat(3,1fr)}.strip.timeline time{display:block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:8px}.strip.timeline span{display:block;font-weight:500}.strip.timeline small{display:block;font-size:13px;line-height:1.35;margin-top:4px}@media(max-width:560px){.strip.timeline{grid-template-columns:1fr}}
 .strip em{position:absolute;top:8px;right:8px;font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;color:var(--ink)}
 .board{list-style:none;margin:0;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--card)}.board li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);margin:0}.board li:first-child{border-top:0}.board .n{flex:0 0 18px;font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;color:var(--muted)}.board li>div{flex:1 1 auto;min-width:0}.board b{display:block;font-size:17px;font-weight:500;line-height:1.25}.board .muted{display:block;font-size:13px;line-height:1.3;margin-top:1px}.board.sample b{color:var(--muted)}
 .board .row-main{cursor:pointer}.board .row-main:focus{outline:3px solid var(--gold);outline-offset:2px;border-radius:3px}.board .row-main u{text-decoration:none}
@@ -1480,10 +1482,28 @@ def _steps_strip(stage: str | None, anyone_in: bool) -> str:
     return "".join(out) + "</ol>"
 
 
+LAUNCH = _date(2026, 11, 2)   # the day the Commons opened for registration; the timeline counts from it
+TIMELINE = ((30, "First round closes", "Proposals in, points cast, the plan approved and the vendors paid."),
+            (60, "Second round closes", "If money remains after the first. Same steps, shorter."),
+            (182, "Final report", "Every rupee on the public board, and what the businesses made of it."))
+
+
+def _timeline(today: "_date | None" = None) -> str:
+    """Three dates from launch, drawn like the steps strip: passed ones dark, the next one lit."""
+    today = today or _date.today()
+    marks = [(LAUNCH + _timedelta(days=d), label, note) for d, label, note in TIMELINE]
+    now = next((i for i, (d, _, _) in enumerate(marks) if d >= today), len(marks))
+    out = ["<ol class='strip timeline' aria-label='Timeline'>"]
+    for i, (d, label, note) in enumerate(marks):
+        cls = "done" if i < now else "now" if i == now else ""
+        out.append(f"<li class='{cls}'><time datetime='{d.isoformat()}'>{d.strftime('%-d %b %Y')}</time><span>{label}</span><small>{note}</small>" + ("<em>next</em>" if i == now else "") + "</li>")
+    return "".join(out) + "</ol>"
+
+
 @app.get("/")
 def home():
     """The front page is the home pool itself, for a shop owner on a phone first: one sentence, proof it is real, a way
-    in, the round drawn as steps with the live stage lit, what gets funded, who is in, where the money stands, the record."""
+    in, the round drawn as steps with the live stage lit, what gets funded, who is in, the timeline, the record."""
     home_id = _resolve(HOME_POOL)
     try:
         node = core.get_node(con, home_id)
@@ -1542,9 +1562,9 @@ def home():
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
             note = "The kind of thing the fund buys: things several businesses use together."
         body += f"<p class='muted how'>{note}</p>"
-        body += commonsmap.twin_section(node["id"])
+        body += commonsmap.twin_section()
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
-        body += "<h2>Where the money stands</h2><p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
+        body += "<h2>Timeline</h2>" + _timeline() + "<p class='muted how'>The fund pays vendors directly, and nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
         body += "<h2>Blog</h2>" + "".join(
             f"<a class=post href='/notes/{esc(k)}'><span class=muted>{esc(NOTE_META.get(k, ('', ''))[0])}</span><b>{esc(v)}</b><span class=blurb>{esc(NOTE_META.get(k, ('', ''))[1])}</span><span class=more>Read it →</span></a>"
             for k, v in NOTES.items())

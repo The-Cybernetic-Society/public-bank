@@ -161,13 +161,6 @@ fetch('/commons/'+encodeURIComponent(POOL)+'/map.json').then(function(r){return 
 </script>"""
 
 
-def _axes() -> str:
-    return "".join(f"<div class='card axis'><div class=poles><span class=pole>{l}</span><span class=pole>{r}</span></div>"
-                   f"<div class=slider><input data-axis={k} type=range min=0 max=10 value=5 aria-label='{l} or {r}'></div>"
-                   f"<div class=poleword><output data-l='{l}' data-r='{r}'>either</output></div></div>"
-                   for k, l, r, h in core.VALUE_DIMENSIONS if k in AXES)
-
-
 def map_section(pool_id: str, con=None) -> str:
     """Where the Commons is: the businesses as dots, the most-backed proposal's connections drawn, a tap for any
     business. No controls: the sliders live in the twin section below, and drive the same map. The SVG gets its
@@ -183,22 +176,14 @@ def map_section(pool_id: str, con=None) -> str:
             "proposal brings together. Tap a business to see what it needs and which proposals it is part of.</p>"
             f"<div class=cmap id=cmap data-pool='{pool_id}'>"
             f"<svg viewBox='{vb}' role=img aria-label='Map of the Commons'><g class=ctx></g><g class=links></g><g class=dots></g></svg><p class=hint>Loading…</p></div>"
-            "<div class='card ccard' id=cmapcard><p class=muted>…</p></div>" + CSS)
+            "<div class='card ccard' id=cmapcard><p class=muted>…</p></div>" + CSS + JS)
 
 
-def twin_section(pool_id: str) -> str:
-    """The digital twin, the AI and the simulation, in three short paragraphs, with the two sliders as a live
-    demonstration of how the twin picks a draft for a business."""
+def twin_section() -> str:
+    """The digital twin and the AI that drafts from it, in two short paragraphs."""
     return ("<h2>What is an AI digital twin?</h2>"
             "<p>Behind the page is a <b>digital twin</b> of Goan businesses: a record of each business, what it said it needs, where it sits, and what the "
             "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town.</p>"
             "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
             "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
-            "it and others back it, and every proposal on this page says whether a person or the twin wrote it.</p>"
-            "<p>Before the first real business registered, we put <b>a thousand simulated businesses</b> through this same software and ran whole funding rounds, "
-            "to see where the rules strain. The write-up is <a href='/notes/simulating-a-thousand-businesses'>on the blog</a>. The one thing no rule could fix: "
-            "whether a business approves a plan that funded someone else's item. That is what the first real round will tell us.</p>"
-            "<p class=muted>Try the part of the twin each owner meets. Every business sets five trade-offs when it registers; two of them are here. Slide, and the "
-            "draft the twin would show that business first changes, and the map above lights up the businesses it connects.</p>"
-            f"<div class=cmap id=ctwin data-pool='{pool_id}'><div class=axes>{_axes()}</div></div>"
-            "<div class='card ccard' id=ccard><p class=muted>…</p></div>" + JS)
+            "it and others back it, and every proposal on this page says whether a person or the twin wrote it.</p>")
