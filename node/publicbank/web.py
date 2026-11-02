@@ -1210,6 +1210,32 @@ def start_done(node_id: str, request: Request):
     return page("You're in", body)
 
 
+def _seals(pool: dict, kids: list[dict]) -> str:
+    """Who's in: one seal per business, a monogram in a ring, gold and ticked once the treasurer has verified it,
+    with its place and the day it joined. Generated from the name, so every member has one from the moment it
+    registers; a real logo can replace the monogram later."""
+    import hashlib
+    if not kids:
+        return "<h2>Who's in</h2><p class=muted>Be the first.</p>"
+    apps = {a["node_id"]: a for a in db.rows(con.execute("SELECT node_id, status, place_id FROM applications WHERE pool_id=?", (pool["id"],)).fetchall())}
+    tiles = ""
+    for k in sorted(kids, key=lambda k: k["created_at"]):
+        a = apps.get(k["id"], {})
+        verified = a.get("status") == "verified"
+        words_ = [w for w in re.split(r"[\s&/-]+", k["name"]) if w and w[0].isalnum()]
+        mono = "".join(w[0] for w in words_[:2]).upper() or k["name"][:1].upper()
+        hue = int(hashlib.sha256(k["name"].encode()).hexdigest()[:4], 16) % 360
+        place = (places.get(k.get("place_id") or a.get("place_id") or "") or {}).get("name") if (k.get("place_id") or a.get("place_id")) else None
+        since = (core._ist(k["created_at"]) or "")[:10]
+        tip = (f"{place} · " if place else "") + ("verified" if verified else f"since {since}")
+        tiles += (f"<span class='seal{' v' if verified else ''}' title='{esc(tip)}'><svg viewBox='0 0 32 32' aria-hidden=true>"
+                  f"<circle cx='16' cy='16' r='14' fill='hsl({hue} 38% 86%)'/><circle cx='16' cy='16' r='14' class='ring'/><text x='16' y='17'>{esc(mono)}</text></svg>"
+                  f"{esc(k['name'])}{'<i aria-label=verified>✓</i>' if verified else ''}</span>")
+    n_v = sum(1 for k in kids if apps.get(k["id"], {}).get("status") == "verified")
+    return (f"<h2>Who's in <span class=sum>· {len(kids)} business{'es' if len(kids) != 1 else ''}{f', {n_v} verified' if n_v else ''}</span></h2>"
+            f"<p class=seals>{tiles}</p>")
+
+
 def _business_twin_card(node: dict) -> str:
     """On the owner's pages: what the government offers this business, one scheme per kind, and the step that opens the most."""
     from . import businesses
@@ -1312,7 +1338,13 @@ table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin:14px 0 0;text-al
 .board .more a.btn.small{display:inline-block;width:auto;padding:10px 14px;margin-top:8px;font-size:10px}
 .board li{align-items:flex-start}.board .thumb{margin-top:2px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);padding:6px 11px;text-decoration:none;font:500 14px 'IBM Plex Mono',monospace}.thumb svg{width:18px;height:18px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:hover{background:var(--gold)}.thumb:active{transform:translateY(1px)}
 .post{display:block;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:6px 6px 0 #20201dcc;padding:16px 18px;margin:14px 0;text-decoration:none;color:var(--ink)}.post .muted{display:block;font:400 13px 'IBM Plex Mono',monospace;margin-bottom:6px}.post b{display:block;font:500 22px/1.2 Newsreader,Georgia,serif}.post .blurb{display:block;font-size:16px;line-height:1.45;color:var(--muted);margin-top:6px}.post .more{display:inline-block;margin-top:10px;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:3px}.post:hover b{text-decoration:underline;text-decoration-color:var(--gold)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}</style>"""
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}
+h2 .sum{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);letter-spacing:0}
+.seals{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px}
+.seal{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ink);border-radius:999px;padding:4px 12px 4px 4px;font-size:15px;color:var(--ink);background:var(--card);box-shadow:2px 2px 0 var(--shadow);animation:rise .45s ease-out both}
+.seal svg{width:24px;height:24px;flex:0 0 auto}.seal .ring{fill:none;stroke:var(--ink);stroke-width:2}.seal text{font:500 12px 'IBM Plex Mono',monospace;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.seal.v .ring{stroke:var(--gold);stroke-width:3.5}.seal.v{box-shadow:2px 2px 0 var(--gold)}.seal i{font-style:normal;color:var(--gold);font-weight:500;margin-left:2px}
+@media(prefers-reduced-motion:reduce){.seal{animation:none}}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
 NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
 NOTE_META = {"simulating-a-thousand-businesses": ("30 October 2026", "Before the first real business registered, we put a thousand simulated ones through the real software and ran whole funding rounds. What we did, what broke, and the one thing no rule can fix.")}
@@ -1373,6 +1405,8 @@ def home():
         body += (f"<div class='card hero'><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
                  f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}</div>")
         body += cta + f"<p class='muted proof'>{esc(proof)}</p>"
+        # then who is in: a seal per business, so being in and accepted looks like something
+        body += _seals(node, kids)
         # then the funding proposals, every one, most backed first; a tap opens the proposal, the thumb leads into registering
         props = []
         if rnd and rnd["status"] == "proposals":
@@ -1403,7 +1437,6 @@ def home():
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
             note = "The kind of thing the fund buys: things several businesses use together."
         body += f"<p class='muted how'>{note}</p>"
-        body += "<h2>Who's in</h2>" + ("<p class=chips>" + "".join(f"<span class=chip>{esc(k['name'])}</span>" for k in kids) + "</p>" if kids else "<p class=muted>Be the first.</p>")
         body += commonsmap.section(node["id"])
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
         body += "<h2>Where the money stands</h2><p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
