@@ -114,6 +114,11 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   point is not stored). `GET /twin/businesses.json` lists the home pool's VERIFIED businesses with their place (`core.verified_
   businesses`); the map draws a count marker per place (`c`, each feature's representative point) and the card lists the names.
   WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
+  Front page order (2 Nov): intro, fund bar + Register, Who's in as seals (`_seals`), `commonsmap.map_section` (dots and the
+  most-backed proposal's connections, no controls), Funding proposals, `commonsmap.twin_section` (three paragraphs on the twin,
+  the AI drafting and the simulation, then the two sliders as a live demo whose best-fit draft also drives the map's lines),
+  How it works, money, blog, record. The sliders are a demonstration, not a control: untouched, the map shows the most-backed
+  proposal; touched, it follows the lean (`touched`, kept in the hash).
   `publicbank/commonsmap.py` — the front page's map IS the Commons (2 Nov, replacing the place-twin section there): every
   business of the home pool as a dot in its place (`businesses`: node or application `place_id` → the map file's `c`,
   fanned in a ring when several share a place; dashed = not yet verified), the talukas faint behind, two of the five

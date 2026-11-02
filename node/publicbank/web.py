@@ -1407,6 +1407,7 @@ def home():
         body += cta + f"<p class='muted proof'>{esc(proof)}</p>"
         # then who is in: a seal per business, so being in and accepted looks like something
         body += _seals(node, kids)
+        body += commonsmap.map_section(node["id"])
         # then the funding proposals, every one, most backed first; a tap opens the proposal, the thumb leads into registering
         props = []
         if rnd and rnd["status"] == "proposals":
@@ -1437,7 +1438,7 @@ def home():
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
             note = "The kind of thing the fund buys: things several businesses use together."
         body += f"<p class='muted how'>{note}</p>"
-        body += commonsmap.section(node["id"])
+        body += commonsmap.twin_section(node["id"])
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
         body += "<h2>Where the money stands</h2><p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
         body += "<h2>Blog</h2>" + "".join(

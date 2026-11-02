@@ -114,9 +114,9 @@ CSS = """<style>
 
 JS = r"""<script>
 (function(){
-var root=document.getElementById('cmap');if(!root)return;
-var svg=root.querySelector('svg'),ctx=svg.querySelector('g.ctx'),links=svg.querySelector('g.links'),dots=svg.querySelector('g.dots'),hint=root.querySelector('.hint'),card=document.getElementById('ccard'),POOL=root.dataset.pool;
-var D=null,sel=null,vec={};
+var root=document.getElementById('cmap'),twin=document.getElementById('ctwin');if(!root)return;
+var svg=root.querySelector('svg'),ctx=svg.querySelector('g.ctx'),links=svg.querySelector('g.links'),dots=svg.querySelector('g.dots'),hint=root.querySelector('.hint'),mapcard=document.getElementById('cmapcard'),card=document.getElementById('ccard'),POOL=root.dataset.pool;
+var D=null,sel=null,vec={},touched=false;
 function rupees(n){var s=String(n),t=s.slice(-3),h=s.slice(0,-3);return '₹'+(h?h.replace(/\B(?=(\d{2})+(?!\d))/g,',')+',':'')+t}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function pos(v){return (v-5)/5}
@@ -124,6 +124,7 @@ function fit(p){var n=0,s=0;for(var k in p.conf){if(!p.conf[k]||!(k in vec))cont
 function conn(p){var ids={};p.backers.forEach(function(x){ids[x]='b'});p.built_from.forEach(function(x){if(!ids[x])ids[x]='f'});if(p.lead)ids[p.lead]='b';return ids}
 function biz(id){return D.businesses.filter(function(b){return b.node_id===id})[0]}
 function ranked(){return D.proposals.map(function(p){return {p:p,f:fit(p)}}).sort(function(a,b){return b.f-a.f||a.p.title.localeCompare(b.p.title)})}
+function mostBacked(){var best=null,n=-1;D.proposals.forEach(function(p){var k=Object.keys(conn(p)).length;if(k>n||(k===n&&best&&p.ideal>best.ideal)){best=p;n=k}});return best}
 function path(rings){return rings.map(function(r){return 'M'+r.map(function(q){return q[0].toFixed(1)+' '+q[1].toFixed(1)}).join('L')+'Z'}).join('')}
 function drawBase(){var b=D.bbox;svg.setAttribute('viewBox',[b[0],b[1],b[2]-b[0],b[3]-b[1]].join(' '));ctx.innerHTML='';D.context.forEach(function(t){var p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',path(t.rings));var ti=document.createElementNS('http://www.w3.org/2000/svg','title');ti.textContent=t.name;p.appendChild(ti);ctx.appendChild(p)});
   dots.innerHTML='';var r=(b[2]-b[0])/45;D.businesses.forEach(function(x){if(!x.placed)return;var c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x.x);c.setAttribute('cy',x.y);c.setAttribute('r',r);c.dataset.id=x.node_id;c.setAttribute('tabindex','0');c.setAttribute('role','button');c.setAttribute('aria-label',x.name+(x.place?', '+x.place:''));
@@ -131,42 +132,65 @@ function drawBase(){var b=D.bbox;svg.setAttribute('viewBox',[b[0],b[1],b[2]-b[0]
     c.addEventListener('click',function(){sel=(sel===x.node_id)?null:x.node_id;render()});c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();sel=(sel===x.node_id)?null:x.node_id;render()}});
     c.addEventListener('mouseenter',function(){hint.textContent=x.name+(x.place?' · '+x.place:'')+(x.need?' · needs: '+x.need:'')});c.addEventListener('mouseleave',function(){hint.textContent=defaultHint()});dots.appendChild(c)})}
 function defaultHint(){var n=D.businesses.filter(function(x){return x.placed}).length,u=D.businesses.length-n;return n+' business'+(n!==1?'es':'')+' on the map'+(u?' · '+u+' more have not said where they are':'')+'. Tap one.'}
-function drawLinks(p,ids){links.innerHTML='';if(!p)return;var pts=[];for(var id in ids){var b=biz(id);if(b&&b.placed)pts.push(b)}if(!pts.length)return;
+function drawLinks(p,ids){links.innerHTML='';dots.querySelectorAll('circle').forEach(function(c){var k=ids?ids[c.dataset.id]:null;c.classList.toggle('on',k==='b');c.classList.toggle('dim',!!ids&&!k);c.classList.toggle('sel',c.dataset.id===sel)});if(!p)return;var pts=[];for(var id in ids){var b=biz(id);if(b&&b.placed)pts.push(b)}if(!pts.length)return;
   var hx=pts.reduce(function(s,b){return s+b.x},0)/pts.length,hy=pts.reduce(function(s,b){return s+b.y},0)/pts.length,r=(D.bbox[2]-D.bbox[0])/45;
   pts.forEach(function(b){var l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',hx);l.setAttribute('y1',hy);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);if(ids[b.node_id]==='f')l.setAttribute('class','from');links.appendChild(l)});
-  if(pts.length>1){var h=document.createElementNS('http://www.w3.org/2000/svg','circle');h.setAttribute('cx',hx);h.setAttribute('cy',hy);h.setAttribute('r',r*0.9);h.setAttribute('class','hub');links.appendChild(h);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',hx);t.setAttribute('y',hy);t.setAttribute('font-size',r*1.1);t.textContent=pts.length;links.appendChild(t)}
-  dots.querySelectorAll('circle').forEach(function(c){var k=ids[c.dataset.id];c.classList.toggle('on',k==='b');c.classList.toggle('dim',!k);c.classList.toggle('sel',c.dataset.id===sel)})}
+  if(pts.length>1){var h=document.createElementNS('http://www.w3.org/2000/svg','circle');h.setAttribute('cx',hx);h.setAttribute('cy',hy);h.setAttribute('r',r*0.9);h.setAttribute('class','hub');links.appendChild(h);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',hx);t.setAttribute('y',hy);t.setAttribute('font-size',r*1.1);t.textContent=pts.length;links.appendChild(t)}}
 function chips(ids,label){var names=[];for(var id in ids){var b=biz(id);if(b)names.push('<span class="chip'+(ids[id]==='b'?' b':'')+'" data-id="'+esc(id)+'">'+esc(b.name)+'</span>')}return names.length?'<p class=m>'+label+'<br>'+names.join('')+'</p>':''}
 function schemeLine(p){if(!p.scheme)return '';return '<p class=scheme>A scheme could carry part of this: <b>'+esc(p.scheme.name)+'</b>'+(p.scheme.share?': '+esc(p.scheme.share):'')+(p.scheme.url?' · <a href="'+esc(p.scheme.url)+'">read it</a>':'')+'</p>'}
-function render(){var R=ranked();
+function wire(el){el.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){sel=c.dataset.id;render();root.scrollIntoView({behavior:'smooth',block:'start'})})});
+  el.querySelectorAll('li[data-p]').forEach(function(li){li.addEventListener('click',function(){var p=D.proposals.filter(function(x){return x.id===li.dataset.p})[0];if(!p)return;sel=null;drawLinks(p,conn(p));hint.textContent='Showing '+p.title+' on the map';root.scrollIntoView({behavior:'smooth',block:'start'})})});
+  var bk=el.querySelector('#cback');if(bk)bk.addEventListener('click',function(e){e.preventDefault();sel=null;render()})}
+function render(){var R=ranked(),top=R[0];
   if(sel){var b=biz(sel),mine=D.proposals.filter(function(p){return p.backers.indexOf(sel)>=0||p.lead===sel||p.built_from.indexOf(sel)>=0});var ids={};ids[sel]='b';mine.forEach(function(p){var c=conn(p);for(var k in c)if(!ids[k])ids[k]=c[k]});
     drawLinks(mine[0]||null,ids);
-    card.innerHTML='<h3>'+esc(b.name)+'</h3><p class=m>'+esc(b.place||'place not given')+(b.verified?' · verified':' · registered, not yet verified')+'</p>'+(b.need?'<p><b>Needs:</b> '+esc(b.need)+'</p>':'')+(mine.length?'<p class=m>Part of '+mine.length+' proposal'+(mine.length>1?'s':'')+':</p><ol class=alt>'+mine.map(function(p){return '<li data-p="'+esc(p.id)+'"><b>'+esc(p.title)+'</b> <span class=muted>about '+rupees(p.ideal)+'</span></li>'}).join('')+'</ol>':'<p class=m>Not part of any proposal yet.</p>')+'<a class="btn quiet" href="#" id=cback>Back to the sliders</a>';
-    hint.textContent=b.name+(mine.length?' is connected to '+(Object.keys(ids).length-1)+' other business'+(Object.keys(ids).length!==2?'es':''):'');}
-  else{var top=R[0];if(!top){links.innerHTML='';card.innerHTML='<p class=muted>No proposals on the table yet.</p>';return}var p=top.p,ids=conn(p);drawLinks(p,ids);var n=Object.keys(ids).length;
-    card.innerHTML='<span class=fit>fit '+Math.round(top.f*100)+'%</span><span class=muted>best of '+R.length+' for this lean</span><h3>'+esc(p.title)+'</h3><p class=m>about '+rupees(p.ideal)+(p.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'
-      +(p.text?'<p>'+esc(p.text)+'</p>':'')+chips(ids,n?'Connects '+n+' business'+(n>1?'es':'')+' (filled: backing or leading; outlined: written from their need):':'')+schemeLine(p)
-      +'<a class=btn href="/apply/'+esc(POOL)+'?for='+esc(p.id)+'">Back this with my business</a>'
-      +(R.length>1?'<p class=m style="margin-top:12px">Next best for this lean:</p><ol class=alt>'+R.slice(1,4).map(function(x){return '<li data-p="'+esc(x.p.id)+'"><b>'+esc(x.p.title)+'</b> <span class=muted>fit '+Math.round(x.f*100)+'% · about '+rupees(x.p.ideal)+'</span></li>'}).join('')+'</ol>':'');
-    hint.textContent=n?'This proposal connects '+n+' business'+(n>1?'es':'')+' on the map':defaultHint()}
-  card.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){sel=c.dataset.id;render()})});
-  card.querySelectorAll('li[data-p]').forEach(function(li){li.addEventListener('click',function(){var p=D.proposals.filter(function(x){return x.id===li.dataset.p})[0];if(!p)return;sel=null;drawLinks(p,conn(p));var h=card.querySelector('h3');if(h)h.textContent=p.title;hint.textContent='Showing '+p.title})});
-  var bk=document.getElementById('cback');if(bk)bk.addEventListener('click',function(e){e.preventDefault();sel=null;render()});
-  try{history.replaceState(null,'','#commons='+Object.keys(vec).map(function(k){return k+'='+vec[k]}).join(',')+(sel?'&biz='+encodeURIComponent(sel):''))}catch(e){}}
-root.querySelectorAll('.axis input').forEach(function(i){var o=i.closest('.axis').querySelector('output');function f(){var v=+i.value,c=v*10;i.style.setProperty('--a',Math.min(c,50)+'%');i.style.setProperty('--b',Math.max(c,50)+'%');o.textContent=v<5?'← '+o.dataset.l+(v<=1?', strongly':''):v>5?o.dataset.r+(v>=9?', strongly':'')+' →':'either';vec[i.dataset.axis]=v;if(D)render()}i.addEventListener('input',f);f()});
-var m=/commons=([^&]*)/.exec(location.hash),bm=/biz=([^&]*)/.exec(location.hash);if(m){m[1].split(',').forEach(function(kv){var a=kv.split('=');var i=root.querySelector('.axis input[data-axis="'+a[0]+'"]');if(i&&a[1]!==undefined){i.value=a[1];i.dispatchEvent(new Event('input'))}})}if(bm)sel=decodeURIComponent(bm[1]);
+    mapcard.innerHTML='<h3>'+esc(b.name)+'</h3><p class=m>'+esc(b.place||'place not given')+(b.verified?' · verified':' · registered, not yet verified')+'</p>'+(b.need?'<p><b>Needs:</b> '+esc(b.need)+'</p>':'')+(mine.length?'<p class=m>Part of '+mine.length+' proposal'+(mine.length>1?'s':'')+':</p><ol class=alt>'+mine.map(function(p){return '<li data-p="'+esc(p.id)+'"><b>'+esc(p.title)+'</b> <span class=muted>about '+rupees(p.ideal)+'</span></li>'}).join('')+'</ol>':'<p class=m>Not part of any proposal yet.</p>')+'<a class="btn quiet" href="#" id=cback>Back to the map</a>';
+    hint.textContent=b.name+(mine.length?' is connected to '+(Object.keys(ids).length-1)+' other business'+(Object.keys(ids).length!==2?'es':''):'')}
+  else{var p=touched&&top?top.p:mostBacked();if(!p){drawLinks(null,null);mapcard.innerHTML='<p class=muted>No proposals on the table yet.</p>'}else{var ids=conn(p),n=Object.keys(ids).length;drawLinks(p,ids);
+    mapcard.innerHTML='<p class=m style="margin:0">'+(touched?'For the lean set below, the twin would show first:':'Most backed on the table:')+'</p><h3>'+esc(p.title)+'</h3><p class=m>about '+rupees(p.ideal)+(p.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+chips(ids,n?'Connects '+n+' business'+(n>1?'es':'')+' (filled: backing or leading; outlined: written from their need):':'')+'<a class=btn href="/apply/'+esc(POOL)+'?for='+esc(p.id)+'">Back this with my business</a>';
+    hint.textContent=n?'This proposal connects '+n+' business'+(n>1?'es':'')+' on the map':defaultHint()}}
+  if(card){if(!top){card.innerHTML='<p class=muted>No proposals on the table yet.</p>'}else{var q=top.p;card.innerHTML='<span class=fit>fit '+Math.round(top.f*100)+'%</span><span class=muted>best of '+R.length+' for this lean</span><h3>'+esc(q.title)+'</h3><p class=m>about '+rupees(q.ideal)+(q.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+(q.text?'<p>'+esc(q.text)+'</p>':'')+schemeLine(q)
+      +(R.length>1?'<p class=m style="margin-top:12px">Next for this lean:</p><ol class=alt>'+R.slice(1,4).map(function(x){return '<li data-p="'+esc(x.p.id)+'"><b>'+esc(x.p.title)+'</b> <span class=muted>fit '+Math.round(x.f*100)+'% · about '+rupees(x.p.ideal)+'</span></li>'}).join('')+'</ol>':'')}}
+  wire(mapcard);if(card)wire(card);
+  try{history.replaceState(null,'','#'+(touched?'commons='+Object.keys(vec).map(function(k){return k+'='+vec[k]}).join(','):'')+(sel?'&biz='+encodeURIComponent(sel):''))}catch(e){}}
+if(twin)twin.querySelectorAll('.axis input').forEach(function(i){var o=i.closest('.axis').querySelector('output');function f(){var v=+i.value,c=v*10;i.style.setProperty('--a',Math.min(c,50)+'%');i.style.setProperty('--b',Math.max(c,50)+'%');o.textContent=v<5?'← '+o.dataset.l+(v<=1?', strongly':''):v>5?o.dataset.r+(v>=9?', strongly':'')+' →':'either';vec[i.dataset.axis]=v}i.addEventListener('input',function(){touched=true;f();if(D)render()});f()});
+var m=/commons=([^&]*)/.exec(location.hash),bm=/biz=([^&]*)/.exec(location.hash);if(m&&m[1]){touched=true;m[1].split(',').forEach(function(kv){var a=kv.split('=');var i=twin&&twin.querySelector('.axis input[data-axis="'+a[0]+'"]');if(i&&a[1]!==undefined){i.value=a[1];vec[a[0]]=+a[1];i.dispatchEvent(new Event('input'))}})}if(bm)sel=decodeURIComponent(bm[1]);
 fetch('/commons/'+encodeURIComponent(POOL)+'/map.json').then(function(r){return r.json()}).then(function(d){D=d;drawBase();render()}).catch(function(){hint.textContent='The map could not load.'});
 })();
 </script>"""
 
 
-def section(pool_id: str) -> str:
-    axes = "".join(f"<div class='card axis'><div class=poles><span class=pole>{l}</span><span class=pole>{r}</span></div>"
+def _axes() -> str:
+    return "".join(f"<div class='card axis'><div class=poles><span class=pole>{l}</span><span class=pole>{r}</span></div>"
                    f"<div class=slider><input data-axis={k} type=range min=0 max=10 value=5 aria-label='{l} or {r}'></div>"
                    f"<div class=poleword><output data-l='{l}' data-r='{r}'>either</output></div></div>"
                    for k, l, r, h in core.VALUE_DIMENSIONS if k in AXES)
-    return ("<h2>The Commons on the map</h2><p class=muted>Every registered business sits in its village or town. Slide towards what matters more to a shop "
-            "this year and the proposal that fits best lights up the businesses it connects. Tap a business to see its need and its proposals.</p>"
-            f"<div class=cmap id=cmap data-pool='{pool_id}'><div class=axes>{axes}</div>"
+
+
+def map_section(pool_id: str) -> str:
+    """Where the Commons is: the businesses as dots, the most-backed proposal's connections drawn, a tap for any
+    business. No controls: the sliders live in the twin section below, and drive the same map."""
+    return ("<h2>Where the Commons is</h2><p class=muted>Every registered business sits in its village or town. The lines join the businesses the most-backed "
+            "proposal brings together. Tap a business to see what it needs and which proposals it is part of.</p>"
+            f"<div class=cmap id=cmap data-pool='{pool_id}'>"
             "<svg viewBox='0 0 100 100' role=img aria-label='Map of the Commons'><g class=ctx></g><g class=links></g><g class=dots></g></svg><p class=hint>Loading…</p></div>"
-            "<div class='card ccard' id=ccard><p class=muted>…</p></div>" + CSS + JS)
+            "<div class='card ccard' id=cmapcard><p class=muted>…</p></div>" + CSS)
+
+
+def twin_section(pool_id: str) -> str:
+    """The digital twin, the AI and the simulation, in three short paragraphs, with the two sliders as a live
+    demonstration of how the twin picks a draft for a business."""
+    return ("<h2>The twin behind the Commons</h2>"
+            "<p>Behind the page is a <b>digital twin</b> of the Commons: a record of each business, what it said it needs, where it sits, and what the "
+            "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town. Nothing in it is private: "
+            "the names, the needs and the places are the ones on this page.</p>"
+            "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
+            "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
+            "it and others back it, and every proposal on this page says whether a person or the twin wrote it.</p>"
+            "<p>Before the first real business registered, we put <b>a thousand simulated businesses</b> through this same software and ran whole funding rounds, "
+            "to see where the rules strain. The write-up is <a href='/notes/simulating-a-thousand-businesses'>on the blog</a>. The one thing no rule could fix: "
+            "whether a business approves a plan that funded someone else's item. That is what the first real round will tell us.</p>"
+            "<p class=muted>Try the part of the twin each owner meets. Every business sets five trade-offs when it registers; two of them are here. Slide, and the "
+            "draft the twin would show that business first changes, and the map above lights up the businesses it connects.</p>"
+            f"<div class=cmap id=ctwin data-pool='{pool_id}'><div class=axes>{_axes()}</div></div>"
+            "<div class='card ccard' id=ccard><p class=muted>…</p></div>" + JS)
