@@ -297,7 +297,7 @@ r = anon.get("/"); assert r.status_code == 200
 assert "Register your business" in r.text and "action='/apply/commons'" in r.text and "class=track" in r.text and "remaining ₹" in r.text and "asked for ₹" in r.text, r.text[:500]
 assert "How it works" in r.text and r.text.count("<li class=") == 11 and r.text.count("<li class='now'>") == 2 and "Funding proposals" in r.text and "class='seal" in r.text and "/notes/simulating-a-thousand-businesses" in r.text
 assert r.text.index("class='card hero'") < r.text.index("class=track") < r.text.index("Register your business") < r.text.index("Who's in") < r.text.index("Funding proposals") < r.text.index("How it works") < r.text.index("Timeline") < r.text.index("For the record")
-assert "class='strip timeline'" in r.text and "First round closes" in r.text and "Final report" in r.text and "id=ctwin" not in r.text and "What is an AI digital twin?" in r.text
+assert "<ol class=timeline" in r.text and "First round closes" in r.text and "Final report" in r.text and "id=ctwin" not in r.text and "What is an AI digital twin?" in r.text
 assert web._timeline(web.LAUNCH).count("<li class='now'>") == 1 and web._timeline(web.LAUNCH + web._timedelta(days=400)).count("class='done'") == 3
 assert "class=primary" in r.text
 assert "class=thumb" in r.text and "href='/apply/commons?for=" in r.text   # the thumb count on each proposal leads into registering

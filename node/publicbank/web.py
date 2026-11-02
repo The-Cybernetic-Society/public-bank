@@ -1429,7 +1429,7 @@ table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin:14px 0 0;text-al
 .strip svg{display:block;width:30px;height:30px;stroke:var(--muted);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
 .strip li.done{border-color:var(--ink);color:var(--ink)}.strip li.done svg{stroke:var(--ink)}
 .strip li.now{border-color:var(--ink);background:var(--gold);color:var(--ink);box-shadow:3px 3px 0 var(--shadow)}.strip li.now svg{stroke:var(--ink)}
-.strip.timeline{grid-template-columns:repeat(3,1fr)}.strip.timeline time{display:block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:8px}.strip.timeline span{display:block;font-weight:500}.strip.timeline small{display:block;font-size:13px;line-height:1.35;margin-top:4px}@media(max-width:560px){.strip.timeline{grid-template-columns:1fr}}
+.timeline{list-style:none;margin:14px 0 6px;padding:0 0 0 2px;position:relative}.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:2px;background:var(--line)}.timeline li{position:relative;display:grid;grid-template-columns:118px 1fr;gap:12px;padding:0 0 22px 30px;color:var(--muted)}.timeline li:last-child{padding-bottom:4px}.timeline li::before{content:'';position:absolute;left:3px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--line);box-sizing:content-box}.timeline li.done{color:var(--ink)}.timeline li.done::before{background:var(--ink);border-color:var(--ink)}.timeline li.done time{color:var(--ink)}.timeline li.now{color:var(--ink)}.timeline li.now::before{background:var(--gold);border-color:var(--ink);box-shadow:0 0 0 4px #d9a33d55}.timeline li.now time{color:var(--ink)}.timeline time{font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;padding-top:5px;color:var(--muted)}.timeline b{font-weight:500}.timeline em{font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;background:var(--gold);color:var(--ink);padding:4px 6px;border-radius:8px;margin-left:8px;vertical-align:middle}.timeline span{display:block;font-size:15px;line-height:1.4;margin-top:2px}@media(max-width:560px){.timeline li{grid-template-columns:1fr;gap:2px}}
 .strip em{position:absolute;top:8px;right:8px;font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;color:var(--ink)}
 .board{list-style:none;margin:0;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--card)}.board li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);margin:0}.board li:first-child{border-top:0}.board .n{flex:0 0 18px;font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;color:var(--muted)}.board li>div{flex:1 1 auto;min-width:0}.board b{display:block;font-size:17px;font-weight:500;line-height:1.25}.board .muted{display:block;font-size:13px;line-height:1.3;margin-top:1px}.board.sample b{color:var(--muted)}
 .board .row-main{cursor:pointer}.board .row-main:focus{outline:3px solid var(--gold);outline-offset:2px;border-radius:3px}.board .row-main u{text-decoration:none}
@@ -1489,14 +1489,14 @@ TIMELINE = ((30, "First round closes", "Proposals in, points cast, the plan appr
 
 
 def _timeline(today: "_date | None" = None) -> str:
-    """Three dates from launch, drawn like the steps strip: passed ones dark, the next one lit."""
+    """Three dates from launch on one rail: a mark per date, dark once passed, gold for the next, hollow after."""
     today = today or _date.today()
     marks = [(LAUNCH + _timedelta(days=d), label, note) for d, label, note in TIMELINE]
     now = next((i for i, (d, _, _) in enumerate(marks) if d >= today), len(marks))
-    out = ["<ol class='strip timeline' aria-label='Timeline'>"]
+    out = ["<ol class=timeline aria-label='Timeline'>"]
     for i, (d, label, note) in enumerate(marks):
         cls = "done" if i < now else "now" if i == now else ""
-        out.append(f"<li class='{cls}'><time datetime='{d.isoformat()}'>{d.strftime('%-d %b %Y')}</time><span>{label}</span><small>{note}</small>" + ("<em>next</em>" if i == now else "") + "</li>")
+        out.append(f"<li class='{cls}'><time datetime='{d.isoformat()}'>{d.strftime('%-d %b %Y')}</time><div><b>{label}</b>" + ("<em>next</em>" if i == now else "") + f"<span>{note}</span></div></li>")
     return "".join(out) + "</ol>"
 
 

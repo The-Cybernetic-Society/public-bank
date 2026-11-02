@@ -119,7 +119,7 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   (two paragraphs: the twin, and the AI drafting from it; the slider demo and the simulation paragraph were cut on 2 Nov),
   How it works, Timeline, blog, record. The Timeline (`LAUNCH`, `TIMELINE`, `_timeline`) counts from launch day, 2 Nov 2026:
   first round closes at 30 days (2 Dec 2026), second round at 60 days if money remains (1 Jan 2027), final report at six
-  months (3 May 2027); passed dates draw dark, the next one lit, like the steps strip. The JS still reads the hash's
+  months (3 May 2027); drawn as one vertical rail with a mark per date (dark once passed, gold with a "next" pill for the next, hollow after), not as boxes. The JS still reads the hash's
   `commons=` lean for an old link, but nothing on the page sets it now.
   `publicbank/commonsmap.py` — the front page's map IS the Commons (2 Nov, replacing the place-twin section there): every
   business of the home pool as a dot in its place (`businesses`: node or application `place_id` → the map file's `c`,
