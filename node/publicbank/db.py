@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS proposals (
   cosign_nodes  TEXT NOT NULL DEFAULT '[]',      -- JSON list of node ids (super-node proposals)
   payee_upi     TEXT,                            -- the vendor's UPI id: the treasurer pays them directly
   payee_name    TEXT,
+  scheme_json   TEXT,                            -- JSON: a government scheme that could carry part of this (schemes.co_funding), if one matched
   status        TEXT NOT NULL DEFAULT 'draft',   -- draft | eligible | withdrawn | merged
   created_by    TEXT REFERENCES members(id),
   created_at    BIGINT NOT NULL
@@ -213,6 +214,9 @@ CREATE TABLE IF NOT EXISTS applications (
   consent       BIGINT NOT NULL DEFAULT 0,      -- anonymised research
   address       TEXT,                           -- where the shop is, as typed; never exported, never shown publicly
   place_id      TEXT,                           -- the local body it resolves to (places.py id); copied to the node, shown on the map once verified
+  registrations TEXT,                           -- what the business holds, comma-separated: udyam | startup | gst | none (the business twin's entry tickets)
+  owner_tags    TEXT,                           -- unused: the form asks nothing about who the owner is (kept for a later, consented source); never public
+  age_band      TEXT,                           -- new (under a year) | young (1-5 years) | established
   token         TEXT,                           -- the join_coord token minted for the owner
   status        TEXT NOT NULL DEFAULT 'new',    -- new | joined (the owner tapped the card)
   created_at    BIGINT NOT NULL,
@@ -279,6 +283,10 @@ MIGRATIONS = [
     "ALTER TABLE applications ADD COLUMN address TEXT",
     "ALTER TABLE applications ADD COLUMN place_id TEXT",
     "ALTER TABLE nodes ADD COLUMN place_id TEXT",
+    "ALTER TABLE applications ADD COLUMN registrations TEXT",
+    "ALTER TABLE applications ADD COLUMN owner_tags TEXT",
+    "ALTER TABLE applications ADD COLUMN age_band TEXT",
+    "ALTER TABLE proposals ADD COLUMN scheme_json TEXT",
 ]
 
 

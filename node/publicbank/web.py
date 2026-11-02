@@ -831,6 +831,8 @@ def _board_body(node: dict, with_pot: bool = True) -> str:
                 if p["status"] == "draft": body += " · <span class=muted>draft" + (", needs a lead" if not p["lead_id"] else "") + "</span>"
                 if p["source"] == "twin": body += " · <span class=muted>suggested from needs</span>"
                 if kids and signs: body += "<br><span class=muted>backed by " + ", ".join(esc(names.get(x, x)) for x in signs) + "</span>"
+                sch = db.j(p.get("scheme_json"), None) if p.get("scheme_json") else None
+                if sch: body += f"<br><span class=muted>a scheme could carry part of it: {esc(sch['name'])} ({esc(sch['share'])})</span>"
                 body += f"<br><span class=muted>{esc(p['text'][:240])}</span></div>"
         if st in ("ballots",):
             body += f"<h2>Ballots</h2><p class=big>{len(core.ballots_of(con, rnd['id']))} of {len(core.voters(con, rnd))}</p>"
@@ -929,6 +931,9 @@ if(place.value)match()}})()</script>
 <label>What would you buy or run together with other businesses? <span class=hint>One line. A delivery scooter for the lane, one billing licence for several shops, a cold store, a trainer, anything.</span>
 <textarea name=need rows=2 required maxlength=500>{g('need')}</textarea></label>
 <label>What could you share with other businesses? <span class=hint>Tick all that apply. Nothing is too small.</span>{checks('share', SHARE_OPTIONS)}</label>
+<label>Does the business hold any of these? <span class=hint>Optional. They are the entry tickets to most government schemes; we'll show you which ones open up.</span>
+<div class='choice multi'>{''.join(f"<label><input type=checkbox name=registrations value={val}{' checked' if val in (v.get('registrations') or []) else ''}>{lab}</label>" for val, lab in REG_OPTIONS)}</div></label>
+<label>How old is the business? <span class=hint>Optional.</span>{radio('age_band', AGE_OPTIONS)}</label>
 <label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
 <div class=phone><span class=cc><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><span class=ccv aria-hidden=true></span></span><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]'),v=document.querySelector('.ccv');if(!s||!v)return;function show(){{v.textContent=s.options[s.selectedIndex].dataset.short}}show();s.addEventListener('change',show)}})()</script>
@@ -936,6 +941,10 @@ if(place.value)match()}})()</script>
 </form>
 <p class=muted>Free and voluntary. Registering does not guarantee funding. By registering you agree to our <a href='/privacy'>privacy policy</a>.</p>"""
     return page(pool["name"], body)
+
+
+REG_OPTIONS = [("udyam", "Udyam / MSME number"), ("startup", "Startup Goa certificate"), ("gst", "GST number"), ("none", "None of these")]
+AGE_OPTIONS = [("new", "Under a year"), ("young", "1 to 5 years"), ("established", "Older")]
 
 
 def _place_options() -> str:
@@ -981,13 +990,14 @@ def apply_get(pool_id: str):
 def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""), cc: str = Form("IN"),
                about: str = Form(""), challenge: list[str] = Form([]), challenge_other: str = Form(""), team_size: str = Form(""), need: str = Form(""),
                share: list[str] = Form([]), share_other: str = Form(""), contribute: str = Form(""), consent: str = Form(""), website: str = Form(""),
-               address: str = Form(""), place: str = Form(""), place_id: str = Form("")):
+               address: str = Form(""), place: str = Form(""), place_id: str = Form(""), registrations: list[str] = Form([]), age_band: str = Form("")):
     pool = _pool_or_404(pool_id)
     from .countries import DIAL
     from . import places
     cc = cc.upper() if cc.upper() in DIAL else "IN"
     v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, challenge=challenge, challenge_other=challenge_other, team_size=team_size,
-             need=need, share=share, share_other=share_other, contribute=contribute, consent=consent, address=address, place=place, place_id=place_id)
+             need=need, share=share, share_other=share_other, contribute=contribute, consent=consent, address=address, place=place, place_id=place_id,
+             registrations=registrations, age_band=age_band)
     # the place: what the picker set, else the typed name, else a name found in the address
     pl = places.get(place_id) if place_id else None
     if not pl and place:
@@ -1005,7 +1015,7 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     try:
         a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about, challenge=challenge,
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent),
-                       address=address, place_id=place_id or None)
+                       address=address, place_id=place_id or None, registrations=",".join(registrations), age_band=age_band)
     except core.PBError:
         return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
     if a["status"] == "new":
@@ -1192,11 +1202,74 @@ def start_done(node_id: str, request: Request):
     if True:
         waiting = int(request.query_params.get("w", "0") or 0)
         body += _table_card(node, parent, m, f"/start/{node['id']}/done", waiting=waiting)
+        body += _business_twin_card(node)
         body += ("<div class='card rise'><h2 style='margin-top:0'>What happens next</h2><p>We'll reach out in the WhatsApp group when it's time to vote on final budgets.</p>"
                  "<p>Similar needs across businesses become draft proposals. You'll be asked to lead or back the ones that fit, "
                  "then every business gets 100 points to split across the list.</p></div>")
         body += f"<form method=get action='/start/{esc(node['id'])}/finished'><button>Finish</button></form>"
     return page("You're in", body)
+
+
+def _business_twin_card(node: dict) -> str:
+    """On the owner's pages: what the government offers this business, one scheme per kind, and the step that opens the most."""
+    from . import businesses
+    c = businesses.card(con, node["id"])
+    sm = c["summary"]
+    out = (f"<div class='card rise'><h2 style='margin-top:0'>What the government offers {esc(node['name'])}</h2>"
+           f"<p class=muted>Read from what you told the form, against {sm['schemes']} business schemes: <span class='tag ok'>eligible</span> {sm['eligible']} &nbsp; "
+           f"<span class='tag maybe'>plausible</span> {sm['plausible']} &nbsp; <span class='tag no'>unlikely</span> {sm['unlikely']}.</p>")
+    for t in c["slots"]:
+        cls = "ok" if t["status"] == "eligible" else "maybe"
+        link = f"<a href='{esc(t['source_url'])}'>{esc(t['name'])}</a>" if t["source_url"] else esc(t["name"])
+        out += (f"<div class=prop><span class=slot style=\"display:block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--muted);margin-bottom:5px\">{esc(t['slot_label'])}</span>"
+                f"<span class='tag {cls}'>{t['status']}</span> <b>{link}</b> <span class=muted>· {esc(t['department'])}" + (f" · up to {_rupees(t['max_rupees'] * 100)}" if t["max_rupees"] else "")
+                + (f" · <a href='{esc(t['apply_online'])}'>apply on Goa Online</a>" if t["apply_online"] else "") + f"</span><span class=why style='display:block;color:var(--muted);font-size:15px'>{esc(t['why'])}</span>"
+                + "".join(f"<span class=step style='display:block;font-size:15px'>→ {esc(s)}</span>" for s in t["steps"]) + "</div>")
+    if c["unlocks"]:
+        u = c["unlocks"][0]
+        out += f"<p><b>One step opens the most:</b> {esc(u['step'])} — {u['schemes']} more scheme{'s' if u['schemes'] != 1 else ''} become eligible.</p>"
+    out += f"<a class=btn href='/schemes/{esc(node['id'])}'>All {sm['schemes']} business schemes for {esc(node['name'])}</a></div>"
+    return out
+
+
+@app.get("/schemes/{node_id:path}")
+def business_schemes(node_id: str, request: Request):
+    """The owner's full list: every business scheme with its verdict, grouped by status. Theirs alone."""
+    node, m = _my_node_or_403(node_id, request)
+    from . import businesses
+    c = businesses.card(con, node_id)
+    p = c["profile"]
+    body = (f"<p class=muted>Read from what the form knows: trade {esc(', '.join(p['trades']) or 'not clear from the description')}; "
+            + ("Udyam " + ("held" if p["udyam"] else "not held" if p["udyam"] is False else "unknown")) + "; "
+            + ("Startup Goa " + ("held" if p["startup"] else "not held" if p["startup"] is False else "unknown")) + "; "
+            + ("GST " + ("held" if p["gst"] else "not held" if p["gst"] is False else "unknown")) + f"; age {esc(p['age'] or 'unknown')}. "
+            f"Change any of this by registering again from the same number.</p>")
+    sm = c["summary"]
+    body += (f"<p class=sum><span class='tag ok'>eligible</span> {sm['eligible']} &nbsp; <span class='tag maybe'>plausible</span> {sm['plausible']} &nbsp; "
+             f"<span class='tag no'>unlikely</span> {sm['unlikely']} &nbsp;· of {sm['schemes']}</p>")
+    if c["unlocks"]:
+        body += "<div class=card><b>Steps that open the most</b>" + "".join(f"<p>→ {esc(u['step'])}: {u['schemes']} scheme{'s' if u['schemes'] != 1 else ''}</p>" for u in c["unlocks"]) + "</div>"
+    order = {"eligible": 0, "plausible": 1, "unlikely": 2}
+    body += "<div class=twin>"
+    for status in ("eligible", "plausible", "unlikely"):
+        rows_ = [r for r in c["all"] if r["status"] == status]
+        if not rows_:
+            continue
+        cls = STATUS_WORDS[status][0]
+        if status == "unlikely":
+            body += f"<details class=fold><summary>{len(rows_)} unlikely for this business</summary>"
+        else:
+            body += f"<h2><span class='tag {cls}'>{status}</span> {len(rows_)}</h2>"
+        for r in rows_:
+            link = f"<a href='{esc(r['source_url'])}'>{esc(r['name'])}</a>" if r["source_url"] else esc(r["name"])
+            body += (f"<div class=prop><b>{link}</b> <span class=muted>· {esc(r['department'])}" + (f" · up to {_rupees(r['max_rupees'] * 100)}" if r["max_rupees"] else "")
+                     + (f" · <a href='{esc(r['apply_online'])}'>apply on Goa Online</a>" if r["apply_online"] else "") + f"</span><span class=why>{esc('; '.join(r['why']))}</span>"
+                     + "".join(f"<span class=step>{esc(s)}</span>" for s in r["steps"]) + "</div>")
+        if status == "unlikely":
+            body += "</details>"
+    body += "</div>"
+    html = page(node["name"], body).body.decode()
+    return HTMLResponse(html.replace(CSS, CSS + TWIN_CSS, 1))
 
 
 @app.get("/start/{node_id:path}/finished")
@@ -1312,8 +1385,10 @@ def home():
             for i, p in enumerate(props, 1):
                 signs = [names.get(x, x.rsplit("/", 1)[-1]) for x in db.j(p["cosign_nodes"], [])]
                 who = "Suggested from what businesses said they need" if p["source"] == "twin" else "Proposed by a business"
+                sch = db.j(p.get("scheme_json"), None) if p.get("scheme_json") else None
                 more = (f"<div class=more id='prop-{esc(p['id'])}'><p>{esc(p['text'] or '').replace(chr(10), '<br>')}</p>"
-                        f"<p class=muted>{who}" + (f" · backed by {esc(', '.join(signs))}" if signs else " · nobody backs it yet")
+                        + (f"<p class=muted>A scheme could carry part of this: <b>{esc(sch['name'])}</b> ({esc(sch['share'])})" + (f" · <a href='{esc(sch['url'])}'>read it</a>" if sch.get("url") else "") + "</p>" if sch else "")
+                        + f"<p class=muted>{who}" + (f" · backed by {esc(', '.join(signs))}" if signs else " · nobody backs it yet")
                         + (f" · at least {_rupees(p['min_paise'])}, ideally {_rupees(p['ideal_paise'])}" if p["min_paise"] else f" · ideally {_rupees(p['ideal_paise'])}") + "</p>"
                         f"<a class='btn small' href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}'>Back this with my business</a></div>")
                 rows_html += (f"<li><span class=n>{i}</span><div class=row-main role=button tabindex=0 aria-expanded=false aria-controls='prop-{esc(p['id'])}'><b>{esc(p['title'])}</b>"
@@ -1329,13 +1404,14 @@ def home():
             note = "The kind of thing the fund buys: things several businesses use together."
         body += f"<p class='muted how'>{note}</p>"
         body += "<h2>Who's in</h2>" + ("<p class=chips>" + "".join(f"<span class=chip>{esc(k['name'])}</span>" for k in kids) + "</p>" if kids else "<p class=muted>Be the first.</p>")
-        body += twinmap.section()
+        body += commonsmap.section(node["id"])
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
         body += "<h2>Where the money stands</h2><p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan. The bar at the top is the live position.</p>"
         body += "<h2>Blog</h2>" + "".join(
             f"<a class=post href='/notes/{esc(k)}'><span class=muted>{esc(NOTE_META.get(k, ('', ''))[0])}</span><b>{esc(v)}</b><span class=blurb>{esc(NOTE_META.get(k, ('', ''))[1])}</span><span class=more>Read it →</span></a>"
             for k, v in NOTES.items())
-        body += f"<h2>For the record</h2><p><a href='/b/{esc(HOME_POOL)}'>The live board</a> · <a href='/export/{esc(node['id'])}'>the export</a> · <a href='/privacy'>privacy</a></p>"
+        body += (f"<h2>For the record</h2><p><a href='/b/{esc(HOME_POOL)}'>The live board</a> · <a href='/export/{esc(node['id'])}'>the export</a> · "
+                 f"<a href='/twin'>the digital twin of Goa's panchayats</a> · <a href='/privacy'>privacy</a></p>")
         body += cta
         html = page(node["name"], body).body.decode()
         return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=60><title>", 1))
@@ -1356,7 +1432,18 @@ def home():
 # ----------------------------------------------------------------------------
 # the digital twin: every local body in Goa read against the scheme catalogue
 # ----------------------------------------------------------------------------
-from . import places, schemes, twinmap  # noqa: E402
+from . import commonsmap, places, schemes, twinmap  # noqa: E402
+
+
+@app.get("/commons/{pool_id:path}/map.json")
+def commons_map(pool_id: str):
+    """The Commons on the map: businesses at their places, the round's proposals and whom each connects."""
+    pool_id = _resolve(pool_id)
+    try:
+        core.get_node(con, pool_id)
+    except core.PBError:
+        raise HTTPException(404)
+    return JSONResponse(commonsmap.data(con, pool_id))
 
 TWIN_CSS = ("<style>.tag.ok{background:#2f6b3f;color:#fbf6e9}.tag.maybe{background:var(--gold)}.tag.no{background:var(--card);border:1px solid var(--line);color:var(--muted)}"
             ".tag.draw{background:var(--ink);color:#fbf6e9}.lv a{margin-right:14px}.lv b{margin-right:14px}.twin .prop{padding:10px 0}.twin .why{display:block;color:var(--muted);font-size:15px;line-height:1.45;margin-top:3px}"
@@ -1397,12 +1484,13 @@ def twin_index(level: str = "village_panchayat"):
     if not ds:
         body += "<p class=muted>No places loaded yet.</p>"
     else:
-        body += "<table class=places><tr><th>Place</th><th>Taluka</th><th>Households</th><th>People</th><th>ST</th><th>Coast</th><th>Eligible</th><th>Plausible</th><th>Unlikely</th><th>Running</th></tr>"
+        body += "<table class=places><tr><th>Place</th><th>Taluka</th><th>Households</th><th>People</th><th>Farming</th><th>Coast</th><th>Eligible</th><th>Plausible</th><th>Unlikely</th><th>Running</th></tr>"
         for d in ds:
             p = places.profile(d); sm = places.summary_of(d["id"]) or {}
             coast = "yes" if p["coastal"] else ("—" if p["coastal"] is False else "?")
+            farming = _pct(p["farmers"] / p["workers"]) if p.get("workers") and p.get("farmers") is not None else "?"
             body += (f"<tr><td><a href='/twin/{esc(d['id'])}'>{esc(d['name'])}</a></td><td class=muted>{esc(d.get('taluka') or (d.get('district') or ''))}</td>"
-                     f"<td>{_num(p['households'])}</td><td>{_num(p['population'])}</td><td>{_pct(p['st_share'])}</td><td>{coast}</td>"
+                     f"<td>{_num(p['households'])}</td><td>{_num(p['population'])}</td><td>{farming}</td><td>{coast}</td>"
                      f"<td>{sm.get('eligible', '')}</td><td>{sm.get('plausible', '')}</td><td class=muted>{sm.get('unlikely', '')}</td><td>{sm.get('drawing', '') or '—'}</td></tr>")
         body += "</table>"
     body += (f"<p class=muted>Figures: Census 2011 (village totals summed per panchayat) and whatever programme tables are published per panchayat. "
@@ -1419,6 +1507,12 @@ def _twin_row(s: dict, v: dict, members: dict | None, n_members: int) -> str:
         tags += f" <span class=sum>in {m.get('eligible', 0) + m.get('plausible', 0)} of {n_members}</span>"
     name = f"<a href='{esc(s['source_url'])}'>{esc(s['name'])}</a>" if s.get("source_url") else esc(s["name"])
     meta = esc(s["department"]) + (f" · up to {_rupees(s['max_rupees'] * 100)}" if s.get("max_rupees") else "") + (f" · {len(s['amendments'])} amendment{'s' if len(s['amendments']) != 1 else ''}" if s["amendments"] else "")
+    for tg in s.get("tags", []):
+        tags += f"<span class=tag>{esc(tg)}</span>"
+    if s.get("portals"):
+        meta += " · on " + ", ".join(f"<a href='{esc(p['url'])}'>{esc(p['portal'])}</a>" if p.get("url") else esc(p["portal"]) for p in s["portals"])
+    if s.get("apply_online"):
+        meta += f" · <a href='{esc(s['apply_online']['url'])}'>apply on Goa Online</a>"
     out = f"<div class=prop>{tags} <b>{name}</b> <span class=muted>· {meta}</span><span class=why>{esc('; '.join(v['why']))}</span>"
     for st in v["steps"]:
         out += f"<span class=step>{esc(st)}</span>"
@@ -1461,7 +1555,14 @@ def twin_card(div_id: str):
     d = places.get(div_id)
     if not d:
         raise HTTPException(404)
-    return JSONResponse(places.card(d))
+    c = places.card(d)
+    if d["kind"] not in places.ROLLUPS:
+        from . import businesses
+        try:
+            c["businesses_draw"] = businesses.place_draw(con, _resolve(HOME_POOL), d["id"])
+        except core.PBError:
+            c["businesses_draw"] = None
+    return JSONResponse(c)
 
 
 @app.get("/twin/{div_id}.json")
@@ -1492,14 +1593,15 @@ def twin_page(div_id: str):
     if n_members:
         mk = d.get("member_kinds", {})
         body += "<p class=muted>" + ", ".join(f"{n} {places.KINDS.get(k, k).lower()}{'s' if n != 1 else ''}" for k, n in mk.items()) + "</p>"
-    facts = [("Households", _num(p["households"])), ("People", _num(p["population"])), ("Scheduled Tribes", _pct(p["st_share"])), ("Scheduled Castes", _pct(p["sc_share"])),
-             ("Literacy", _pct(p["literacy"])), ("In agriculture", _num(p["farmers"])), ("Coast", "yes" if p["coastal"] else ("no" if p["coastal"] is False else "?")),
-             ("Tidal water", "yes" if p["estuarine"] else ("no" if p["estuarine"] is False else "?"))]
+    facts = [("Households", _num(p["households"])), ("People", _num(p["population"])), ("Literacy", _pct(p["literacy"])), ("In agriculture", _num(p["farmers"])),
+             ("Coast", "yes" if p["coastal"] else ("no" if p["coastal"] is False else "?")), ("Tidal water", "yes" if p["estuarine"] else ("no" if p["estuarine"] is False else "?"))]
     if p.get("mgnrega_job_cards") is not None: facts.append(("MGNREGA job cards", _num(p["mgnrega_job_cards"])))
     if p.get("shgs") is not None: facts.append(("Self-help groups", _num(p["shgs"])))
     if p.get("fisher_households") is not None: facts.append(("Fishing households", _num(p["fisher_households"])))
     if p.get("dairy_societies") is not None: facts.append(("Dairy societies", _num(p["dairy_societies"])))
     if p.get("pmayg_houses") is not None: facts.append(("PMAY-G houses", _num(p["pmayg_houses"])))
+    # the census categories the tribal and SC schemes turn on, last and small: a fact the rules use, not a headline
+    facts += [("Scheduled Tribes", _pct(p["st_share"])), ("Scheduled Castes", _pct(p["sc_share"]))]
     body += "<div class=card><div class=facts>" + "".join(f"<div>{esc(k)}<b>{esc(v)}</b></div>" for k, v in facts) + "</div>"
     conf = {"mapped": "village totals mapped to this body", "partial": "some of this body's villages only", "name": "matched by name only", "none": "no census figures found"}.get(p["census_confidence"], p["census_confidence"])
     if d.get("census", {}).get("note"):

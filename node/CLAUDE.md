@@ -81,7 +81,12 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `data/goa_schemes.json` (`python -m publicbank.schemes --import <xlsx>`): one entry per scheme, amendments hung off the
   scheme they change (`core_name`/`parent_of`), `REQUIREMENTS` = regexes that tag what a scheme asks of a place (`needs`:
   st, sc, tribal_area, fishers, brackish, farmers, livestock, rural/urban, bpl, shg, coop, fra, ngo …; `bodies` = which local
-  body applies; `people` = applicant classes; `scope`). `places.py` builds `data/goa_divisions.json` from `data/sources/`
+  body applies; `people` = applicant classes; `scope`). Since 2 Nov the import also merges the business portals
+  (`--business msme.goa.gov.in=data/sources/goa_msme_schemes.csv --business startup.goa.gov.in=…`, `merge_business`: same
+  name or core name → the workbook scheme gains the portal as a source, link and blanks; else a new scheme with `tags`)
+  and Goa Online (`--services data/sources/goa_online_services.csv`, `merge_services`: `cat["services"]` plus `apply_online`
+  on the scheme a service applies for). 770 schemes, 212 services; data/sources/README.md says what each portal gave and
+  withheld (Startup Goa was read from the Internet Archive: its certificate has expired). `places.py` builds `data/goa_divisions.json` from `data/sources/`
   (`--build`): Census 2011 PCA village rows summed per village panchayat through the LGD village→local-body mapping (189
   panchayats, 14 towns; six split villages halved), plus optional `goa_place_names.csv`, `goa_place_flags.csv` (coastal,
   estuarine) and `goa_programmes.csv` (mgnrega_job_cards, shgs, fisher_households, dairy_societies, pmayg_houses,
@@ -109,6 +114,30 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   point is not stored). `GET /twin/businesses.json` lists the home pool's VERIFIED businesses with their place (`core.verified_
   businesses`); the map draws a count marker per place (`c`, each feature's representative point) and the card lists the names.
   WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
+  `publicbank/commonsmap.py` — the front page's map IS the Commons (2 Nov, replacing the place-twin section there): every
+  business of the home pool as a dot in its place (`businesses`: node or application `place_id` → the map file's `c`,
+  fanned in a ring when several share a place; dashed = not yet verified), the talukas faint behind, two of the five
+  sliders (earn, risk) above; the best-fit proposal for that lean (`twin.tags_for` + the owners' fit rule, client-side)
+  draws lines to the businesses it connects (backers and lead filled, built-from dashed: the twin quotes "- Name: need"
+  lines) with a hub count; tapping a business shows its need and its proposals. `/commons/<pool>/map.json`; state in the
+  hash (`#commons=earn=5,risk=5&biz=`). The owners' own slider answers are never sent. The place twin stays at `/twin`,
+  linked from "For the record".
+  Scheme-backed proposals: `schemes.CO_FUNDING` is a short hand-kept table (pattern → scheme core name → what it pays);
+  `schemes.co_funding(title, text)` resolves it against the catalogue and `core.add_proposal`/`add_twin_draft` store the
+  result in `proposals.scheme_json`; the front page row, the board, the table card and the map card show "a scheme could
+  carry part of this". `python -m publicbank.schemes --attach-cofunding` backfills open proposals.
+  `publicbank/businesses.py` — the BUSINESS twin (2 Nov): a registered firm read against the schemes a firm can draw
+  (`candidates`: applicants include Business / entrepreneur, or a portal tag). `schemes.business_tag` (run inside `tag`)
+  gives each scheme `biz` = needs (udyam, startup, gst, women_only, sc_st_only, new_unit, young, small, local; `BUSINESS_RULES`),
+  sectors (`SECTOR_RULES`) and offer (money | credit | support). `profile(application)` reads the trade off the form's words
+  (`TRADE_WORDS`), team size, and the three optional answers the form asks since 2 Nov (`applications.registrations`
+  udyam|startup|gst|none and `age_band` new|young|established; the form asks nothing about who the owner is, so `owner_tags`
+  stays empty and schemes reserved for women or SC/ST owners stay plausible; never public). The map card and the twin index headline households, people,
+  farming and coast; the census SC/ST shares sit last on the twin page, used by the rules, not a headline. `verdict` → eligible |
+  plausible (missing or unknown entry ticket, with the step) | unlikely (trade, owner category, size, age mismatch).
+  `card(con, node_id)`: counts, one scheme per slot (money, credit, support), the steps that unlock the most, the full list.
+  Shown to the owner only: `/n/<node>/schemes` and a card on `/start/<node>/done`. `place_draw` gives the map card counts for
+  a place's verified businesses ("eligible for N schemes between them, the step that opens the most"), never who holds what.
   Startup: `main.py`'s lifespan calls `places.warm()` (every body's and roll-up's `statuses_of`, the `across_goa` table, the map
   file; under a second) so the first visitor never pays the compute; `PB_TWIN_WARM=0` skips it. The map section preloads
   `/twin/map.json?v=` and `/twin/businesses.json` from where it sits in the page, draws the coarse state `outline` (in the

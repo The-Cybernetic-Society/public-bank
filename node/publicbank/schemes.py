@@ -186,8 +186,60 @@ def text_of(e: dict) -> str:
     return " ".join(str(e.get(k, "")) for k in ("name", "target", "eligibility", "benefit", "how_to_apply", "local_body_role"))
 
 
+# What a scheme asks of a BUSINESS (the business twin, businesses.py): regexes over the scheme text, like REQUIREMENTS
+# for places. `sectors` narrows a scheme to a trade; the rest are entry tickets and who the owner must be.
+BUSINESS_RULES = [
+    ("udyam", r"udyam|udyog aadhaar|msme registration|registered (?:as an? |under )?(?:msme|micro|small)|EM-?II|IEM"),
+    ("startup", r"registered (?:with |under )?(?:startup goa|sitpc|the cell|the start-?up)|startup (?:goa )?certif|DPIIT|recogni[sz]ed (?:as a )?start-?up|certified start-?up|start-?up certificate|start-?ups? (?:registered|certified|recogni[sz]ed)"),
+    ("gst", r"\bGST\b|goods and services tax"),
+    ("women_only", r"\bwomen(?:-| )(?:led|owned|entrepreneur)|\bwoman entrepreneur|promoted by (?:a )?wom[ae]n|at least 51% .{0,30}wom[ae]n"),
+    ("sc_st_only", r"scheduled (?:caste|tribe)|\bSC/ST\b|\bSTs?\b|\bSCs?\b"),
+    ("new_unit", r"\bnew units?\b|newly (?:set up|established)|commenc(?:ed|ing) (?:commercial )?production|within (?:one|1|two|2|three|3) years? of"),
+    ("young", r"not (?:more|older) than (?:5|five|7|seven|8|eight|10|ten) years|within (?:5|five|7|seven|10|ten) years (?:of|from) (?:its )?incorporation|less than (?:10|ten) years"),
+    ("small", r"\bmicro\b|\bsmall(?:er)? (?:business|enterprise|unit)|turnover (?:not exceeding|below|less than|up to)|smaller business units"),
+    ("local", r"goan|resident of goa|domicile|born in goa|local (?:person|employ)"),
+]
+BUSINESS_RX = {k: re.compile(p, re.I) for k, p in BUSINESS_RULES}
+SECTOR_RULES = [
+    ("it", r"\bIT\b|information technology|software|electronics|\bITES\b|BPO|data cent"),
+    ("logistics", r"logistic|warehous|cold chain|freight"),
+    ("cashew", r"cashew"),
+    ("tourism", r"touris|hotel|homestay|bed and breakfast|caravan|shack|guest ?house|travel"),
+    ("artisan", r"artisan|handicraft|craftspeople|weaver|potter|coir|khadi|village industr|traditional (?:industr|craft|trade)"),
+    ("fisheries", r"fisher|aquacultur|matsya|fish"),
+    ("dairy", r"dairy|milch|cattle|poultry|piggery|goat|livestock|animal husbandry"),
+    ("agri", r"farmer|agricultur|horticult|crop|kisan|krishi"),
+    ("industry", r"manufactur|factory|industrial (?:estate|unit)|plant and machinery"),
+    ("food", r"food process|bakery|restaurant|eatery|catering"),
+]
+SECTOR_RX = {k: re.compile(p, re.I) for k, p in SECTOR_RULES}
+OFFER_KINDS = {"subsidy": "money", "incentive": "money", "grant": "money", "reimbursement": "money", "scheme rules": "money", "scheme": "money",
+               "guidelines": "money", "loan": "credit", "service": "support", "programme": "support", "policy": "support", "notification": "support"}
+
+
+def business_tag(e: dict) -> dict:
+    """What the scheme asks of a business: `biz` = {needs: [...], sectors: [...], offer: money|credit|support}."""
+    t = text_of(e) + " " + str(e.get("documents", ""))
+    needs = [k for k, rx in BUSINESS_RX.items() if rx.search(t)]
+    # 'sc_st_only' from a stray 'ST' in the text is noise unless the applicant class says so too
+    if "sc_st_only" in needs and "SC/ST" not in e.get("applicants", []):
+        needs.remove("sc_st_only")
+    if "women_only" in needs and "Woman" not in e.get("applicants", []):
+        needs.remove("women_only")
+    tags = set(e.get("tags", []))
+    # a scheme the portal lists for start-ups only asks for start-up recognition even when its text does not say so
+    if tags and tags <= {"startup", "incubator"} and "startup" not in needs:
+        needs.append("startup")
+    sectors = [k for k, rx in SECTOR_RX.items() if rx.search(e.get("name", "") + " " + e.get("target", "") + " " + e.get("eligibility", "")[:400])]
+    e["biz"] = {"needs": needs, "sectors": sectors, "offer": OFFER_KINDS.get((e.get("kind") or "").lower(), "money"),
+                # a firm, not a society or a self-help group: those are the place twin's 'groups' world
+                "for_business": "Business / entrepreneur" in e.get("applicants", []) or bool(tags)}
+    return e
+
+
 def tag(e: dict) -> dict:
     """What the scheme asks of a place: requirement keys, the body that applies if one does, informational bits."""
+    business_tag(e)
     t = text_of(e)
     who = set(e.get("applicants", []))
     needs = [k for k, (rx, implied, _, _) in REQ.items() if rx.search(t) or (who & set(implied))]
@@ -265,7 +317,8 @@ def build_catalogue(path: str) -> dict:
             cands = [kk for kk in by_norm if len(kk) > 12 and (kk in k or k in kk)]
             hit = by_norm[max(cands, key=len)] if cands else None
         if hit is not None:
-            hit["sources"].append("GIPARD handbook (~2020-21)")
+            if "GIPARD handbook (~2020-21)" not in hit["sources"]:
+                hit["sources"].append("GIPARD handbook (~2020-21)")
             hit["handbook_pages"] = e.get("handbook_pages", "")
             for f in ("eligibility", "benefit", "how_to_apply", "funding", "target"):
                 if not hit.get(f) and e.get(f): hit[f] = e[f]
@@ -337,18 +390,185 @@ def stats(cat: dict | None = None) -> dict:
             "grants": len(cat["grants"]), "sources": Counter(src for s in ss for src in s["sources"])}
 
 
+# ----------------------------------------------------------------------------
+# the business portals: msme.goa.gov.in, startup.goa.gov.in (schemes) and goaonline.gov.in (application channels)
+# ----------------------------------------------------------------------------
+PORTAL_CLASSES = {"startup": ("Business / entrepreneur", "startup"), "msme": ("Business / entrepreneur", "msme"), "artisan": ("Individual", "artisan"),
+                  "incubator": ("NGO / institution", "incubator")}
+
+
+def _portal_applicants(s: str) -> tuple[list[str], list[str]]:
+    """The portal's 'who can apply' → the catalogue's classes, plus tags for the business-specific ones."""
+    classes, tags = [], []
+    for part in (s or "").split(","):
+        p = part.strip()
+        if not p:
+            continue
+        low = p.lower()
+        if low in PORTAL_CLASSES:
+            cls, tg = PORTAL_CLASSES[low]
+            classes.append(cls); tags.append(tg)
+        else:
+            classes.extend(a for a in APPLICANTS if norm(a) == norm(p))
+    return sorted(set(classes), key=APPLICANTS.index), sorted(set(tags))
+
+
+def find_scheme(name: str, by_norm: dict[str, dict], department: str = "") -> dict | None:
+    """A portal row's scheme in the catalogue, if the workbook already has it: the same name, or the same core name."""
+    k = norm(name)
+    if k in by_norm:
+        return by_norm[k]
+    core = core_name(name)
+    if len(core) < 10:
+        return None
+    # the same core name only: 'Employment Subsidy Scheme for Cashew Industry' is not 'Employment Subsidy Scheme, 2017'
+    return next((e for e in by_norm.values() if core_name(e["name"]) == core), None)
+
+
+def merge_business(cat: dict, path: str, portal: str) -> dict:
+    """Rows from a business portal's CSV: a scheme the workbook already lists gains the portal as a source, its
+    page link and any blanks filled; a new one joins the catalogue tagged with the portal. Returns counts."""
+    import csv
+    by_norm = {norm(s["name"]): s for s in cat["schemes"]}
+    seen_ids = {s["id"] for s in cat["schemes"]}
+    added = matched = 0
+    for r in csv.DictReader(open(path, encoding="utf-8")):
+        name = (r.get("name") or "").strip()
+        if not name:
+            continue
+        classes, tags = _portal_applicants(r.get("who_can_apply", ""))
+        hit = find_scheme(name, by_norm, r.get("agency", ""))
+        if hit is not None:
+            matched += 1
+            if portal not in hit["sources"]:
+                hit["sources"].append(portal)
+            hit.setdefault("portals", []).append({"portal": portal, "url": r.get("source_url", ""), "section": r.get("portal_section", ""), "name": name})
+            for f in ("eligibility", "benefit", "how_to_apply", "target"):
+                src = "target_group" if f == "target" else f
+                if not hit.get(f) and r.get(src):
+                    hit[f] = r[src].strip()
+            if hit.get("max_rupees") is None and _int(r.get("max_rupees", "")) is not None:
+                hit["max_rupees"] = _int(r["max_rupees"])
+            hit["applicants"] = sorted(set(hit["applicants"]) | set(classes), key=APPLICANTS.index)
+            hit["tags"] = sorted(set(hit.get("tags", [])) | set(tags))
+            tag(hit)
+            continue
+        e = {"name": name, "kind": (r.get("kind") or "Scheme rules").strip(), "department": (r.get("agency") or "").strip(), "applicants": classes,
+             "target": (r.get("target_group") or "").strip(), "eligibility": (r.get("eligibility") or "").strip(), "benefit": (r.get("benefit") or "").strip(),
+             "max_rupees": _int(r.get("max_rupees", "")), "how_to_apply": (r.get("how_to_apply") or "").strip(), "local_body_role": "None stated", "funding": "State",
+             "valid_period": (r.get("valid_period") or "").strip(), "notified_on": (r.get("notified_on") or "").strip(), "later_amendments": "",
+             "detail": "Portal" if (r.get("eligibility") or r.get("benefit")) else "Name only", "notes": (r.get("notes") or "").strip(),
+             "source_url": (r.get("source_url") or "").strip(), "sources": [portal], "amendments": [], "tags": tags,
+             "portals": [{"portal": portal, "url": r.get("source_url", ""), "section": r.get("portal_section", ""), "name": name}],
+             "documents": (r.get("documents") or "").strip(), "date_seen": (r.get("date_seen") or "").strip()}
+        tag(e)
+        s = slug(e["name"]); n = 2
+        while s in seen_ids:
+            s = f"{slug(e['name'])[:76]}-{n}"; n += 1
+        e["id"] = s; seen_ids.add(s)
+        cat["schemes"].append(e); by_norm[norm(name)] = e
+        added += 1
+    cat.setdefault("portals", {})[portal] = {"file": os.path.basename(path), "added": added, "matched": matched}
+    return {"added": added, "matched": matched}
+
+
+def merge_services(cat: dict, path: str) -> dict:
+    """Goa Online's services: kept as a list, and a service that is the application channel for a named scheme
+    puts its link on that scheme as `apply_online`."""
+    import csv
+    by_norm = {norm(s["name"]): s for s in cat["schemes"]}
+    rows = []
+    linked = 0
+    for r in csv.DictReader(open(path, encoding="utf-8")):
+        if not (r.get("service_name") or "").strip():
+            continue
+        row = {k: (v or "").strip() for k, v in r.items()}
+        rows.append(row)
+        ln = row.get("linked_scheme_name", "")
+        if ln and (hit := find_scheme(ln, by_norm, row.get("department", ""))) is not None:
+            hit["apply_online"] = {"service": row["service_name"], "url": row.get("source_url", ""), "department": row.get("department", "")}
+            row["linked_scheme_id"] = hit["id"]; linked += 1
+    cat["services"] = rows
+    cat.setdefault("portals", {})["goaonline.gov.in"] = {"file": os.path.basename(path), "services": len(rows), "linked": linked}
+    return {"services": len(rows), "linked": linked}
+
+
+# ----------------------------------------------------------------------------
+# co-funding: the scheme that could carry part of a proposal
+# ----------------------------------------------------------------------------
+# (pattern over a proposal's title and text, the scheme's core name in the catalogue, what it pays, in words).
+# A hand-kept table, deliberately short: each line is a scheme a Goan business could actually use for the kind of
+# thing the Commons funds. The catalogue supplies the link, the department and the Goa Online channel.
+CO_FUNDING = [
+    (r"train|trainer|workshop|course|coach|upskill|skill", "incentives to industries for training prospective employees", "reimburses the training cost of new staff for a registered unit"),
+    (r"audit|energy|solar|electric|water|green", "ramp goa: 50% subsidy for water and energy audits", "pays half of a water or energy audit, up to ₹50,000"),
+    (r"common facilit|cluster|shared .{0,24}(?:equipment|machine|oven|cold|chiller|fridge|store|kitchen|workshop|printer|lift)|cold (?:room|store)", "micro small enterprises cluster development programme", "funds common facility centres for a cluster of units, through a registered SPV"),
+    (r"certif|quality mark|\biso\b|hygiene rating", "zero defect zero effect", "subsidises ZED quality certification for registered MSMEs"),
+    (r"exhibition|trade fair|stall at|buyer-?seller|trade show|expo\b", "procurement and marketing support", "reimburses stall and travel costs at fairs for registered MSMEs"),
+    (r"(?:artisan|craft|tailor|embroider|potter|weav).{0,40}(?:tool|machine|kit|equipment)|toolkit", "pm vishwakarma", "a toolkit grant and a collateral-free loan for artisans in listed trades"),
+    (r"local supplier|buy local|from goan|sourcing", "incentives to encourage purchases from local suppliers", "an incentive on purchases from local Goan suppliers"),
+    (r"signage|signboard|\bbins\b|clean-?up|street ?light|public toilet|footpath|drain|crematori|community hall", "goa gram samrudhi yojana", "funds village assets through the panchayat: a proposal here could ask the panchayat to carry it"),
+]
+CO_FUNDING_RX = [(re.compile(p, re.I), core, share) for p, core, share in CO_FUNDING]
+
+
+def co_funding(title: str, text: str = "") -> dict | None:
+    """The first matching scheme for a proposal, as {id, name, department, share, url, apply_url}; None when nothing fits.
+    Reads the title and the prose, not the quoted needs (a business called 'Tailors' is not a craft proposal)."""
+    t = f"{title} {(text or '').split(chr(10) + '- ')[0]}"
+    by_core = {}
+    for s in schemes():
+        by_core.setdefault(core_name(s["name"]), s)
+        by_core.setdefault(norm(s["name"]), s)
+    for rx, core, share in CO_FUNDING_RX:
+        if not rx.search(t):
+            continue
+        s = by_core.get(core) or next((x for k, x in by_core.items() if k.startswith(core)), None)
+        if s is None:
+            continue
+        return {"id": s["id"], "name": s["name"], "department": s["department"], "share": share, "url": s.get("source_url", ""),
+                "apply_url": (s.get("apply_online") or {}).get("url", "")}
+    return None
+
+
+def attach_co_funding(con) -> int:
+    """Put a co-funding scheme on every open proposal that has none yet; returns how many changed."""
+    from . import db
+    n = 0
+    for p in db.rows(con.execute("SELECT id, title, text, scheme_json FROM proposals WHERE status IN ('draft','eligible')").fetchall()):
+        if p.get("scheme_json"):
+            continue
+        s = co_funding(p["title"], p["text"] or "")
+        if s:
+            with db.tx(con):
+                con.execute("UPDATE proposals SET scheme_json=? WHERE id=?", (json.dumps(s, ensure_ascii=False), p["id"]))
+            n += 1
+    return n
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--import", dest="path", help="the xlsx to turn into publicbank/data/goa_schemes.json")
+    ap.add_argument("--business", action="append", default=[], metavar="PORTAL=CSV", help="a business portal's CSV to merge, e.g. msme.goa.gov.in=data/sources/goa_msme_schemes.csv (repeatable)")
+    ap.add_argument("--services", metavar="CSV", help="Goa Online's services CSV to attach as application channels")
     ap.add_argument("--stats", action="store_true")
+    ap.add_argument("--attach-cofunding", action="store_true", help="put a co-funding scheme on every open proposal in the service's database that has none")
     a = ap.parse_args()
+    if a.attach_cofunding:
+        from . import db
+        print(f"co-funding attached to {attach_co_funding(db.connect())} proposals")
     if a.path:
         cat = build_catalogue(a.path)
+        for spec in a.business:
+            portal, _, csv_path = spec.partition("=")
+            print(f"{portal}: {merge_business(cat, csv_path, portal)}")
+        if a.services:
+            print(f"goaonline.gov.in: {merge_services(cat, a.services)}")
         os.makedirs(DATA_DIR, exist_ok=True)
         with open(CATALOGUE, "w", encoding="utf-8") as f:
             json.dump(cat, f, ensure_ascii=False, indent=1)
         load.cache_clear()
-        print(f"wrote {CATALOGUE}: {len(cat['schemes'])} schemes, {len(cat['grants'])} grant lines")
+        print(f"wrote {CATALOGUE}: {len(cat['schemes'])} schemes, {len(cat['grants'])} grant lines, {len(cat.get('services', []))} services")
     if a.stats or a.path:
         for k, v in stats().items():
             print(f"{k}: {v}")

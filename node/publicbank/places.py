@@ -262,6 +262,8 @@ def verdict(d: dict, s: dict, p: dict | None = None) -> dict:
         results.append(r); why.append(reason)
         if r in ("maybe", "unknown") and S.step(key):
             steps.append(S.step(key))
+    # the caste and tribe counts are facts the rules use, not the headline: say them last
+    why = [w for w in why if "Scheduled" not in w and "SC or ST" not in w] + [w for w in why if "Scheduled" in w or "SC or ST" in w]
     drawing = any(p.get(k) for k, rx in DRAWING if rx.search(s["name"]))
     if "no" in results:
         status = "unlikely"
@@ -443,6 +445,8 @@ def card(d: dict, n: int = 3) -> dict:
     kids = d.get("member_kinds", {}) if d["kind"] in ROLLUPS else {}
     return {"id": d["id"], "name": d["name"], "kind": d["kind"], "kind_word": KINDS.get(d["kind"], d["kind"]), "taluka": d.get("taluka"), "district": d.get("district"),
             "wards": d.get("wards"), "members": sum(kids.values()) if kids else None,
+            "members_words": ", ".join(f"{n} {'village panchayat' if k == 'village_panchayat' else 'town'}{'s' if n != 1 else ''}" for k, n in
+                                       ((k, sum(v for kk, v in kids.items() if (kk == 'village_panchayat') == (k == 'village_panchayat'))) for k in ('village_panchayat', 'municipal')) if n) if kids else None,
             "facts": {"households": p["households"], "population": p["population"], "st_share": p["st_share"], "coastal": p["coastal"],
                       "farmers": p["farmers"], "fisher_households": p["fisher_households"], "dairy_societies": p["dairy_societies"]},
             "summary": sm, "top": top_by_audience(d, p), "url": f"/twin/{d['id']}",

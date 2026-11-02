@@ -274,11 +274,22 @@ def add_proposal(con, round_id: str, member_id: str, *, title: str, text: str, i
         signs.append(via["id"])
     pid = new_id("p_")
     with tx(con):
-        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at,payee_upi,payee_name)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at,payee_upi,payee_name,scheme_json)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (pid, round_id, title.strip()[:120], text.strip()[:2000], min_paise, ideal_paise, lead_id, source,
-                     json.dumps(signs), _proposal_status(con, rnd["node_id"], lead_id, signs), member_id, now(), payee_upi.strip()[:80] or None, payee_name.strip()[:80] or None))
+                     json.dumps(signs), _proposal_status(con, rnd["node_id"], lead_id, signs), member_id, now(), payee_upi.strip()[:80] or None, payee_name.strip()[:80] or None,
+                     _co_funding_json(title, text)))
     return get_proposal(con, pid)
+
+
+def _co_funding_json(title: str, text: str) -> str | None:
+    """A government scheme that could carry part of a proposal, from the catalogue's hand-kept table; None when none fits."""
+    try:
+        from . import schemes
+        s = schemes.co_funding(title, text)
+    except Exception:   # no catalogue on disk, or a parse problem: a proposal never fails for this
+        return None
+    return json.dumps(s, ensure_ascii=False) if s else None
 
 
 def _proposal_status(con, node_id: str, lead_id: str | None, cosign: list[str]) -> str:
@@ -659,9 +670,9 @@ def add_twin_draft(con, round_id: str, *, title: str, text: str, ideal_paise: in
         raise PBError("bad_amounts")
     pid = new_id("p_")
     with tx(con):
-        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at)
-                       VALUES (?,?,?,?,?,?,NULL,'twin','[]','draft',NULL,?)""",
-                    (pid, round_id, title.strip()[:120], text.strip()[:2000], min_paise, ideal_paise, now()))
+        con.execute("""INSERT INTO proposals (id,round_id,title,text,min_paise,ideal_paise,lead_id,source,cosign_nodes,status,created_by,created_at,scheme_json)
+                       VALUES (?,?,?,?,?,?,NULL,'twin','[]','draft',NULL,?,?)""",
+                    (pid, round_id, title.strip()[:120], text.strip()[:2000], min_paise, ideal_paise, now(), _co_funding_json(title, text)))
         for nid in need_ids:
             con.execute("UPDATE needs SET status='drafted' WHERE id=?", (nid,))
     return get_proposal(con, pid)
@@ -819,7 +830,7 @@ def slugify(s: str) -> str:
 
 def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", challenge: str = "",
           team_size: int | None = None, need: str = "", share: str = "", contribute: str = "", consent: bool = False, address: str = "", place_id: str | None = None,
-          token_ttl: int = 30 * 86400) -> dict:
+          registrations: str = "", owner_tags: str = "", age_band: str = "", token_ttl: int = 30 * 86400) -> dict:
     """Register a business under a pool from the public form. Makes the business node and an owner's card
     (a `join_coord` token). The same phone applying again updates its application instead of making a second
     node. Nobody is a member yet: the applicant becomes the coordinator when they open the card. `address` is
@@ -836,13 +847,16 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     ts = max(1, min(int(team_size or 1), 500))
     address = " ".join(address.split())[:200]
     place_id = (place_id or "").strip()[:80] or None
+    registrations = ",".join(x for x in (r.strip() for r in registrations.split(",")) if x in ("udyam", "startup", "gst", "none"))
+    owner_tags = ""   # the form asks nothing about who the owner is; the column stays for a later, consented source
+    age_band = age_band if age_band in ("new", "young", "established") else ""
     fields = (about.strip()[:200], challenge.strip()[:500], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
               1 if consent else 0)
     cur = row(con.execute("SELECT * FROM applications WHERE pool_id=? AND phone=?", (pool_id, ph)).fetchone())
     if cur and cur["status"] == "new":
         with tx(con):
-            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,address=?,place_id=?,updated_at=? WHERE id=?",
-                        (business, applicant, role, *fields, address, place_id, now(), cur["id"]))
+            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,address=?,place_id=?,registrations=?,owner_tags=?,age_band=?,updated_at=? WHERE id=?",
+                        (business, applicant, role, *fields, address, place_id, registrations, owner_tags, age_band, now(), cur["id"]))
             con.execute("UPDATE nodes SET name=?, place_id=? WHERE id=?", (business, place_id, cur["node_id"]))
         return row(con.execute("SELECT * FROM applications WHERE id=?", (cur["id"],)).fetchone())
     if cur:   # already joined: a second form from the same phone is a new need at most, not a new business
@@ -856,11 +870,15 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
     aid = new_id("a_")
     with tx(con):
-        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,address,place_id,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, address, place_id, tok, "new", now(), now()))
+        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,address,place_id,registrations,owner_tags,age_band,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, address, place_id, registrations, owner_tags, age_band, tok, "new", now(), now()))
         if place_id:
             con.execute("UPDATE nodes SET place_id=? WHERE id=?", (place_id, nid))
     return row(con.execute("SELECT * FROM applications WHERE id=?", (aid,)).fetchone())
+
+
+def application_of_node(con, node_id: str) -> dict | None:
+    return row(con.execute("SELECT * FROM applications WHERE node_id=? ORDER BY created_at DESC LIMIT 1", (node_id,)).fetchone())
 
 
 def verified_businesses(con, pool_id: str) -> list[dict]:

@@ -38,7 +38,8 @@ assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.g
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
             team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings",
-            address="Shop 3, market road, Mandrem", place="")   # no place picked: the server reads it off the address
+            address="Shop 3, market road, Mandrem", place="",   # no place picked: the server reads it off the address
+            registrations=["none"], age_band="established")
 # registering signs the applicant in as the business's coordinator, sends them to step 2, and tells the treasurer on Telegram
 os.environ["TELEGRAM_BOT_TOKEN"] = "t"
 tg_sent = []
@@ -99,6 +100,18 @@ assert core.get_node(con, a["node_id"])["place_id"] == "mandrem"
 assert [(b["name"], b["place_id"]) for b in core.verified_businesses(con, "commons")] == [("Mandrem Tailors", "mandrem")]
 assert "Mandrem" in T.get("/c/commons").text and "address" in T.get("/c/commons/applications.csv").text
 assert "name=address" in anon.get("/apply/commons").text and "Mandrem · Pernem" in anon.get("/apply/commons").text and "Use my location" in anon.get("/apply/commons").text
+# the business twin: the three optional answers are kept, the owner sees their schemes, nobody else does
+assert a["registrations"] == "none" and not a["owner_tags"] and a["age_band"] == "established"
+assert "The owner is" not in anon.get("/apply/commons").text and "owner_tags" not in anon.get("/apply/commons").text
+r = R.get("/schemes/commons/mandrem-tailors")
+assert r.status_code == 200 and "Udyam not held" in r.text and "register the business on the Udyam portal" in r.text and "unlikely for this business" in r.text, r.text[:400]
+assert client().get("/schemes/commons/mandrem-tailors").status_code == 401 and T.get("/schemes/commons/mandrem-tailors").status_code == 403
+assert "What the government offers Mandrem Tailors" in R.get("/start/commons/mandrem-tailors/done").text
+from publicbank import businesses  # noqa: E402
+bc = businesses.card(con, "commons/mandrem-tailors")
+assert bc["summary"]["schemes"] > 100 and bc["slots"] and bc["profile"]["woman"] is None and bc["unlocks"]
+pd = businesses.place_draw(con, "commons", "mandrem")
+assert pd and pd["businesses"] == 1 and pd["eligible_any"] > 0 and "Mandrem Tailors" not in str(pd), "counts only; no business is named"
 assert R.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 403   # a business can't verify itself
 # only verified businesses count: the second business is registered and chartered but unverified, so it cannot cast the pool's ballot
 S3 = client(); S3.post("/apply/commons", data=dict(form, business="Lane Cafe", phone="+91 90000 11111", applicant="Joao"))

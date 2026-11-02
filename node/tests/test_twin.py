@@ -139,6 +139,49 @@ if twinmap.available():
     assert P.locate(15.0, 74.9) is None, "outside Goa"
 P.set_divisions(V)
 
+# co-funding: the scheme that could carry part of a proposal, from the hand-kept table, and stored on the proposal
+cf = S.co_funding("A paid trainer for front-of-house staff", "Two Saturdays, shared across the lane.")
+assert cf and "training" in cf["name"].lower() and cf["share"] and cf["id"], cf
+assert "cluster" in S.co_funding("Shared cake chiller for the season", "one commercial cake chiller shared by two bakeries")["name"].lower()
+assert "samrudhi" in S.co_funding("Beach clean-up kit and bins", "")["name"].lower()
+assert S.co_funding("Something", "") is None
+from publicbank import db  # noqa: E402
+con = db.connect()
+core_tests = __import__("publicbank.core", fromlist=["core"])
+core_tests.create_node(con, "cf", "Co-funding test", kind="group")
+cm = core_tests.upsert_member(con, verified_by="coordinator", telegram_id=4242, display="m")
+core_tests.join_node(con, "cf", cm["id"], role="coordinator", auto_active=True)
+cr = core_tests.open_round(con, "cf", 100000)
+pp = core_tests.add_proposal(con, cr["id"], cm["id"], title="A paid trainer for counter staff", text="", ideal_paise=20000, lead_id=cm["id"])
+assert db.j(pp["scheme_json"], None)["id"] == cf["id"], "a human proposal carries its co-funding scheme"
+dd = core_tests.add_twin_draft(con, cr["id"], title="Shared delivery scooter", text="For the lane.", ideal_paise=50000)
+assert dd["scheme_json"] is None, "nothing in the table fits a scooter"
+
+# the business twin: a firm read against the business schemes from what it told the form
+from publicbank import businesses as B  # noqa: E402
+cands = B.candidates()
+assert 100 < len(cands) < len(cat["schemes"]) and all(s["biz"]["for_business"] for s in cands)
+assert not any("SHG / group" in s["applicants"] and "Business / entrepreneur" not in s["applicants"] and not s.get("tags") for s in cands), "a self-help-group scheme is not a firm's"
+tailor = B.profile({"business": "Mandrem Tailors", "about": "Tailoring, Mandrem market road", "challenge": "marketing", "need": "", "team_size": 3,
+                    "registrations": "none", "owner_tags": "woman", "age_band": "established", "status": "verified"})
+devshop = B.profile({"business": "Dev shop", "about": "software and app development", "challenge": "", "need": "", "team_size": 6,
+                     "registrations": "startup,udyam", "owner_tags": "", "age_band": "new", "status": "joined"})
+unknown = B.profile({"business": "X", "about": "", "challenge": "", "need": "", "team_size": 1, "registrations": "", "owner_tags": "", "age_band": "", "status": "new"})
+assert tailor["trades"] == ["artisan"] and tailor["udyam"] is False and tailor["woman"] is True and devshop["startup"] is True and unknown["udyam"] is None
+it_scheme = next(s for s in cands if "it" in s["biz"]["sectors"] and "startup" in s["biz"]["needs"])
+assert B.verdict(tailor, it_scheme)["status"] == "unlikely", "an IT start-up scheme is not a tailor's"
+assert B.verdict(devshop, it_scheme)["status"] == "eligible", B.verdict(devshop, it_scheme)
+udyam_scheme = next(s for s in cands if "udyam" in s["biz"]["needs"] and not s["biz"]["sectors"])
+v = B.verdict(tailor, udyam_scheme)
+assert v["status"] == "plausible" and any("Udyam" in st for st in v["steps"]), v
+assert B.verdict(unknown, udyam_scheme)["status"] == "plausible"
+women = next(s for s in cands if "women_only" in s["biz"]["needs"])
+assert B.verdict(tailor, women)["status"] != "unlikely", B.verdict(tailor, women)
+dv = B.verdict(devshop, women)   # the owner skipped the question: not ruled out, not confirmed
+assert dv["status"] == "plausible" and any("does not say" in w for w in dv["why"]), dv
+either = next(s for s in cands if {"women_only", "sc_st_only"} <= set(s["biz"]["needs"]))
+assert B.verdict(tailor, either)["status"] == "eligible", "for women or SC/ST owners: a woman owner qualifies"
+
 # the pages
 from fastapi.testclient import TestClient  # noqa: E402
 from publicbank import web  # noqa: E402

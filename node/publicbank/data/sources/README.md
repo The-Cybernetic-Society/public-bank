@@ -83,6 +83,37 @@ no shape), then bodies into talukas and districts, simplifies the outlines (abou
 map units; needs shapely at build time only. Three bodies have no shape: Harvalem (no 2011 village), and Taleigao
 and Merces, whose villages the source drew inside Panaji's polygon.
 
+## The business portals (merged into goa_schemes.json by `schemes.py --import … --business … --services …`)
+
+- **goa_msme_schemes.csv** (74 rows, seen 2 Nov 2026): https://msme.goa.gov.in/ , the Directorate of Industries,
+  Trade and Commerce's portal. Every page under Schemes › State Government Schemes (49: the Umbrella Scheme 2017,
+  the Goa IT Policy 2018 schemes, the Goa Start-up Policy 2025, the Logistics and Warehousing Incentives 2025, the
+  tribal finance corporation's loans, two tourism schemes, ODOP cashew), Schemes › Central Ministry Schemes (15),
+  About › RAMP (7) and the DITC services (3). Eligibility, benefit, documents and steps are verbatim from the
+  pages; dates come from the gazette PDFs linked there (24 of 117 PDFs are scanned images and could not be read; the
+  rows say so). The portal's own slips are noted per row: benefits copied between two pages, a Rs 5 crore / Rs 10
+  crore inconsistency for CGTMSE, Umbrella Scheme sub-schemes whose notification says they expired on 30 Sep 2022
+  but which the portal still shows as open.
+- **goa_startup_schemes.csv** (61 rows): https://startup.goa.gov.in/ , the Startup and IT Promotion Cell. The live
+  site's TLS certificate has expired, so every page was read from the Internet Archive's latest capture
+  (2020–2026; the capture date is in each row's notes and the original URL in source_url). Nine scheme pages of
+  the Startup Policy 2021, five 2017 scheme PDFs, policy-level incentives of the 2017, 2021 and 2025 policies, the
+  cell's services and programmes, and the IT Policy 2018 schemes linked under Notifications.
+- **goa_online_services.csv** (212 rows): https://goaonline.gov.in/AllServices , read from the portal's own
+  AllServices.json and each service's public detail page. 282 distinct services across 49 departments on the
+  portal; the 212 kept are the ones a shop, workshop, hotel or shack, farm, dairy, fishing unit, transport, IT or
+  start-up unit, cooperative, NGO or SHG would use (registrations, licences, approvals, scheme applications,
+  renewals, returns, dues, and the certificates scheme forms ask for). 58 are the application channel for a named
+  scheme. No fees are stated on the portal; 47 rows carry a processing time. Not on the portal: Udyam and FSSAI
+  (central), Social Welfare, Tribal Welfare, Handicrafts, house tax; the panchayat trade licence is live in seven
+  panchayats only.
+
+How they merge: a portal row whose name (or core name, with years and "(Umbrella Scheme)"-style tails stripped)
+equals a workbook scheme's gains the portal as a source, the page link and any blank fields; otherwise it becomes
+a scheme of its own with `sources` naming the portal and `tags` (startup, msme, artisan, incubator) from the
+portal's own "who can apply". A Goa Online service whose linked scheme name resolves puts `apply_online` on that
+scheme, shown on the twin page as "apply on Goa Online".
+
 ## goa_name_fixes.csv — hand-kept name resolutions
 
 A source's place name → the body it lies in, with the basis in words, for names the automatic matching (same word in
