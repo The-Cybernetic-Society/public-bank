@@ -267,3 +267,12 @@ assert db.row(con.execute("SELECT display, wa_phone, verified_by FROM members WH
 assert all(pid2 not in db.j(p["cosign_nodes"], []) for p in db.rows(con.execute("SELECT cosign_nodes FROM proposals WHERE round_id=?", (rnd2["id"],)).fetchall()))
 assert "Business" in client().get("/b/commons").text and "businesses · one vote each" in client().get("/b/commons").text
 print("APPLY OK · remove one business")
+
+# the front page is the home pool: intro, the pot with what's paid, approved, asked and remaining, a way in, the record
+web.HOME_POOL = "commons"
+r = anon.get("/"); assert r.status_code == 200
+assert "Register your business" in r.text and "action='/apply/commons'" in r.text and "class=track" in r.text and "remaining ₹" in r.text and "asked for ₹" in r.text, r.text[:500]
+assert "businesses · one vote each" in r.text and "Proposals</h2>" in r.text and "/notes/simulating-a-thousand-businesses" in r.text
+b = web._budget(core.get_node(con, "commons"), core.current_round(con, "commons"))
+assert b["pot"] == core.spendable_budget(con, core.current_round(con, "commons")) and b["paid"] == 0 and b["approved"] == 0 and b["asked"] > 0 and b["remaining"] == b["pot"] and b["proposals"] >= 3, b
+print("APPLY OK · home page")

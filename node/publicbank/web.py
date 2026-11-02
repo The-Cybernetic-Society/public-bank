@@ -767,6 +767,16 @@ def board(node_id: str):
         node = core.get_node(con, node_id)
     except core.PBError:
         raise HTTPException(404)
+    body = _board_body(node)
+    html = page(node["name"], body).body.decode()
+    bar = f"<div class=bar><span class=sq></span><a href='/'>{esc(BRAND)}</a> &nbsp;·&nbsp; {esc(node['id'].rsplit('/', 1)[-1])}.log</div><div class=win>"
+    html = html.replace(f"<p class=brand><a href='/'>{esc(BRAND)}</a></p>", bar, 1) + "</div>"
+    return HTMLResponse(html.replace(CSS, CSS + BOARD_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=15><title>", 1))   # board styles after the page's, so they win
+
+
+def _board_body(node: dict, with_pot: bool = True) -> str:
+    """The public record of a node's round as HTML: businesses, needs, proposals, plans, approval, ledger."""
+    node_id = node["id"]
     kids = core.children(con, node_id)
     rnd = core.current_round(con, node_id)
     names = {k["id"]: k["name"] for k in kids}
@@ -776,6 +786,8 @@ def board(node_id: str):
         body += f"<p class=muted>Part of <a href='/b/{esc(par['id'])}'>{esc(par['name'])}</a></p>"
     if not rnd:
         body += "<p class=big>No round open</p>"
+    elif not with_pot:
+        pass
     else:
         st = rnd["status"]
         spend = core.spendable_budget(con, rnd)
@@ -847,10 +859,7 @@ def board(node_id: str):
             if q:
                 body += "<h2>Ledger</h2><table><tr><th>Item</th><th>Amount</th><th>Status</th><th>Reference</th></tr>" + "".join(f"<tr><td>{esc(x['title'])}</td><td>{_rupees(x['amount_paise'])}</td><td>{esc(x['status'])}</td><td>{esc(x['reference'] or '')}</td></tr>" for x in q) + "</table>"
     body += f"<p class=muted><a href='/export/{esc(node_id)}'>Export</a> · the record anyone can check. No names, no account details.</p>"
-    html = page(node["name"], body).body.decode()
-    bar = f"<div class=bar><span class=sq></span><a href='/'>{esc(BRAND)}</a> &nbsp;·&nbsp; {esc(node['id'].rsplit('/', 1)[-1])}.log</div><div class=win>"
-    html = html.replace(f"<p class=brand><a href='/'>{esc(BRAND)}</a></p>", bar, 1) + "</div>"
-    return HTMLResponse(html.replace(CSS, CSS + BOARD_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=15><title>", 1))   # board styles after the page's, so they win
+    return body
 
 
 # ----------------------------------------------------------------------------
@@ -995,6 +1004,31 @@ def privacy():
 <p>We keep it while the Commons runs, and delete names and numbers when it ends. You can leave at any time: message an admin of the <a href='{esc(GROUP)}'>WhatsApp group</a> and we will delete what we hold about you and your business and stop using it. Decisions already made stay in the public record, without your name, because the other businesses' votes and the ledger depend on them.</p>
 <p class=muted>Run by {esc(BRAND)}. This is a private, independent pilot, not a bank or a government scheme.</p>"""
     return page("Privacy", body)
+
+
+def _budget(node: dict, rnd: dict | None) -> dict:
+    """Where the pot stands: spendable, paid out, approved but unpaid, asked for by proposals on the table, remaining."""
+    if not rnd:
+        return {"pot": 0, "paid": 0, "approved": 0, "asked": 0, "remaining": 0, "proposals": 0, "stage": None}
+    pot = core.spendable_budget(con, rnd)
+    pay = db.rows(con.execute("SELECT status, amount_paise FROM payouts WHERE round_id=?", (rnd["id"],)).fetchall())
+    paid = sum(x["amount_paise"] for x in pay if x["status"] in ("paid", "receipt_ok"))
+    approved = sum(x["amount_paise"] for x in pay if x["status"] in ("queued", "sent"))
+    props = db.rows(con.execute("SELECT ideal_paise FROM proposals WHERE round_id=? AND status IN ('draft','eligible')", (rnd["id"],)).fetchall())
+    asked = sum(x["ideal_paise"] for x in props) if rnd["status"] == "proposals" else 0
+    return {"pot": pot, "paid": paid, "approved": approved, "asked": asked, "remaining": max(0, pot - paid - approved), "proposals": len(props), "stage": rnd["status"]}
+
+
+def _budget_bar(b: dict) -> str:
+    pot = max(1, b["pot"])
+    w = lambda v: f"{min(100, 100 * v / pot):.1f}%"  # noqa: E731
+    asked_fit = min(b["asked"], b["remaining"])
+    segs = (f"<span class='seg paid' style='width:{w(b['paid'])}' title='paid'></span><span class='seg approved' style='width:{w(b['approved'])}' title='approved, not yet paid'></span>"
+            f"<span class='seg asked' style='width:{w(asked_fit)}' title='asked for by proposals on the table'></span>")
+    legend = [f"<span><i class='sw paid'></i>paid {_rupees(b['paid'])}</span>", f"<span><i class='sw approved'></i>approved {_rupees(b['approved'])}</span>",
+              f"<span><i class='sw asked'></i>asked for {_rupees(b['asked'])} in {b['proposals']} proposal{'s' if b['proposals'] != 1 else ''}</span>",
+              f"<span><i class='sw left'></i>remaining {_rupees(b['remaining'])}</span>"]
+    return f"<div class=budget><div class=track>{segs}</div><p class=legend>{' '.join(legend)}</p></div>"
 
 
 def _steps(n: int) -> str:
@@ -1147,6 +1181,13 @@ def start_finished(node_id: str, request: Request):
     return page("Done", body)
 
 
+HOME_POOL = os.environ.get("PB_HOME_POOL", "goa")   # the pool the front page shows; an alias or a node id
+HOME_CSS = """<style>body{max-width:760px}.stage{display:inline-block;padding:7px 14px;border-radius:10px;background:var(--gold);color:var(--ink);font:400 11px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;border:2px solid var(--ink)}
+.big{font:400 40px/1.1 Newsreader,Georgia,serif;color:var(--ink)}p.lead{font-size:20px;line-height:1.5;color:var(--ink)}
+.budget{margin:14px 0 6px}.track{display:flex;height:22px;border:2px solid var(--ink);border-radius:4px;background:var(--paper);overflow:hidden}
+.seg{display:block;height:100%}.seg+.seg{border-left:2px solid var(--card)}.paid{background:var(--ink)}.approved{background:var(--gold)}.asked{background:repeating-linear-gradient(135deg,var(--gold) 0 4px,transparent 4px 9px)}.left{background:var(--paper);border:1px solid var(--line)}
+.legend{font:400 13px/1.6 "IBM Plex Mono",monospace;color:var(--muted);margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+table{font:400 15px/1.4 "IBM Plex Mono",monospace}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
 NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
 
@@ -1164,6 +1205,25 @@ def note(slug: str):
 
 @app.get("/")
 def home():
+    """The front page is the home pool itself: what it is, where the pot stands, a way in, and the live record."""
+    home_id = _resolve(HOME_POOL)
+    try:
+        node = core.get_node(con, home_id)
+    except core.PBError:
+        node = None
+    if node:
+        rnd = core.current_round(con, node["id"])
+        b = _budget(node, rnd)
+        kids = core.children(con, node["id"])
+        body = (f"<p class=lead>{esc(APPLY_INTRO)}</p>"
+                f"<div class=card><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
+                f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}"
+                f"<p class=muted>{len(kids)} business{'es' if len(kids) != 1 else ''} in · one vote each · the fund pays vendors directly · every rupee is on this page.</p>"
+                f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form></div>")
+        body += _board_body(node, with_pot=False)
+        body += "<h2>Notes</h2>" + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items())
+        html = page(node["name"], body).body.decode()
+        return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=60><title>", 1))
     pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
     body = ("<p>A treasury a community runs together. Say what you need, spread 100 points across the proposals, approve the "
             "plan, and watch every rupee on a public board. Nothing moves without the group's approval.</p>")
