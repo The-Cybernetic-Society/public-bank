@@ -120,6 +120,16 @@ KEEP_PATHS = ("/health", "/tg/", "/wa")
 
 
 async def app(scope, receive, send):
+    if scope["type"] == "http" and scope.get("method") == "HEAD":
+        # link-preview crawlers (WhatsApp, Telegram, Slack) ask HEAD before GET; FastAPI's GET routes would answer 405
+        # and the preview would never load. Answer HEAD as GET without the body.
+        scope = dict(scope, method="GET")
+
+        async def send_headers_only(message):
+            if message["type"] == "http.response.body":
+                message = {"type": "http.response.body", "body": b"", "more_body": message.get("more_body", False)}
+            await send(message)
+        send = send_headers_only
     if scope["type"] == "http" and OLD_HOSTS and not scope["path"].startswith(KEEP_PATHS):
         host = next((v.decode().split(":")[0].lower() for k, v in scope.get("headers", []) if k == b"host"), "")
         if host in OLD_HOSTS:

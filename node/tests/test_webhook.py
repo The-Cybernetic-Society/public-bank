@@ -47,6 +47,9 @@ with TestClient(main.app) as c:
     r = c.post(f"/tg/{main.HOOK_SECRET}", json=update, headers={"X-Telegram-Bot-Api-Secret-Token": main.HOOK_SECRET})
     assert r.status_code == 200, r.text
     assert c.get("/health").json() == {"ok": True}
+    # HEAD answers like GET without a body, so link-preview crawlers get past their first request
+    r = c.head("/health"); assert r.status_code == 200 and r.content == b"", (r.status_code, r.content)
+    r = c.head("/og.png"); assert r.status_code == 200 and r.headers["content-type"] == "image/png" and r.content == b""
     # an old hostname forwards to the base URL, path and query kept; webhooks and health answer wherever they arrive
     main.OLD_HOSTS.add("old.example")
     r = c.get("/apply/goa?for=p_1", headers={"host": "old.example"}, follow_redirects=False)
