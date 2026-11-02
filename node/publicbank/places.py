@@ -202,7 +202,7 @@ def judge(key: str, p: dict) -> tuple[str, str]:
         return "maybe", "meant for remote or unserved hamlets: a wada-level fact the figures do not show"
     if key == "bpl":
         if p["mgnrega_job_cards"]: return "ok", f"{_n(p['mgnrega_job_cards'])} MGNREGA job-card households, a proxy for the BPL and SECC lists"
-        if p["households"]: return "maybe", f"{_n(p['households'])} households, but no BPL or SECC count for this place"
+        if p["households"]: return "ok", f"{_n(p['households'])} households; the BPL and ration lists are not published per place, and every local body in Goa has some"
         return "unknown", "no household figures here"
     if key == "weaker_panchayat":
         if p["weaker_panchayat"] is True: return "ok", "on the government's list of economically weaker panchayats"
@@ -313,12 +313,104 @@ def section(s: dict) -> str:
     return "people"
 
 
+# ----------------------------------------------------------------------------
+# building the divisions file from the published sources in data/sources/
+# ----------------------------------------------------------------------------
+SOURCES = os.path.join(S.DATA_DIR, "sources")
+PCA = os.path.join(SOURCES, "goa_pca_villages.csv")              # Census 2011 PCA, village and town rows, Goa
+VILLAGE_MAP = os.path.join(SOURCES, "goa_village_to_panchayat.csv")   # LGD: census village code → local body
+CENSUS_FIELDS = {"households": "households", "population": "pop_total", "male": "pop_male", "female": "pop_female", "sc": "pop_sc", "st": "pop_st",
+                 "literates": "literates", "workers": "total_workers", "cultivators": "cultivators_total", "agri_labourers": "agri_labourers_total",
+                 "hh_industry": "hh_industry_total", "other_workers": "other_workers_total", "non_workers": "non_workers"}
+TALUKA = {"Satari": "Sattari"}   # the census spelling → the one on the panchayat's own letterhead
+
+
+def title(s: str) -> str:
+    """'KERI TERECOL' → 'Keri Terecol'; keeps 'de', 'do', 'e' small inside Portuguese-era names."""
+    small = {"de", "do", "da", "e", "dos", "das"}
+    out = []
+    for w in re.split(r"(\s+|-)", s.strip()):
+        if w.strip() in ("", "-"): out.append(w); continue
+        out.append(w.lower() if w.lower() in small and out else w.capitalize())
+    return "".join(out)
+
+
+def build_divisions(pca_path: str = PCA, map_path: str = VILLAGE_MAP) -> dict:
+    """Village panchayats and towns with Census 2011 figures. A census village that LGD places in two local bodies
+    is split half and half between them (six cases in Goa, all on the edge of a census town). Flags and programme
+    figures start empty; `merge_*` steps add them from other sources."""
+    import csv
+    pca = {r["village_town_code"]: r for r in csv.DictReader(open(pca_path, encoding="utf-8"))}
+    links = list(csv.DictReader(open(map_path, encoding="utf-8")))
+    per_code = Counter(r["census_village_code"] for r in links)
+    bodies: dict[str, dict] = {}
+    for r in links:
+        if r["local_body_type"] != "Village Panchayat":
+            continue   # a village inside a municipality counts in the town's own census row
+        code, b = r["census_village_code"], r["local_body_code"]
+        if code not in pca:
+            continue
+        d = bodies.setdefault(b, {"id": None, "kind": "village_panchayat", "name": title(r["local_body_name"]), "lgd_code": int(b),
+                                  "taluka": TALUKA.get(r["lgd_subdistrict_name"], r["lgd_subdistrict_name"]), "district": pca[code]["district_name"],
+                                  "villages": [], "census": {"year": 2011, **{k: 0 for k in CENSUS_FIELDS}, "confidence": "mapped"},
+                                  "flags": {"coastal": None, "estuarine": None}, "programmes": {}, "sources": []})
+        share = 1 / per_code[code]
+        d["villages"].append({"code": int(code), "name": pca[code]["name"].strip(), "share": share})
+        for k, col in CENSUS_FIELDS.items():
+            d["census"][k] += int(pca[code][col]) * share
+    out = []
+    for d in bodies.values():
+        for k in CENSUS_FIELDS:
+            d["census"][k] = int(round(d["census"][k]))
+        d["sources"] = ["Local Government Directory (village to local body, 2023 snapshot)"]
+        out.append(d)
+    # the fourteen statutory towns are their own census rows, plus any village LGD now places inside one
+    towns = {}
+    for code, r in pca.items():
+        if r["level"] == "TOWN" and ("(M Cl)" in r["name"] or "(M Corp" in r["name"]):
+            name = re.sub(r"\s*\(.*$", "", r["name"]).strip()
+            towns[slug(name)] = {"id": None, "kind": "municipal_corporation" if "Corp" in r["name"] else "municipal_council", "name": name, "lgd_code": None,
+                                 "taluka": TALUKA.get(r["subdistrict_name"], r["subdistrict_name"]), "district": r["district_name"],
+                                 "villages": [{"code": int(code), "name": r["name"].strip(), "share": 1}],
+                                 "census": {"year": 2011, **{k: int(r[col]) for k, col in CENSUS_FIELDS.items()}, "confidence": "mapped"},
+                                 "flags": {"coastal": None, "estuarine": None}, "programmes": {}, "sources": []}
+    for r in links:
+        if r["local_body_type"].startswith("Municipal") and r["census_village_code"] in pca and r["level"] == "VILLAGE":
+            t = next((t for k, t in towns.items() if k in slug(r["local_body_name"]) or slug(r["local_body_name"]) in k), None)
+            if t:
+                share = 1 / per_code[r["census_village_code"]]
+                t["villages"].append({"code": int(r["census_village_code"]), "name": pca[r["census_village_code"]]["name"].strip(), "share": share})
+                for k, col in CENSUS_FIELDS.items():
+                    t["census"][k] += int(round(int(pca[r["census_village_code"]][col]) * share))
+    out.extend(towns.values())
+    # ids: the name, with the taluka when two bodies share one (Navelim, Querim, Sanvordem)
+    names = Counter(slug(d["name"]) for d in out)
+    for d in out:
+        d["id"] = slug(d["name"]) if names[slug(d["name"])] == 1 else slug(f"{d['name']}-{d['taluka']}")
+    out.sort(key=lambda d: (d["district"], d["taluka"], d["name"]))
+    return {"compiled": "2026-11-02", "divisions": out,
+            "sources": ["Census of India 2011, Primary Census Abstract, village and town level, Goa (censusindia.gov.in NADA catalogue 6776, 6777)",
+                        "Local Government Directory, village to local body mapping for Goa (lgdirectory.gov.in, via the India Data Portal snapshot of 2023-10-20)"]}
+
+
+def save(data: dict) -> None:
+    with open(DIVISIONS, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+    load.cache_clear(); summary_of.cache_clear()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--build", action="store_true", help="rebuild data/goa_divisions.json from data/sources/")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--kind")
     ap.add_argument("--twin")
     a = ap.parse_args()
+    if a.build:
+        data = build_divisions()
+        save(data)
+        kinds = Counter(d["kind"] for d in data["divisions"])
+        print(f"wrote {DIVISIONS}: {dict(kinds)}; population {sum(d['census']['population'] for d in data['divisions']):,}")
     if a.list:
         for d in divisions(a.kind):
             p = profile(d)

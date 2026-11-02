@@ -61,10 +61,13 @@ assert status(mandrem, nrega) == "eligible" and P.verdict(mandrem, nrega)["drawi
 assert status(mandrem, fish) == "eligible" and status(netravali, fish) == "unlikely" and status(mapusa, fish) == "plausible"
 # a Scheduled Tribe housing scheme is for people, wherever they live, where the census counts them
 assert status(netravali, asra) == "eligible" and status(mandrem, asra) == "eligible" and status(mapusa, asra) == "eligible"
-# a group scheme: eligible where groups are registered, plausible with a step where none are
-v = P.verdict(mandrem, nrlm)
-assert v["status"] == "plausible" and v["steps"] and "group" in v["steps"][0]
-assert status(netravali, nrlm) == "eligible" and P.verdict(netravali, nrlm)["drawing"] is True
+# a scheme open to households as well as groups is judged on the households; SHG data marks it as running
+assert status(mandrem, nrlm) == "eligible" and status(netravali, nrlm) == "eligible" and P.verdict(netravali, nrlm)["drawing"] is True
+# a scheme only a society can apply for: plausible with the step where none is recorded, unlikely inland
+soc = find("registered-fishermen-societies")
+v = P.verdict(mandrem, soc)
+assert v["status"] == "plausible" and v["steps"] and "cooperative" in v["steps"][0], v
+assert status(netravali, soc) == "unlikely"
 # an individual fisher relief scheme is not made plausible by the societies it mentions
 relief = find("saving-cum-relief")
 assert status(mandrem, relief) == "eligible", P.verdict(mandrem, relief)

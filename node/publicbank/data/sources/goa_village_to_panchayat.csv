@@ -1,0 +1,411 @@
+census_village_code,census_name,level,tru,district_name,subdistrict_name,pop_total,match_method,lgd_village_code,lgd_village_name,local_body_name,local_body_type,local_body_code,block_name,block_code,lgd_subdistrict_name,lgd_subdistrict_code
+626635,Tiracol,VILLAGE,Rural,North Goa,Pernem,205,code,626635,Tiracol,KERI TERECOL,Village Panchayat,254426,PERNEM,5931,Pernem,5609
+626636,Querim,VILLAGE,Rural,North Goa,Pernem,3038,code,626636,Querim,KERI TERECOL,Village Panchayat,254426,PERNEM,5931,Pernem,5609
+626637,Paliem,VILLAGE,Rural,North Goa,Pernem,2776,code,626637,Paliem,PALIEM,Village Panchayat,254465,PERNEM,5931,Pernem,5609
+626638,Corgao,VILLAGE,Rural,North Goa,Pernem,6639,code,626638,Corgao,CORGAO,Village Panchayat,254397,PERNEM,5931,Pernem,5609
+626639,Pernem,VILLAGE,Rural,North Goa,Pernem,2701,code,626639,Pernem,Pernem,Municipality,252057,,,Pernem,5609
+626640,Poroscodem,VILLAGE,Rural,North Goa,Pernem,675,code,626640,Poroscodem,"CASNEM, AMBEREM,POROSCODEM",Village Panchayat,254383,PERNEM,5931,Pernem,5609
+626641,Casnem,VILLAGE,Rural,North Goa,Pernem,319,code,626641,Casnem,"CASNEM, AMBEREM,POROSCODEM",Village Panchayat,254383,PERNEM,5931,Pernem,5609
+626642,Varconda,VILLAGE,Rural,North Goa,Pernem,2208,code,626642,Varconda,VARKHAND NAGZAR,Village Panchayat,254524,PERNEM,5931,Pernem,5609
+626643,Amberem,VILLAGE,Rural,North Goa,Pernem,341,code,626643,Amberem,"CASNEM, AMBEREM,POROSCODEM",Village Panchayat,254383,PERNEM,5931,Pernem,5609
+626644,Uguem,VILLAGE,Rural,North Goa,Pernem,1133,code,626644,Uguem,"TAMBOXEM, MOPA, UGUEM",Village Panchayat,254514,PERNEM,5931,Pernem,5609
+626645,Tamboxem,VILLAGE,Rural,North Goa,Pernem,591,code,626645,Tamboxem,"TAMBOXEM, MOPA, UGUEM",Village Panchayat,254514,PERNEM,5931,Pernem,5609
+626646,Torxem,VILLAGE,Rural,North Goa,Pernem,2405,code,626646,Torxem,TORXEM,Village Panchayat,254518,PERNEM,5931,Pernem,5609
+626647,Mopa,VILLAGE,Rural,North Goa,Pernem,1082,code,626647,Mopa,"TAMBOXEM, MOPA, UGUEM",Village Panchayat,254514,PERNEM,5931,Pernem,5609
+626648,Chandel,VILLAGE,Rural,North Goa,Pernem,1152,code,626648,Chandel,CHANDEL HASAPUR,Village Panchayat,254386,PERNEM,5931,Pernem,5609
+626649,Alorna,VILLAGE,Rural,North Goa,Pernem,2651,code,626649,Alorna,ALORNA,Village Panchayat,254350,PERNEM,5931,Pernem,5609
+626650,Ibrampur,VILLAGE,Rural,North Goa,Pernem,2429,code,626650,Ibrampur,IBRAMPUR,Village Panchayat,254422,PERNEM,5931,Pernem,5609
+626651,Cansarvornem,VILLAGE,Rural,North Goa,Pernem,1382,code,626651,Cansarvornem,KASARVANEM,Village Panchayat,254425,PERNEM,5931,Pernem,5609
+626652,Ozorim,VILLAGE,Rural,North Goa,Pernem,1669,code,626652,Ozorim,OZARIM,Village Panchayat,254463,PERNEM,5931,Pernem,5609
+626653,Dargalim,VILLAGE,Rural,North Goa,Pernem,5696,code,626653,Dargalim,DHARGAL,Village Panchayat,254411,PERNEM,5931,Pernem,5609
+626654,Virnora,VILLAGE,Rural,North Goa,Pernem,1386,code,626654,Virnora,VIRNODA,Village Panchayat,254533,PERNEM,5931,Pernem,5609
+626655,Tuem,VILLAGE,Rural,North Goa,Pernem,2751,code,626655,Tuem,TUEM,Village Panchayat,254519,PERNEM,5931,Pernem,5609
+626656,Chopdem,VILLAGE,Rural,North Goa,Pernem,974,code,626656,Chopdem,AGARWADA CHOPDEM,Village Panchayat,254347,PERNEM,5931,Pernem,5609
+626657,Agarvado,VILLAGE,Rural,North Goa,Pernem,1478,code,626657,Agarvado,AGARWADA CHOPDEM,Village Panchayat,254347,PERNEM,5931,Pernem,5609
+803241,Pernem (M Cl),TOWN,Urban,North Goa,Pernem,5021,none,,,,,,,,,
+626658,Arambol (CT),TOWN,Urban,North Goa,Pernem,5322,code,626658,Arambol (ct),ARAMBOL,Village Panchayat,254356,PERNEM,5931,Pernem,5609
+626659,Mandrem (CT),TOWN,Urban,North Goa,Pernem,8336,code,626659,Mandrem (ct),MANDREM,Village Panchayat,254435,PERNEM,5931,Pernem,5609
+626660,Parcem (CT),TOWN,Urban,North Goa,Pernem,4627,code,626660,Parcem (ct),PARCEM,Village Panchayat,254467,PERNEM,5931,Pernem,5609
+626661,Morjim (CT),TOWN,Urban,North Goa,Pernem,6760,code,626661,Morgim,MORJIM,Village Panchayat,254445,PERNEM,5931,Pernem,5609
+626662,Oxel,VILLAGE,Rural,North Goa,Bardez,2794,code,626662,Oxel,OXEL,Village Panchayat,254462,BARDEZ,5929,Bardez,5610
+626663,Camurlim,VILLAGE,Rural,North Goa,Bardez,3015,code,626663,Camurlim,CAMURLI,Village Panchayat,254378,BARDEZ,5929,Bardez,5610
+626664,Revora,VILLAGE,Rural,North Goa,Bardez,2630,code,626664,Revora,REVORA,Village Panchayat,254482,BARDEZ,5929,Bardez,5610
+626665,Nadora,VILLAGE,Rural,North Goa,Bardez,1257,code,626665,Nadora,NADORA,Village Panchayat,254450,BARDEZ,5929,Bardez,5610
+626666,Pirna,VILLAGE,Rural,North Goa,Bardez,2568,code,626666,Pirna,PIRNA,Village Panchayat,254473,BARDEZ,5929,Bardez,5610
+626667,Moitem,VILLAGE,Rural,North Goa,Bardez,860,code,626667,Moitem,ASSANORA,Village Panchayat,254359,BARDEZ,5929,Bardez,5610
+626668,Assonora,VILLAGE,Rural,North Goa,Bardez,3870,code,626668,Assonora,ASSANORA,Village Panchayat,254359,BARDEZ,5929,Bardez,5610
+626669,Sircaim,VILLAGE,Rural,North Goa,Bardez,2850,code,626669,Sircaim,SIRSAIM,Village Panchayat,254504,BARDEZ,5929,Bardez,5610
+626670,Tivim,VILLAGE,Rural,North Goa,Bardez,9076,code,626670,Tivim,THIVIM,Village Panchayat,254516,BARDEZ,5929,Bardez,5610
+626671,Marna,VILLAGE,Rural,North Goa,Bardez,1234,code,626671,Marna,SIOLIM MARNA,Village Panchayat,254500,BARDEZ,5929,Bardez,5610
+626672,Assagao,VILLAGE,Rural,North Goa,Bardez,4367,code,626672,Assagao,ASSAGAO,Village Panchayat,254358,BARDEZ,5929,Bardez,5610
+626673,Arpora,VILLAGE,Rural,North Goa,Bardez,3255,code,626673,Arpora,ARPORA-NAGOA,Village Panchayat,254357,BARDEZ,5929,Bardez,5610
+626674,Nagoa,VILLAGE,Rural,North Goa,Bardez,1455,code,626674,Nagoa,ARPORA-NAGOA,Village Panchayat,254357,BARDEZ,5929,Bardez,5610
+626675,Parra,VILLAGE,Rural,North Goa,Bardez,4449,code,626675,Parra,PARRA,Village Panchayat,254469,BARDEZ,5929,Bardez,5610
+626676,Verla,VILLAGE,Rural,North Goa,Bardez,3685,code,626676,Verla,VERLA CANCA,Village Panchayat,254531,BARDEZ,5929,Bardez,5610
+626677,Canca,VILLAGE,Rural,North Goa,Bardez,3551,code,626677,Canca,VERLA CANCA,Village Panchayat,254531,BARDEZ,5929,Bardez,5610
+626678,Bastora,VILLAGE,Rural,North Goa,Bardez,3943,code,626678,Bastora,BASTORA,Village Panchayat,254367,BARDEZ,5929,Bardez,5610
+626679,Paliem,VILLAGE,Rural,North Goa,Bardez,1377,code,626679,Paliem,UCASSAIM-PALIEM-PUNOLA,Village Panchayat,254520,BARDEZ,5929,Bardez,5610
+626680,Punola,VILLAGE,Rural,North Goa,Bardez,864,code,626680,Punola,UCASSAIM-PALIEM-PUNOLA,Village Panchayat,254520,BARDEZ,5929,Bardez,5610
+626681,Ucassaim,VILLAGE,Rural,North Goa,Bardez,1077,code,626681,Ucassaim,UCASSAIM-PALIEM-PUNOLA,Village Panchayat,254520,BARDEZ,5929,Bardez,5610
+626682,Nachinola,VILLAGE,Rural,North Goa,Bardez,2725,code,626682,Nachinola,NACHINOLA,Village Panchayat,254449,BARDEZ,5929,Bardez,5610
+626683,Corjuem,VILLAGE,Rural,North Goa,Bardez,2725,code,626683,Corjuem,ALDONA,Village Panchayat,254349,BARDEZ,5929,Bardez,5610
+626684,Ponolem,VILLAGE,Rural,North Goa,Bardez,120,code,626684,Ponolem,ALDONA,Village Panchayat,254349,BARDEZ,5929,Bardez,5610
+626685,Calvim,VILLAGE,Rural,North Goa,Bardez,403,code,626685,Calvim,ALDONA,Village Panchayat,254349,BARDEZ,5929,Bardez,5610
+626686,Olaulim,VILLAGE,Rural,North Goa,Bardez,659,code,626686,Olaulim,"POMBURPA, OLAULIM",Village Panchayat,254476,BARDEZ,5929,Bardez,5610
+626687,Pomburpa,VILLAGE,Rural,North Goa,Bardez,3095,code,626687,Pomburpa,"POMBURPA, OLAULIM",Village Panchayat,254476,BARDEZ,5929,Bardez,5610
+626688,Sangolda,VILLAGE,Rural,North Goa,Bardez,4429,code,626688,Sangolda,SANGOLDA,Village Panchayat,254490,BARDEZ,5929,Bardez,5610
+626689,Marra,VILLAGE,Rural,North Goa,Bardez,1988,code,626689,Marra,CANDOLIM,Village Panchayat,254380,BARDEZ,5929,Bardez,5610
+626689,Marra,VILLAGE,Rural,North Goa,Bardez,1988,code,626689,Marra,PILERNE - MARRA,Village Panchayat,254471,BARDEZ,5929,Bardez,5610
+803242,Mapusa (M Cl),TOWN,Urban,North Goa,Bardez,39989,none,,,,,,,,,
+626690,Siolim (CT),TOWN,Urban,North Goa,Bardez,10936,code,626690,Siolim (ct),SIOLIM-SODIEM,Village Panchayat,254501,BARDEZ,5929,Bardez,5610
+626690,Siolim (CT),TOWN,Urban,North Goa,Bardez,10936,code,626690,Siolim (ct),SIOLIM MARNA,Village Panchayat,254500,BARDEZ,5929,Bardez,5610
+626691,Colvale (CT),TOWN,Urban,North Goa,Bardez,4818,code,626691,Colvale (ct),COLVALE,Village Panchayat,254396,BARDEZ,5929,Bardez,5610
+626692,Moira (CT),TOWN,Urban,North Goa,Bardez,4299,code,626692,Moira (ct),MOIRA,Village Panchayat,254442,BARDEZ,5929,Bardez,5610
+626693,Guirim (CT),TOWN,Urban,North Goa,Bardez,5036,code,626693,Guirim (ct),GUIRIM,Village Panchayat,254419,BARDEZ,5929,Bardez,5610
+626694,Anjuna (CT),TOWN,Urban,North Goa,Bardez,9636,code,626694,Anjuna (ct),ANJUNA-CAISUA,Village Panchayat,254354,BARDEZ,5929,Bardez,5610
+626695,Calangute (CT),TOWN,Urban,North Goa,Bardez,13810,code,626695,Calangute (ct),CANDOLIM,Village Panchayat,254380,BARDEZ,5929,Bardez,5610
+626695,Calangute (CT),TOWN,Urban,North Goa,Bardez,13810,code,626695,Calangute (ct),CALANGUTE,Village Panchayat,254377,BARDEZ,5929,Bardez,5610
+626696,Saligao (CT),TOWN,Urban,North Goa,Bardez,6280,code,626696,Saligao (ct),SALIGAO,Village Panchayat,254486,BARDEZ,5929,Bardez,5610
+626697,Candolim (CT),TOWN,Urban,North Goa,Bardez,8500,code,626697,Candolim (ct),CANDOLIM,Village Panchayat,254380,BARDEZ,5929,Bardez,5610
+626698,Nerul (CT),TOWN,Urban,North Goa,Bardez,5042,code,626698,Nerul (ct),NERUL,Village Panchayat,254457,BARDEZ,5929,Bardez,5610
+626699,Reis Magos (CT),TOWN,Urban,North Goa,Bardez,8053,code,626699,Reis Magos (ct),REIS-MAGOS,Village Panchayat,254529,BARDEZ,5929,Bardez,5610
+626700,Pilerne (CT),TOWN,Urban,North Goa,Bardez,5827,code,626700,Pilerne (ct),PILERNE - MARRA,Village Panchayat,254471,BARDEZ,5929,Bardez,5610
+626701,Penha-de-Franca (CT),TOWN,Urban,North Goa,Bardez,15342,code,626701,Penha-de-franca (ct),PENHA-DE-FRANCE,Village Panchayat,254470,BARDEZ,5929,Bardez,5610
+626702,Salvador do Mundo (CT),TOWN,Urban,North Goa,Bardez,6373,code,626702,Salvador-do-mundo (ct),"POMBURPA, OLAULIM",Village Panchayat,254476,BARDEZ,5929,Bardez,5610
+626702,Salvador do Mundo (CT),TOWN,Urban,North Goa,Bardez,6373,code,626702,Salvador-do-mundo (ct),SALVADOR-DO-MUNDO,Village Panchayat,254487,BARDEZ,5929,Bardez,5610
+626703,Socorro (CT),TOWN,Urban,North Goa,Bardez,12908,code,626703,Socorro (ct),SOCORRO,Village Panchayat,254506,BARDEZ,5929,Bardez,5610
+626704,Aldona (CT),TOWN,Urban,North Goa,Bardez,6270,code,626704,Aldona (ct),ALDONA,Village Panchayat,254349,BARDEZ,5929,Bardez,5610
+626705,Ambarim,VILLAGE,Rural,North Goa,Tiswadi,93,code,626705,Ambarim,CHODAN-MADEL,Village Panchayat,254392,TISWADI,5934,Tiswadi,5611
+626706,Chorao,VILLAGE,Rural,North Goa,Tiswadi,5268,code,626706,Chorao,CHODAN-MADEL,Village Panchayat,254392,TISWADI,5934,Tiswadi,5611
+626707,Caraim,VILLAGE,Rural,North Goa,Tiswadi,202,code,626707,Caraim,CHODAN-MADEL,Village Panchayat,254392,TISWADI,5934,Tiswadi,5611
+626708,Capao,VILLAGE,Rural,North Goa,Tiswadi,135,code,626708,Capao,SAO MATIAS,Village Panchayat,254494,TISWADI,5934,Tiswadi,5611
+626709,Navelim,VILLAGE,Rural,North Goa,Tiswadi,1133,code,626709,Navelim,GOLTIM-NAVELIM,Village Panchayat,254417,TISWADI,5934,Tiswadi,5611
+626710,Goltim,VILLAGE,Rural,North Goa,Tiswadi,1634,code,626710,Goltim,GOLTIM-NAVELIM,Village Panchayat,254417,TISWADI,5934,Tiswadi,5611
+626711,Malar,VILLAGE,Rural,North Goa,Tiswadi,1630,code,626711,Malar,SAO MATIAS,Village Panchayat,254494,TISWADI,5934,Tiswadi,5611
+626712,Naroa,VILLAGE,Rural,North Goa,Tiswadi,487,code,626712,Naroa,SAO MATIAS,Village Panchayat,254494,TISWADI,5934,Tiswadi,5611
+626713,Gandaulim,VILLAGE,Rural,North Goa,Tiswadi,301,code,626713,Gandaulim,CUMBHARJUA,Village Panchayat,254404,TISWADI,5934,Tiswadi,5611
+626714,Ella,VILLAGE,Rural,North Goa,Tiswadi,5372,code,626714,Ella,SE-OLD-GOA,Village Panchayat,254496,TISWADI,5934,Tiswadi,5611
+626715,Bainguinim,VILLAGE,Rural,North Goa,Tiswadi,1501,code,626715,Bainguinim,SE-OLD-GOA,Village Panchayat,254496,TISWADI,5934,Tiswadi,5611
+626716,Talaulim,VILLAGE,Rural,North Goa,Tiswadi,972,code,626716,Talaulim,"CURCA, BAMBOLIM, TALAULIM",Village Panchayat,254405,TISWADI,5934,Tiswadi,5611
+626717,Goalim Moula,VILLAGE,Rural,North Goa,Tiswadi,441,code,626717,Goalim-moula,"CURCA, BAMBOLIM, TALAULIM",Village Panchayat,254405,TISWADI,5934,Tiswadi,5611
+626718,Carambolim,VILLAGE,Rural,North Goa,Tiswadi,5179,code,626718,Carambolim,CARAMBOLIM,Village Panchayat,254381,TISWADI,5934,Tiswadi,5611
+626719,Azossim,VILLAGE,Rural,North Goa,Tiswadi,1142,code,626719,Azossim,AZOSSIM-MANDUR,Village Panchayat,254363,TISWADI,5934,Tiswadi,5611
+626720,Mandur,VILLAGE,Rural,North Goa,Tiswadi,3113,code,626720,Mandur,AZOSSIM-MANDUR,Village Panchayat,254363,TISWADI,5934,Tiswadi,5611
+626721,Gancim,VILLAGE,Rural,North Goa,Tiswadi,519,code,626721,Gancim,BATIM,Village Panchayat,254368,TISWADI,5934,Tiswadi,5611
+626722,Batim,VILLAGE,Rural,North Goa,Tiswadi,1489,code,626722,Batim,BATIM,Village Panchayat,254368,TISWADI,5934,Tiswadi,5611
+626723,Curca,VILLAGE,Rural,North Goa,Tiswadi,2518,code,626723,Curca,"CURCA, BAMBOLIM, TALAULIM",Village Panchayat,254405,TISWADI,5934,Tiswadi,5611
+626724,Siridao,VILLAGE,Rural,North Goa,Tiswadi,2417,code,626724,Siridao,SIRIDAO-PALE,Village Panchayat,254502,TISWADI,5934,Tiswadi,5611
+626725,Neura-O-Pequeno,VILLAGE,Rural,North Goa,Tiswadi,563,code,626725,Neura-o-pequeno,NEURA,Village Panchayat,254459,TISWADI,5934,Tiswadi,5611
+626726,Neura-O-Grande,VILLAGE,Rural,North Goa,Tiswadi,1440,code,626726,Neura-o-grande,NEURA,Village Panchayat,254459,TISWADI,5934,Tiswadi,5611
+803243,Panaji (M Corp. + OG),TOWN,Urban,North Goa,Tiswadi,70991,none,,,,,,,,,
+626727,Jua (CT),TOWN,Urban,North Goa,Tiswadi,4134,code,626727,Jua (ct),ST. ESTEVAM,Village Panchayat,254509,TISWADI,5934,Tiswadi,5611
+626728,Cumbarjua (CT),TOWN,Urban,North Goa,Tiswadi,4917,code,626728,Cumbarjua (ct),CUMBHARJUA,Village Panchayat,254404,TISWADI,5934,Tiswadi,5611
+626729,Corlim (CT),TOWN,Urban,North Goa,Tiswadi,6568,code,626729,Corlim (ct),CORLIM,Village Panchayat,254398,TISWADI,5934,Tiswadi,5611
+626730,Chimbel (CT),TOWN,Urban,North Goa,Tiswadi,15289,code,626730,Chimbel (ct),CHIMBEL,Village Panchayat,254390,TISWADI,5934,Tiswadi,5611
+626731,Murda (CT),TOWN,Urban,North Goa,Tiswadi,7517,code,626731,Murda (ct),MERCES,Village Panchayat,254441,TISWADI,5934,Tiswadi,5611
+626732,Calapor (CT),TOWN,Urban,North Goa,Tiswadi,14077,code,626732,Calapor (ct),ST. CRUZ,Village Panchayat,254508,TISWADI,5934,Tiswadi,5611
+626733,Bambolim (CT),TOWN,Urban,North Goa,Tiswadi,6885,code,626733,Bambolim (ct),"CURCA, BAMBOLIM, TALAULIM",Village Panchayat,254405,TISWADI,5934,Tiswadi,5611
+626734,Goa Velha (CT),TOWN,Urban,North Goa,Tiswadi,4322,code,626734,Goa-velha,ST. ANDRE,Village Panchayat,254507,TISWADI,5934,Tiswadi,5611
+626735,Mercurim (CT),TOWN,Urban,North Goa,Tiswadi,4970,code,626735,Mercurim (ct),SAO LOURENCE(AGASSAIM),Village Panchayat,254493,TISWADI,5934,Tiswadi,5611
+626741,Mencurem,VILLAGE,Rural,North Goa,Bicholim,1381,code,626741,Mencurem,MENCUREM DUMACEM,Village Panchayat,254440,BICHOLIM,5930,Bicholim,5612
+626742,Dumacem,VILLAGE,Rural,North Goa,Bicholim,296,code,626742,Dumacem,MENCUREM DUMACEM,Village Panchayat,254440,BICHOLIM,5930,Bicholim,5612
+626743,Salem,VILLAGE,Rural,North Goa,Bicholim,3427,code,626743,Salem,SALEM,Village Panchayat,254485,BICHOLIM,5930,Bicholim,5612
+626744,Latambarcem,VILLAGE,Rural,North Goa,Bicholim,6722,code,626744,Latambarcem,LATAMBARCEM,Village Panchayat,254430,BICHOLIM,5930,Bicholim,5612
+626745,Adwalpale,VILLAGE,Rural,North Goa,Bicholim,1412,code,626745,Adwalpale,ADVALPAL,Village Panchayat,254346,BICHOLIM,5930,Bicholim,5612
+626746,Sirigao,VILLAGE,Rural,North Goa,Bicholim,1617,code,626746,Sirigao,SIRIGAO,Village Panchayat,254503,BICHOLIM,5930,Bicholim,5612
+626747,Mulgao,VILLAGE,Rural,North Goa,Bicholim,3892,code,626747,Mulgao,MULGAO,Village Panchayat,254448,BICHOLIM,5930,Bicholim,5612
+626748,Ona,VILLAGE,Rural,North Goa,Bicholim,685,code,626748,Ona,ONA MAULINGUEM CURCHIREM,Village Panchayat,254437,BICHOLIM,5930,Bicholim,5612
+626749,Maulinguem North,VILLAGE,Rural,North Goa,Bicholim,1457,code,626749,Maulinguem North,ONA MAULINGUEM CURCHIREM,Village Panchayat,254437,BICHOLIM,5930,Bicholim,5612
+626750,Curchirem,VILLAGE,Rural,North Goa,Bicholim,2043,code,626750,Curchirem,ONA MAULINGUEM CURCHIREM,Village Panchayat,254437,BICHOLIM,5930,Bicholim,5612
+626751,Sarvona,VILLAGE,Rural,North Goa,Bicholim,3586,code,626751,Sarvona,KARAPUR-SARVAN,Village Panchayat,254424,BICHOLIM,5930,Bicholim,5612
+626752,Maem,VILLAGE,Rural,North Goa,Bicholim,7544,code,626752,Maem,MAYEM,Village Panchayat,254439,BICHOLIM,5930,Bicholim,5612
+626753,Vainguinim,VILLAGE,Rural,North Goa,Bicholim,706,code,626753,Vainguinim,MAYEM,Village Panchayat,254439,BICHOLIM,5930,Bicholim,5612
+626754,Aturli,VILLAGE,Rural,North Goa,Bicholim,467,code,626754,Aturli,MAYEM,Village Panchayat,254439,BICHOLIM,5930,Bicholim,5612
+626755,Naroa,VILLAGE,Rural,North Goa,Bicholim,1897,code,626755,Naroa,NAROA,Village Panchayat,254454,BICHOLIM,5930,Bicholim,5612
+626756,Piligao,VILLAGE,Rural,North Goa,Bicholim,2643,code,626756,Piligao,PILIGAO,Village Panchayat,254472,BICHOLIM,5930,Bicholim,5612
+626757,Cudnem,VILLAGE,Rural,North Goa,Bicholim,3308,code,626757,Cudnem,CUDNEM,Village Panchayat,254402,BICHOLIM,5930,Bicholim,5612
+626758,Amone,VILLAGE,Rural,North Goa,Bicholim,2963,code,626758,Amone,AMONA,Village Panchayat,254353,BICHOLIM,5930,Bicholim,5612
+626759,Navelim,VILLAGE,Rural,North Goa,Bicholim,2703,code,626759,Navelim,NAVELIM,Village Panchayat,254456,BICHOLIM,5930,Bicholim,5612
+626760,Cotombi,VILLAGE,Rural,North Goa,Bicholim,591,code,626760,Cotombi,"PALE, COTOMBI",Village Panchayat,254464,BICHOLIM,5930,Bicholim,5612
+626761,Surla,VILLAGE,Rural,North Goa,Bicholim,3818,code,626761,Surla,SURLA,Village Panchayat,254511,BICHOLIM,5930,Bicholim,5612
+626762,Velguem,VILLAGE,Rural,North Goa,Bicholim,2617,code,626762,Velguem,VELGUEM,Village Panchayat,254525,BICHOLIM,5930,Bicholim,5612
+803244,Bicholim (M Cl),TOWN,Urban,North Goa,Bicholim,16986,none,,,,,,,,,
+803245,Sanquelim (M Cl),TOWN,Urban,North Goa,Bicholim,13651,none,,,,,,,,,
+626763,Carapur (CT),TOWN,Urban,North Goa,Bicholim,5500,code,626763,Carapur (ct),KARAPUR-SARVAN,Village Panchayat,254424,BICHOLIM,5930,Bicholim,5612
+626764,Pale (CT),TOWN,Urban,North Goa,Bicholim,6043,code,626764,Pale (ct),"PALE, COTOMBI",Village Panchayat,254464,BICHOLIM,5930,Bicholim,5612
+626765,Podocem,VILLAGE,Rural,North Goa,Satari,966,code,626765,Podocem,PORIEM,Village Panchayat,254477,SATARI,5933,Satari,5613
+626766,Poriem,VILLAGE,Rural,North Goa,Satari,4190,code,626766,Poriem,PORIEM,Village Panchayat,254477,SATARI,5933,Satari,5613
+626767,Ravona,VILLAGE,Rural,North Goa,Satari,1165,code,626767,Ravona,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626768,Gonteli,VILLAGE,Rural,North Goa,Satari,1634,code,626768,Gonteli,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626769,Siroli,VILLAGE,Rural,North Goa,Satari,663,code,626769,Siroli,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626770,Anjunem,VILLAGE,Rural,North Goa,Satari,0,code,626770,Anjunem,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626771,Quelaudem,VILLAGE,Rural,North Goa,Satari,0,code,626771,Quelaudem,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626772,Ponsuli,VILLAGE,Rural,North Goa,Satari,0,code,626772,Ponsuli,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626773,Choraundem,VILLAGE,Rural,North Goa,Satari,708,code,626773,Choraundem,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626774,Ivrem-Buzruco,VILLAGE,Rural,North Goa,Satari,666,code,626774,Ivrem-buzruco,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626775,Ivrem-Curdo,VILLAGE,Rural,North Goa,Satari,218,code,626775,Ivrem-curdo,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626776,Golauli,VILLAGE,Rural,North Goa,Satari,297,code,626776,Golauli,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626777,Surla,VILLAGE,Rural,North Goa,Satari,460,code,626777,Surla,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626778,Satrem,VILLAGE,Rural,North Goa,Satari,176,code,626778,Satrem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626779,Derodem,VILLAGE,Rural,North Goa,Satari,108,code,626779,Derodem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626780,Codal,VILLAGE,Rural,North Goa,Satari,177,code,626780,Codal,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626781,Rivem,VILLAGE,Rural,North Goa,Satari,154,code,626781,Rivem,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626782,Dongurli,VILLAGE,Rural,North Goa,Satari,1534,code,626782,Dongurli,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626783,Pale,VILLAGE,Rural,North Goa,Satari,1157,code,626783,Pale,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626784,Gululem,VILLAGE,Rural,North Goa,Satari,0,code,626784,Gululem,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626785,Querim,VILLAGE,Rural,North Goa,Satari,2251,code,626785,Querim,QUERIM,Village Panchayat,254479,SATARI,5933,Satari,5613
+626786,Morlem,VILLAGE,Rural,North Goa,Satari,3290,code,626786,Morlem,MORLEM,Village Panchayat,254446,SATARI,5933,Satari,5613
+626787,Saleli,VILLAGE,Rural,North Goa,Satari,984,code,626787,Saleli,HONDA,Village Panchayat,254421,SATARI,5933,Satari,5613
+626788,Zormen,VILLAGE,Rural,North Goa,Satari,635,code,626788,Zormen,MAUXI,Village Panchayat,254438,SATARI,5933,Satari,5613
+626789,Dabem,VILLAGE,Rural,North Goa,Satari,498,code,626789,Dabem,MAUXI,Village Panchayat,254438,SATARI,5933,Satari,5613
+626790,Compordem,VILLAGE,Rural,North Goa,Satari,1093,code,626790,Compordem,MAUXI,Village Panchayat,254438,SATARI,5933,Satari,5613
+626791,Edorem,VILLAGE,Rural,North Goa,Satari,291,code,626791,Edorem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626792,Naneli,VILLAGE,Rural,North Goa,Satari,294,code,626792,Naneli,DONGURLI-THANE,Village Panchayat,254412,SATARI,5933,Satari,5613
+626793,Carambolim- Brama,VILLAGE,Rural,North Goa,Satari,445,code,626793,Carambolim- Brama,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626794,Xelopo-Buzruco,VILLAGE,Rural,North Goa,Satari,244,code,626794,Xelopo-buzruco,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626795,Sigonem,VILLAGE,Rural,North Goa,Satari,189,code,626795,Sigonem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626796,Maloli,VILLAGE,Rural,North Goa,Satari,416,code,626796,Maloli,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626797,Nanorem,VILLAGE,Rural,North Goa,Satari,287,code,626797,Nanorem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626798,Vainguinim,VILLAGE,Rural,North Goa,Satari,32,code,626798,Vainguinim,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626799,Zarani,VILLAGE,Rural,North Goa,Satari,0,code,626799,Zarani,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626800,Ustem,VILLAGE,Rural,North Goa,Satari,346,code,626800,Ustem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626801,Davem,VILLAGE,Rural,North Goa,Satari,862,code,626801,Davem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626802,Bombedem,VILLAGE,Rural,North Goa,Satari,37,code,626802,Bombedem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626803,Ambedem,VILLAGE,Rural,North Goa,Satari,272,code,626803,Ambedem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626804,Nagargao,VILLAGE,Rural,North Goa,Satari,549,code,626804,Nagargao,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626805,Satorem,VILLAGE,Rural,North Goa,Satari,221,code,626805,Satorem,NAGARGAO,Village Panchayat,254451,SATARI,5933,Satari,5613
+626806,Mauzi,VILLAGE,Rural,North Goa,Satari,1375,code,626806,Mauxi,MAUXI,Village Panchayat,254438,SATARI,5933,Satari,5613
+626807,Buimpal,VILLAGE,Rural,North Goa,Satari,1403,code,626807,Buimpal,HONDA,Village Panchayat,254421,SATARI,5933,Satari,5613
+626808,Cumarconda,VILLAGE,Rural,North Goa,Satari,525,code,626808,Cumarconda,PISSURLEM,Village Panchayat,254474,SATARI,5933,Satari,5613
+626809,Pissurlem,VILLAGE,Rural,North Goa,Satari,1940,code,626809,Pissurlem,PISSURLEM,Village Panchayat,254474,SATARI,5933,Satari,5613
+626810,Sonus-Vonvoliem,VILLAGE,Rural,North Goa,Satari,764,code,626810,Sonus-vonvoliem,HONDA,Village Panchayat,254421,SATARI,5933,Satari,5613
+626811,Vaguriem,VILLAGE,Rural,North Goa,Satari,255,code,626811,Vaguriem,PISSURLEM,Village Panchayat,254474,SATARI,5933,Satari,5613
+626812,Codiem,VILLAGE,Rural,North Goa,Satari,71,code,626812,Codiem,PISSURLEM,Village Panchayat,254474,SATARI,5933,Satari,5613
+626813,Naguem,VILLAGE,Rural,North Goa,Satari,479,code,626813,Naguem,MAUXI,Village Panchayat,254438,SATARI,5933,Satari,5613
+626814,Ansolem,VILLAGE,Rural,North Goa,Satari,186,code,626814,Ansolem,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626815,Cudcem,VILLAGE,Rural,North Goa,Satari,644,code,626815,Cudcem,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626816,Sanvordem,VILLAGE,Rural,North Goa,Satari,897,code,626816,Sanvordem,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626817,Sonal,VILLAGE,Rural,North Goa,Satari,430,code,626817,Sonal,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626818,Codvol,VILLAGE,Rural,North Goa,Satari,5,code,626818,Codvol,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626819,Pendral,VILLAGE,Rural,North Goa,Satari,0,code,626819,Pendral,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626820,Caranzol,VILLAGE,Rural,North Goa,Satari,839,code,626820,Caranzol,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626821,Carambolim-Bozruco,VILLAGE,Rural,North Goa,Satari,468,code,626821,Carambolim-buzruco,SANVORDEM,Village Panchayat,254492,SATARI,5933,Satari,5613
+626822,Velguem,VILLAGE,Rural,North Goa,Satari,1310,code,626822,Velguem,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626823,Codqui,VILLAGE,Rural,North Goa,Satari,929,code,626823,Codqui,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626824,Sanvorcem,VILLAGE,Rural,North Goa,Satari,495,code,626824,Sanvorcem,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626825,Advoi,VILLAGE,Rural,North Goa,Satari,609,code,626825,Advoi,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626826,Ponocem,VILLAGE,Rural,North Goa,Satari,496,code,626826,Ponocem,PISSURLEM,Village Panchayat,254474,SATARI,5933,Satari,5613
+626827,Vantem,VILLAGE,Rural,North Goa,Satari,1678,code,626827,Vantem,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626828,Guleli,VILLAGE,Rural,North Goa,Satari,490,code,626828,Guleli,GULELI,Village Panchayat,254420,SATARI,5933,Satari,5613
+626829,Padeli,VILLAGE,Rural,North Goa,Satari,657,code,626829,Padeli,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626830,Birondem,VILLAGE,Rural,North Goa,Satari,476,code,626830,Birondem,BIRONDEM,Village Panchayat,254375,SATARI,5933,Satari,5613
+626831,Damocem,VILLAGE,Rural,North Goa,Satari,596,code,626831,Damocem,GULELI,Village Panchayat,254420,SATARI,5933,Satari,5613
+626832,Cotorem,VILLAGE,Rural,North Goa,Satari,624,code,626832,Cotorem,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626833,Xelopo-Curdo,VILLAGE,Rural,North Goa,Satari,252,code,626833,Xelopo-curdo,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626834,Siranguli,VILLAGE,Rural,North Goa,Satari,80,code,626834,Siranguli,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626835,Sirsodem,VILLAGE,Rural,North Goa,Satari,245,code,626835,Sirsodem,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626836,Assodem,VILLAGE,Rural,North Goa,Satari,120,code,626836,Assodem,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626837,Govanem,VILLAGE,Rural,North Goa,Satari,161,code,626837,Govanem,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626838,Malpona,VILLAGE,Rural,North Goa,Satari,277,code,626838,Malpona,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626839,Ambeli,VILLAGE,Rural,North Goa,Satari,104,code,626839,Ambeli,COTODEM,Village Panchayat,254401,SATARI,5933,Satari,5613
+626840,Melauli,VILLAGE,Rural,North Goa,Satari,1636,code,626840,Melauli,GULELI,Village Panchayat,254420,SATARI,5933,Satari,5613
+626841,Conquirem,VILLAGE,Rural,North Goa,Satari,397,code,626841,Conquirem,GULELI,Village Panchayat,254420,SATARI,5933,Satari,5613
+803246,Valpoi (M Cl),TOWN,Urban,North Goa,Satari,8532,none,,,,,,,,,
+626842,Onda (CT),TOWN,Urban,North Goa,Satari,5863,code,626842,Onda (ct),HONDA,Village Panchayat,254421,SATARI,5933,Satari,5613
+626843,Tivrem,VILLAGE,Rural,North Goa,Ponda,1878,code,626843,Tivrem,TIVREM-ORGAO,Village Panchayat,254517,PONDA,5932,Ponda,5614
+626844,Betqui,VILLAGE,Rural,North Goa,Ponda,1707,code,626844,Betqui,"BETQUI, CANDOLA",Village Panchayat,254372,PONDA,5932,Ponda,5614
+626845,Volvoi,VILLAGE,Rural,North Goa,Ponda,1842,code,626845,Volvoi,VOLVOI,Village Panchayat,254534,PONDA,5932,Ponda,5614
+626846,Savoi-Verem,VILLAGE,Rural,North Goa,Ponda,3187,code,626846,Savoi-verem,VEREM-VAGHURME,Village Panchayat,254530,PONDA,5932,Ponda,5614
+626847,Adcolna,VILLAGE,Rural,North Goa,Ponda,1688,code,626847,Adcolna,BHOMA-ADCOLNA,Village Panchayat,254374,PONDA,5932,Ponda,5614
+626848,Boma,VILLAGE,Rural,North Goa,Ponda,2807,code,626848,Boma,BHOMA-ADCOLNA,Village Panchayat,254374,PONDA,5932,Ponda,5614
+626849,Cuncoliem,VILLAGE,Rural,North Goa,Ponda,1385,code,626849,Cuncoliem,VELING-PRIOL,Village Panchayat,254527,PONDA,5932,Ponda,5614
+626850,Querim,VILLAGE,Rural,North Goa,Ponda,3474,code,626850,Querim,QUERIM,Village Panchayat,254427,PONDA,5932,Ponda,5614
+626851,Vagurbem,VILLAGE,Rural,North Goa,Ponda,527,code,626851,Vagurbem,VEREM-VAGHURME,Village Panchayat,254530,PONDA,5932,Ponda,5614
+626852,Gangem,VILLAGE,Rural,North Goa,Ponda,473,code,626852,Gangem,USGAO-GANJEM,Village Panchayat,254522,PONDA,5932,Ponda,5614
+626853,Candepar,VILLAGE,Rural,North Goa,Ponda,3768,code,626853,Candepar,CURTI-KHANDEPAR,Village Panchayat,254407,PONDA,5932,Ponda,5614
+626854,Velinga,VILLAGE,Rural,North Goa,Ponda,1921,code,626854,Velinga,VELING-PRIOL,Village Panchayat,254527,PONDA,5932,Ponda,5614
+626855,Cundaim,VILLAGE,Rural,North Goa,Ponda,3859,code,626855,Cundaim,KUNDAIM,Village Panchayat,254429,PONDA,5932,Ponda,5614
+626856,Durbhat,VILLAGE,Rural,North Goa,Ponda,3443,code,626856,Durbhat,DURBHAT,Village Panchayat,254414,PONDA,5932,Ponda,5614
+626857,Telaulim,VILLAGE,Rural,North Goa,Ponda,2554,code,626857,Telaulim,VADI TALAULIM,Village Panchayat,254512,PONDA,5932,Ponda,5614
+626858,Vadi,VILLAGE,Rural,North Goa,Ponda,506,code,626858,Vadi,VADI TALAULIM,Village Panchayat,254512,PONDA,5932,Ponda,5614
+626859,Betora,VILLAGE,Rural,North Goa,Ponda,6133,code,626859,Betora,BETORA-NIRANCAL,Village Panchayat,254371,PONDA,5932,Ponda,5614
+626860,Codar,VILLAGE,Rural,North Goa,Ponda,733,code,626860,Codar,BETORA-NIRANCAL,Village Panchayat,254371,PONDA,5932,Ponda,5614
+626861,Nirancal,VILLAGE,Rural,North Goa,Ponda,1772,code,626861,Nirancal,BETORA-NIRANCAL,Village Panchayat,254371,PONDA,5932,Ponda,5614
+626862,Conxem,VILLAGE,Rural,North Goa,Ponda,186,code,626862,Conxem,BETORA-NIRANCAL,Village Panchayat,254371,PONDA,5932,Ponda,5614
+626863,Siroda,VILLAGE,Rural,North Goa,Ponda,14041,code,626863,Shiroda,SHIRODA,Village Panchayat,254498,PONDA,5932,Ponda,5614
+626864,Ponchavadi,VILLAGE,Rural,North Goa,Ponda,4295,code,626864,Ponchavadi,PANCHAWADI,Village Panchayat,254466,PONDA,5932,Ponda,5614
+803247,Ponda (M Cl),TOWN,Urban,North Goa,Ponda,22664,none,,,,,,,,,
+626865,Candola (CT),TOWN,Urban,North Goa,Ponda,5354,code,626865,Candola (ct),"BETQUI, CANDOLA",Village Panchayat,254372,PONDA,5932,Ponda,5614
+626866,Orgao (CT),TOWN,Urban,North Goa,Ponda,4602,code,626866,Orgao (ct),TIVREM-ORGAO,Village Panchayat,254517,PONDA,5932,Ponda,5614
+626867,Marcaim (CT),TOWN,Urban,North Goa,Ponda,6215,code,626867,Marcaim (ct),MARCAIM,Village Panchayat,254436,PONDA,5932,Ponda,5614
+626868,Priol (CT),TOWN,Urban,North Goa,Ponda,8164,code,626868,Priol (ct),VELING-PRIOL,Village Panchayat,254527,PONDA,5932,Ponda,5614
+626869,Bandora (CT),TOWN,Urban,North Goa,Ponda,12722,code,626869,Bandora (ct),BANDORA,Village Panchayat,254365,PONDA,5932,Ponda,5614
+626870,Curti (CT),TOWN,Urban,North Goa,Ponda,16385,code,626870,Curti (ct),CURTI-KHANDEPAR,Village Panchayat,254407,PONDA,5932,Ponda,5614
+626871,Quela (CT),TOWN,Urban,North Goa,Ponda,6852,code,626871,Queula ,QUELA,Village Panchayat,254478,PONDA,5932,Ponda,5614
+626872,Borim (CT),TOWN,Urban,North Goa,Ponda,8257,code,626872,Borim (ct),BORIM,Village Panchayat,254376,PONDA,5932,Ponda,5614
+626873,Usgao (CT),TOWN,Urban,North Goa,Ponda,12436,code,626873,Usgao (ct),USGAO-GANJEM,Village Panchayat,254522,PONDA,5932,Ponda,5614
+626874,Dabolim,VILLAGE,Rural,South Goa,Mormugao,6027,code,626874,Dabolim,CHICALIM,Village Panchayat,254388,MORMUGAO,5936,Mormugao,5615
+626875,Sao Jacinto Island,VILLAGE,Rural,South Goa,Mormugao,195,code,626875,Sao Jacinto Island,CHICALIM,Village Panchayat,254388,MORMUGAO,5936,Mormugao,5615
+626876,Quelossim,VILLAGE,Rural,South Goa,Mormugao,3262,code,626876,Quelossim,Quelossim,Village Panchayat,276388,MORMUGAO,5936,Mormugao,5615
+626877,Cuelim,VILLAGE,Rural,South Goa,Mormugao,1777,code,626877,Cuelim,CANSAULIM-AROSSIM-CUELIM,Village Panchayat,254403,MORMUGAO,5936,Mormugao,5615
+626878,Pale,VILLAGE,Rural,South Goa,Mormugao,1990,code,626878,Pale,VELSAO-PALE,Village Panchayat,254528,MORMUGAO,5936,Mormugao,5615
+626879,Issorcim,VILLAGE,Rural,South Goa,Mormugao,841,code,626879,Issorcim,VELSAO-PALE,Village Panchayat,254528,MORMUGAO,5936,Mormugao,5615
+626880,Chicolna,VILLAGE,Rural,South Goa,Mormugao,2680,code,626880,Chicolna,CHICOLNA-BOGMALO,Village Panchayat,254389,MORMUGAO,5936,Mormugao,5615
+626881,Sao Jorge Island,VILLAGE,Rural,South Goa,Mormugao,0,code,626881,Sao Jorge Island,CHICALIM,Village Panchayat,254388,MORMUGAO,5936,Mormugao,5615
+626882,Velsao,VILLAGE,Rural,South Goa,Mormugao,1520,code,626882,Velsao,VELSAO-PALE,Village Panchayat,254528,MORMUGAO,5936,Mormugao,5615
+626883,Cansaulim,VILLAGE,Rural,South Goa,Mormugao,2219,code,626883,Cansaulim,CANSAULIM-AROSSIM-CUELIM,Village Panchayat,254403,MORMUGAO,5936,Mormugao,5615
+626884,Arossim,VILLAGE,Rural,South Goa,Mormugao,1721,code,626884,Arossim,CANSAULIM-AROSSIM-CUELIM,Village Panchayat,254403,MORMUGAO,5936,Mormugao,5615
+803248,Mormugao (M Cl),TOWN,Urban,South Goa,Mormugao,94393,none,,,,,,,,,
+626885,Chicalim (CT),TOWN,Urban,South Goa,Mormugao,6933,code,626885,Chicalim (ct),CHICALIM,Village Panchayat,254388,MORMUGAO,5936,Mormugao,5615
+626886,Sancoale (CT),TOWN,Urban,South Goa,Mormugao,21923,code,626886,Sancoale (ct),SANCOALE,Village Panchayat,254488,MORMUGAO,5936,Mormugao,5615
+626887,Cortalim (CT),TOWN,Urban,South Goa,Mormugao,9080,code,626887,Cortalim (ct),CORTALIM,Village Panchayat,254399,MORMUGAO,5936,Mormugao,5615
+626888,Nagoa,VILLAGE,Rural,South Goa,Salcete,3873,code,626888,Nagoa,NAGOA,Village Panchayat,254452,SALCETE,5938,Salcete,5616
+626889,Loutulim,VILLAGE,Rural,South Goa,Salcete,6121,code,626889,Loutulim,LOUTULIM,Village Panchayat,254432,SALCETE,5938,Salcete,5616
+626890,Camurlim,VILLAGE,Rural,South Goa,Salcete,2247,code,626890,Camurlim,CAMURLIM,Village Panchayat,254379,SALCETE,5938,Salcete,5616
+626891,Calata,VILLAGE,Rural,South Goa,Salcete,1739,code,626891,Calata,MAJORDA,Village Panchayat,254434,SALCETE,5938,Salcete,5616
+626892,Majorda,VILLAGE,Rural,South Goa,Salcete,2813,code,626892,Majorda,MAJORDA,Village Panchayat,254434,SALCETE,5938,Salcete,5616
+626893,Utorda,VILLAGE,Rural,South Goa,Salcete,2018,code,626893,Utorda,MAJORDA,Village Panchayat,254434,SALCETE,5938,Salcete,5616
+626894,Gonsua,VILLAGE,Rural,South Goa,Salcete,222,code,626894,Gonsua,BETALBATIM,Village Panchayat,254370,SALCETE,5938,Salcete,5616
+626895,Betalbatim,VILLAGE,Rural,South Goa,Salcete,3551,code,626895,Betalbatim,BETALBATIM,Village Panchayat,254370,SALCETE,5938,Salcete,5616
+626896,Gandaulim,VILLAGE,Rural,South Goa,Salcete,438,code,626896,Gandaulim,COLVA,Village Panchayat,254395,SALCETE,5938,Salcete,5616
+626897,Colva,VILLAGE,Rural,South Goa,Salcete,3141,code,626897,Colva,COLVA,Village Panchayat,254395,SALCETE,5938,Salcete,5616
+626898,Vanelim,VILLAGE,Rural,South Goa,Salcete,1860,code,626898,Vanelim,COLVA,Village Panchayat,254395,SALCETE,5938,Salcete,5616
+626899,Seraulim,VILLAGE,Rural,South Goa,Salcete,3250,code,626899,Seraulim,SERAULIM,Village Panchayat,254497,SALCETE,5938,Salcete,5616
+626900,Duncolim,VILLAGE,Rural,South Goa,Salcete,748,code,626900,Duncolim,SERAULIM,Village Panchayat,254497,SALCETE,5938,Salcete,5616
+626901,Rachol,VILLAGE,Rural,South Goa,Salcete,1686,code,626901,Rachol,RACHOL,Village Panchayat,254480,SALCETE,5938,Salcete,5616
+626902,Macasana,VILLAGE,Rural,South Goa,Salcete,1972,code,626902,Macasana,MACASANA,Village Panchayat,254433,SALCETE,5938,Salcete,5616
+626903,Guirdolim,VILLAGE,Rural,South Goa,Salcete,3622,code,626903,Guirdolim,GUIRDOLIM,Village Panchayat,254418,SALCETE,5938,Salcete,5616
+626904,Cana,VILLAGE,Rural,South Goa,Salcete,494,code,626904,Cana,BENAULIM,Village Panchayat,254369,SALCETE,5938,Salcete,5616
+626905,Sernabatim,VILLAGE,Rural,South Goa,Salcete,1548,code,626905,Sernabatim,COLVA,Village Panchayat,254395,SALCETE,5938,Salcete,5616
+626906,Adsulim,VILLAGE,Rural,South Goa,Salcete,214,code,626906,Adsulim,BENAULIM,Village Panchayat,254369,SALCETE,5938,Salcete,5616
+626907,Talaulim,VILLAGE,Rural,South Goa,Salcete,2911,code,626907,Talaulim,TELAULIM,Village Panchayat,254515,SALCETE,5938,Salcete,5616
+626908,Dramapur,VILLAGE,Rural,South Goa,Salcete,3441,code,626908,Dramapur,DRAMAPUR- SIRLIM,Village Panchayat,254413,SALCETE,5938,Salcete,5616
+626909,Dicarpale,VILLAGE,Rural,South Goa,Salcete,3057,code,626909,Dicarpale,DAVORLIM DICARPALE,Village Panchayat,254409,SALCETE,5938,Salcete,5616
+626910,Cavorim,VILLAGE,Rural,South Goa,Salcete,2228,code,626910,Cavorim,CHANDOR-CAVORIM,Village Panchayat,254387,SALCETE,5938,Salcete,5616
+626911,Chandor,VILLAGE,Rural,South Goa,Salcete,707,code,626911,Chandor,CHANDOR-CAVORIM,Village Panchayat,254387,SALCETE,5938,Salcete,5616
+626912,Paroda,VILLAGE,Rural,South Goa,Salcete,620,code,626912,Paroda,PARODA,Village Panchayat,254468,SALCETE,5938,Salcete,5616
+626913,Mulem,VILLAGE,Rural,South Goa,Salcete,2799,code,626913,Mulem,PARODA,Village Panchayat,254468,SALCETE,5938,Salcete,5616
+626914,Sarzora,VILLAGE,Rural,South Goa,Salcete,2270,code,626914,Sarzora,SARZORA,Village Panchayat,254495,SALCETE,5938,Salcete,5616
+626915,Sirlim,VILLAGE,Rural,South Goa,Salcete,845,code,626915,Sirlim,DRAMAPUR- SIRLIM,Village Panchayat,254413,SALCETE,5938,Salcete,5616
+626916,Orlim,VILLAGE,Rural,South Goa,Salcete,2049,code,626916,Orlim,ORLIM,Village Panchayat,254461,SALCETE,5938,Salcete,5616
+626917,Carmona,VILLAGE,Rural,South Goa,Salcete,3864,code,626917,Carmona,CARMONA,Village Panchayat,254382,SALCETE,5938,Salcete,5616
+626918,Deussua,VILLAGE,Rural,South Goa,Salcete,1479,code,626918,Deussua,CHINCHINIM- DEUSSA,Village Panchayat,254391,SALCETE,5938,Salcete,5616
+626919,Assolna,VILLAGE,Rural,South Goa,Salcete,3410,code,626919,Assolna,ASSOLNA,Village Panchayat,254361,SALCETE,5938,Salcete,5616
+626920,Cavelossim,VILLAGE,Rural,South Goa,Salcete,1955,code,626920,Cavelossim,CAVELOSSIM,Village Panchayat,254385,SALCETE,5938,Salcete,5616
+626921,Velim,VILLAGE,Rural,South Goa,Salcete,5955,code,626921,Velim,VELIM,Village Panchayat,254526,SALCETE,5938,Salcete,5616
+626922,Ambelim,VILLAGE,Rural,South Goa,Salcete,2853,code,626922,Ambelim,AMBELIM,Village Panchayat,254352,SALCETE,5938,Salcete,5616
+803249,Margao (M Cl),TOWN,Urban,South Goa,Salcete,87650,none,,,,,,,,,
+803250,Cuncolim (M Cl),TOWN,Urban,South Goa,Salcete,16623,none,,,,,,,,,
+626923,Verna (CT),TOWN,Urban,South Goa,Salcete,6632,code,626923,Verna (ct),VERNA,Village Panchayat,254532,SALCETE,5938,Salcete,5616
+626924,Nuvem (CT),TOWN,Urban,South Goa,Salcete,9288,code,626924,Nuvem (ct),NUVEM,Village Panchayat,254460,SALCETE,5938,Salcete,5616
+626925,Raia (CT),TOWN,Urban,South Goa,Salcete,10706,code,626925,Raia (ct),RAIA,Village Panchayat,254481,SALCETE,5938,Salcete,5616
+626926,Curtorim (CT),TOWN,Urban,South Goa,Salcete,12886,code,626926,Curtorim (ct),CURTORIM,Village Panchayat,254408,SALCETE,5938,Salcete,5616
+626927,Sao Jose de Areal (CT),TOWN,Urban,South Goa,Salcete,10229,code,626927,Sao Jose De Areal (ct),ST. JOSE-DE-AREAL,Village Panchayat,254510,SALCETE,5938,Salcete,5616
+626928,Davorlim (CT),TOWN,Urban,South Goa,Salcete,15350,code,626928,Davorlim (ct),DAVORLIM DICARPALE,Village Panchayat,254409,SALCETE,5938,Salcete,5616
+626928,Davorlim (CT),TOWN,Urban,South Goa,Salcete,15350,code,626928,Davorlim (ct),RUMDAMOL-DAVORLIM,Village Panchayat,254484,SALCETE,5938,Salcete,5616
+626929,Aquem (CT),TOWN,Urban,South Goa,Salcete,6511,code,626929,Aquem-baixo,AQUEM BAIXO,Village Panchayat,254355,SALCETE,5938,Salcete,5616
+626930,Navelim (CT),TOWN,Urban,South Goa,Salcete,12323,code,626930,Navelim (ct),NAVELIM,Village Panchayat,254455,SALCETE,5938,Salcete,5616
+626931,Benaulim (CT),TOWN,Urban,South Goa,Salcete,11919,code,626931,Benaulim (ct),BENAULIM,Village Panchayat,254369,SALCETE,5938,Salcete,5616
+626932,Varca (CT),TOWN,Urban,South Goa,Salcete,5439,code,626932,Varca (ct),VARCA,Village Panchayat,254523,SALCETE,5938,Salcete,5616
+626933,Chinchinim (CT),TOWN,Urban,South Goa,Salcete,6908,code,626933,Chinchinim (ct),CHINCHINIM- DEUSSA,Village Panchayat,254391,SALCETE,5938,Salcete,5616
+626934,Assolda,VILLAGE,Rural,South Goa,Quepem,1257,code,626934,Assolda,ASSOLDA,Village Panchayat,254360,QUEPEM,5937,Quepem,5617
+626935,Xic-Xelvona,VILLAGE,Rural,South Goa,Quepem,125,code,626935,Xic-xelvona,ASSOLDA,Village Panchayat,254360,QUEPEM,5937,Quepem,5617
+626936,Xelvona,VILLAGE,Rural,South Goa,Quepem,1725,code,626936,Xelvona,ASSOLDA,Village Panchayat,254360,QUEPEM,5937,Quepem,5617
+626937,Odar,VILLAGE,Rural,South Goa,Quepem,569,code,626937,Hodar,ASSOLDA,Village Panchayat,254360,QUEPEM,5937,Quepem,5617
+626938,Cotombi,VILLAGE,Rural,South Goa,Quepem,1171,code,626938,Cotombi,AVEDEM-COTOMBI,Village Panchayat,254362,QUEPEM,5937,Quepem,5617
+626939,Avedem,VILLAGE,Rural,South Goa,Quepem,1650,code,626939,Avedem,AVEDEM-COTOMBI,Village Panchayat,254362,QUEPEM,5937,Quepem,5617
+626940,Chaifi,VILLAGE,Rural,South Goa,Quepem,77,code,626940,Chaifi,AVEDEM-COTOMBI,Village Panchayat,254362,QUEPEM,5937,Quepem,5617
+626941,Sirvoi,VILLAGE,Rural,South Goa,Quepem,1129,code,626941,Sirvoi,Quepem,Municipality,252097,QUEPEM,5937,Quepem,5617
+626941,Sirvoi,VILLAGE,Rural,South Goa,Quepem,1129,code,626941,Sirvoi,XELDEM,Village Panchayat,254535,QUEPEM,5937,Quepem,5617
+626942,Nagvem,VILLAGE,Rural,South Goa,Quepem,475,code,626942,Nagvem,MOLCORNEM,Village Panchayat,254443,QUEPEM,5937,Quepem,5617
+626943,Zanodem,VILLAGE,Rural,South Goa,Quepem,272,code,626943,Zanodem,MOLCORNEM,Village Panchayat,254443,QUEPEM,5937,Quepem,5617
+626944,Undorna,VILLAGE,Rural,South Goa,Quepem,176,code,626944,Undorna,MOLCORNEM,Village Panchayat,254443,QUEPEM,5937,Quepem,5617
+626945,Molcopona,VILLAGE,Rural,South Goa,Quepem,457,code,626945,Molcopona,MOLCORNEM,Village Panchayat,254443,QUEPEM,5937,Quepem,5617
+626946,Molcarnem,VILLAGE,Rural,South Goa,Quepem,1507,code,626946,Molcornem,MOLCORNEM,Village Panchayat,254443,QUEPEM,5937,Quepem,5617
+626947,Ambaulim,VILLAGE,Rural,South Goa,Quepem,2987,code,626947,Ambaulim,AMBAULIM,Village Panchayat,254351,QUEPEM,5937,Quepem,5617
+626948,Adnem,VILLAGE,Rural,South Goa,Quepem,1657,code,626948,Adnem,BALLI-ADNEM,Village Panchayat,254364,QUEPEM,5937,Quepem,5617
+626949,Bali,VILLAGE,Rural,South Goa,Quepem,2944,code,626949,Bali,BALLI-ADNEM,Village Panchayat,254364,QUEPEM,5937,Quepem,5617
+626950,Fatorpa,VILLAGE,Rural,South Goa,Quepem,2378,code,626950,Fatorpa,FATORPA-QUITOL,Village Panchayat,254415,QUEPEM,5937,Quepem,5617
+626951,Quitol,VILLAGE,Rural,South Goa,Quepem,1571,code,626951,Quitol,NAQUERI-BETUL,Village Panchayat,254453,QUEPEM,5937,Quepem,5617
+626952,Naquerim,VILLAGE,Rural,South Goa,Quepem,491,code,626952,Naqueri,NAQUERI-BETUL,Village Panchayat,254453,QUEPEM,5937,Quepem,5617
+626953,Morpila,VILLAGE,Rural,South Goa,Quepem,2857,code,626953,Morpirla,MORPIRLA,Village Panchayat,254447,QUEPEM,5937,Quepem,5617
+626954,Tiloi,VILLAGE,Rural,South Goa,Quepem,588,code,626954,Tiloi,BALLI-ADNEM,Village Panchayat,254364,QUEPEM,5937,Quepem,5617
+626955,Bendordem,VILLAGE,Rural,South Goa,Quepem,609,code,626955,Bendordem,BALLI-ADNEM,Village Panchayat,254364,QUEPEM,5937,Quepem,5617
+626956,Cavorem,VILLAGE,Rural,South Goa,Quepem,920,code,626956,Cavorem,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626957,Maina,VILLAGE,Rural,South Goa,Quepem,505,code,626957,Maina,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626958,Cordem,VILLAGE,Rural,South Goa,Quepem,1617,code,626958,Cordem,BALLI-ADNEM,Village Panchayat,254364,QUEPEM,5937,Quepem,5617
+626959,Padi,VILLAGE,Rural,South Goa,Quepem,268,code,626959,Padi,BARCEM,Village Panchayat,254366,QUEPEM,5937,Quepem,5617
+626960,Quedem,VILLAGE,Rural,South Goa,Quepem,414,code,626960,Quedem,BARCEM,Village Panchayat,254366,QUEPEM,5937,Quepem,5617
+626961,Barcem,VILLAGE,Rural,South Goa,Quepem,2685,code,626961,Barcem,BARCEM,Village Panchayat,254366,QUEPEM,5937,Quepem,5617
+626962,Gocoldem,VILLAGE,Rural,South Goa,Quepem,579,code,626962,Goculdem,BARCEM,Village Panchayat,254366,QUEPEM,5937,Quepem,5617
+626963,Quisconda,VILLAGE,Rural,South Goa,Quepem,491,code,626963,Quisconda,BARCEM,Village Panchayat,254366,QUEPEM,5937,Quepem,5617
+626964,Pirla,VILLAGE,Rural,South Goa,Quepem,474,code,626964,Pirla,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626965,Sulcorna,VILLAGE,Rural,South Goa,Quepem,594,code,626965,Sulcorna,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626966,Corla,VILLAGE,Rural,South Goa,Quepem,209,code,626966,Corla,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626967,Cazur,VILLAGE,Rural,South Goa,Quepem,510,code,626967,Cazur,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+626968,Mangal,VILLAGE,Rural,South Goa,Quepem,296,code,626968,Mangal,CAUREM,Village Panchayat,254384,QUEPEM,5937,Quepem,5617
+803251,Quepem (M Cl),TOWN,Urban,South Goa,Quepem,14795,none,,,,,,,,,
+803252,Curchorem-Cacora (M Cl),TOWN,Urban,South Goa,Quepem,22730,none,,,,,,,,,
+626969,Xeldem (CT),TOWN,Urban,South Goa,Quepem,7434,code,626969,Xeldem (ct),XELDEM,Village Panchayat,254535,QUEPEM,5937,Quepem,5617
+626970,Piliem,VILLAGE,Rural,South Goa,Sanguem,4058,code,626970,Piliem,DHARBANDORA,Village Panchayat,254410,Dharbandora,6841,Dharbandora,5931
+626971,Darbandora,VILLAGE,Rural,South Goa,Sanguem,2991,code,626971,Darbandora,DHARBANDORA,Village Panchayat,254410,Dharbandora,6841,Dharbandora,5931
+626972,Sancordem,VILLAGE,Rural,South Goa,Sanguem,1233,code,626972,Sancordem,SANCORDEM,Village Panchayat,254489,Dharbandora,6841,Dharbandora,5931
+626973,Aglote,VILLAGE,Rural,South Goa,Sanguem,1772,code,626973,Aglote,SANCORDEM,Village Panchayat,254489,Dharbandora,6841,Dharbandora,5931
+626974,Surla,VILLAGE,Rural,South Goa,Sanguem,1109,code,626974,Surla,SANCORDEM,Village Panchayat,254489,Dharbandora,6841,Dharbandora,5931
+626975,Molem,VILLAGE,Rural,South Goa,Sanguem,1715,code,626975,Molem,MOLLEM,Village Panchayat,254444,Dharbandora,6841,Dharbandora,5931
+626976,Caranzol,VILLAGE,Rural,South Goa,Sanguem,24,code,626976,Caranzol,COLEM,Village Panchayat,254394,Dharbandora,6841,Dharbandora,5931
+626977,Colem,VILLAGE,Rural,South Goa,Sanguem,4195,code,626977,Colem,COLEM,Village Panchayat,254394,Dharbandora,6841,Dharbandora,5931
+626978,Sigao,VILLAGE,Rural,South Goa,Sanguem,1724,code,626978,Sigao,COLEM,Village Panchayat,254394,Dharbandora,6841,Dharbandora,5931
+626979,Sangod,VILLAGE,Rural,South Goa,Sanguem,1083,code,626979,Sangod,MOLLEM,Village Panchayat,254444,Dharbandora,6841,Dharbandora,5931
+626980,Cormonem,VILLAGE,Rural,South Goa,Sanguem,645,code,626980,Cormonem,KIRLAPAL-DABHAL,Village Panchayat,254428,Dharbandora,6841,Dharbandora,5931
+626981,Codli,VILLAGE,Rural,South Goa,Sanguem,3801,code,626981,Codli,KIRLAPAL-DABHAL,Village Panchayat,254428,Dharbandora,6841,Dharbandora,5931
+626982,Camarconda,VILLAGE,Rural,South Goa,Sanguem,793,code,626982,Camarconda,KIRLAPAL-DABHAL,Village Panchayat,254428,Dharbandora,6841,Dharbandora,5931
+626983,Moissal,VILLAGE,Rural,South Goa,Sanguem,8,code,626983,Moissal,KIRLAPAL-DABHAL,Village Panchayat,254428,Dharbandora,6841,Dharbandora,5931
+626984,Bandoli,VILLAGE,Rural,South Goa,Sanguem,1060,code,626984,Bandoli,KIRLAPAL-DABHAL,Village Panchayat,254428,Dharbandora,6841,Dharbandora,5931
+626985,Rumbrem,VILLAGE,Rural,South Goa,Sanguem,646,code,626985,Rumbrem,SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+626986,Antoriem,VILLAGE,Rural,South Goa,Sanguem,0,code,626986,Antoriem,SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+626987,Santona,VILLAGE,Rural,South Goa,Sanguem,1403,code,626987,Santona,SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+626988,Calem,VILLAGE,Rural,South Goa,Sanguem,2683,code,626988,Calem,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626989,Sonauli,VILLAGE,Rural,South Goa,Sanguem,63,code,626989,Sonauli,COLEM,Village Panchayat,254394,Dharbandora,6841,Dharbandora,5931
+626990,Boma,VILLAGE,Rural,South Goa,Sanguem,0,code,626990,Boma,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626991,Oxel,VILLAGE,Rural,South Goa,Sanguem,0,code,626991,Odxel,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626992,Dongurli,VILLAGE,Rural,South Goa,Sanguem,0,code,626992,Dongurli,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626993,Patiem,VILLAGE,Rural,South Goa,Sanguem,292,code,626993,Patiem,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+626994,Maulinguem,VILLAGE,Rural,South Goa,Sanguem,354,code,626994,Maulinguem,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626995,Dudal,VILLAGE,Rural,South Goa,Sanguem,446,code,626995,Dudal,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626996,Costi,VILLAGE,Rural,South Goa,Sanguem,881,code,626996,Costi,KALAY(KALEM),Village Panchayat,254423,SANGUEM,5939,Sanguem,5618
+626997,Coranginim,VILLAGE,Rural,South Goa,Sanguem,32,code,626997,Coranginim,SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+626998,Comproi,VILLAGE,Rural,South Goa,Sanguem,620,code,626998,Comproi,SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+626999,Muguli,VILLAGE,Rural,South Goa,Sanguem,508,code,626999,Muguli,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+627000,Cotarli,VILLAGE,Rural,South Goa,Sanguem,1121,code,627000,Cotarli,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+627001,Xelpem,VILLAGE,Rural,South Goa,Sanguem,255,code,627001,Xelpem,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+627002,Salauli,VILLAGE,Rural,South Goa,Sanguem,0,code,627002,Salauli,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+627003,Uguem,VILLAGE,Rural,South Goa,Sanguem,2557,code,627003,Uguem,UGUEM,Village Panchayat,254521,SANGUEM,5939,Sanguem,5618
+627004,Tudou,VILLAGE,Rural,South Goa,Sanguem,35,code,627004,Tudou,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627005,Potrem,VILLAGE,Rural,South Goa,Sanguem,201,code,627005,Potrem,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627006,Bati,VILLAGE,Rural,South Goa,Sanguem,1933,code,627006,Bati,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627007,Cumbari,VILLAGE,Rural,South Goa,Sanguem,283,code,627007,Cumbari,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627008,Viliena,VILLAGE,Rural,South Goa,Sanguem,540,code,627008,Viliena,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627009,Dongor,VILLAGE,Rural,South Goa,Sanguem,39,code,627009,Dongor,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627010,Naiquinim,VILLAGE,Rural,South Goa,Sanguem,252,code,627010,Naiquinim,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627011,Porteem,VILLAGE,Rural,South Goa,Sanguem,2320,code,627011,Porteem,CURDI,Village Panchayat,254406,SANGUEM,5939,Sanguem,5618
+627012,Curdi,VILLAGE,Rural,South Goa,Sanguem,35,code,627012,Curdem,CURDI,Village Panchayat,254406,SANGUEM,5939,Sanguem,5618
+627013,Colomba,VILLAGE,Rural,South Goa,Sanguem,1831,code,627013,Colomba,RIVONA,Village Panchayat,254483,SANGUEM,5939,Quepem,5617
+627014,Rivona,VILLAGE,Rural,South Goa,Sanguem,3621,code,627014,Rivona,RIVONA,Village Panchayat,254483,SANGUEM,5939,Quepem,5617
+627015,Curpem,VILLAGE,Rural,South Goa,Sanguem,886,code,627015,Kurpem,CURDI,Village Panchayat,254406,SANGUEM,5939,Sanguem,5618
+627016,Vichundrem,VILLAGE,Rural,South Goa,Sanguem,775,code,627016,Vichundrem,NETURLIM,Village Panchayat,254458,SANGUEM,5939,Sanguem,5618
+627017,Sigonem,VILLAGE,Rural,South Goa,Sanguem,0,code,627017,Sigonem,BHATI,Village Panchayat,254373,SANGUEM,5939,Sanguem,5618
+627018,Netorli,VILLAGE,Rural,South Goa,Sanguem,1709,code,627018,Neturlim,NETURLIM,Village Panchayat,254458,SANGUEM,5939,Sanguem,5618
+627019,Nundem,VILLAGE,Rural,South Goa,Sanguem,500,code,627019,Nundem,NETURLIM,Village Panchayat,254458,SANGUEM,5939,Sanguem,5618
+627020,Verlem,VILLAGE,Rural,South Goa,Sanguem,568,code,627020,Verlem,NETURLIM,Village Panchayat,254458,SANGUEM,5939,Sanguem,5618
+803253,Sanguem (M Cl),TOWN,Urban,South Goa,Sanguem,6444,none,,,,,,,,,
+627021,Sanvordem (CT),TOWN,Urban,South Goa,Sanguem,5103,code,627021,Sanvordem (ct),SANVORDEM,Village Panchayat,254491,SANGUEM,5939,Sanguem,5618
+627022,Cola,VILLAGE,Rural,South Goa,Canacona,5382,code,627022,Cola,COLA,Village Panchayat,254393,CANACONA,5935,Canacona,5619
+627023,Agonda,VILLAGE,Rural,South Goa,Canacona,3801,code,627023,Agonda,AGONDA,Village Panchayat,254348,CANACONA,5935,Canacona,5619
+627024,Canacona,VILLAGE,Rural,South Goa,Canacona,4547,code,627024,Canacona,SHRISTHAL,Village Panchayat,254499,CANACONA,5935,Canacona,5619
+627025,Gaodongrem,VILLAGE,Rural,South Goa,Canacona,4946,code,627025,Gaodongrem,GAONDONGRI,Village Panchayat,254416,CANACONA,5935,Canacona,5619
+627026,Poinguinim,VILLAGE,Rural,South Goa,Canacona,6625,code,627026,Poinguinim,POINGUINIM,Village Panchayat,254475,CANACONA,5935,Canacona,5619
+627027,Loliem,VILLAGE,Rural,South Goa,Canacona,4797,code,627027,Loliem,LOLIEM-POLEM,Village Panchayat,254431,CANACONA,5935,Canacona,5619
+627028,Cotigao,VILLAGE,Rural,South Goa,Canacona,2640,code,627028,Cotigao,COTIGAO,Village Panchayat,254400,CANACONA,5935,Canacona,5619
+627029,Anjadip,VILLAGE,Rural,South Goa,Canacona,0,code,627029,Angediva,LOLIEM-POLEM,Village Panchayat,254431,CANACONA,5935,Canacona,5619
+803254,Canacona (M Cl),TOWN,Urban,South Goa,Canacona,12434,none,,,,,,,,,

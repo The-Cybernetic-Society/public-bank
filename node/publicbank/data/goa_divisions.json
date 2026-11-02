@@ -1,0 +1,9136 @@
+{
+ "compiled": "2026-11-02",
+ "divisions": [
+  {
+   "id": "aldona",
+   "kind": "village_panchayat",
+   "name": "Aldona",
+   "lgd_code": 254349,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626683,
+     "name": "Corjuem",
+     "share": 1.0
+    },
+    {
+     "code": 626684,
+     "name": "Ponolem",
+     "share": 1.0
+    },
+    {
+     "code": 626685,
+     "name": "Calvim",
+     "share": 1.0
+    },
+    {
+     "code": 626704,
+     "name": "Aldona (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2406,
+    "population": 9518,
+    "male": 4471,
+    "female": 5047,
+    "sc": 466,
+    "st": 274,
+    "literates": 7909,
+    "workers": 3297,
+    "cultivators": 162,
+    "agri_labourers": 121,
+    "hh_industry": 91,
+    "other_workers": 2923,
+    "non_workers": 6221,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "anjuna-caisua",
+   "kind": "village_panchayat",
+   "name": "Anjuna-Caisua",
+   "lgd_code": 254354,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626694,
+     "name": "Anjuna (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2243,
+    "population": 9636,
+    "male": 4921,
+    "female": 4715,
+    "sc": 165,
+    "st": 40,
+    "literates": 7656,
+    "workers": 3943,
+    "cultivators": 58,
+    "agri_labourers": 66,
+    "hh_industry": 209,
+    "other_workers": 3610,
+    "non_workers": 5693,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "arpora-nagoa",
+   "kind": "village_panchayat",
+   "name": "Arpora-Nagoa",
+   "lgd_code": 254357,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626673,
+     "name": "Arpora",
+     "share": 1.0
+    },
+    {
+     "code": 626674,
+     "name": "Nagoa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1185,
+    "population": 4710,
+    "male": 2380,
+    "female": 2330,
+    "sc": 18,
+    "st": 62,
+    "literates": 3870,
+    "workers": 1913,
+    "cultivators": 147,
+    "agri_labourers": 38,
+    "hh_industry": 49,
+    "other_workers": 1679,
+    "non_workers": 2797,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "assagao",
+   "kind": "village_panchayat",
+   "name": "Assagao",
+   "lgd_code": 254358,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626672,
+     "name": "Assagao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 952,
+    "population": 4367,
+    "male": 2216,
+    "female": 2151,
+    "sc": 148,
+    "st": 22,
+    "literates": 3712,
+    "workers": 1808,
+    "cultivators": 98,
+    "agri_labourers": 21,
+    "hh_industry": 33,
+    "other_workers": 1656,
+    "non_workers": 2559,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "assanora",
+   "kind": "village_panchayat",
+   "name": "Assanora",
+   "lgd_code": 254359,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626667,
+     "name": "Moitem",
+     "share": 1.0
+    },
+    {
+     "code": 626668,
+     "name": "Assonora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1134,
+    "population": 4730,
+    "male": 2318,
+    "female": 2412,
+    "sc": 97,
+    "st": 8,
+    "literates": 4043,
+    "workers": 2037,
+    "cultivators": 156,
+    "agri_labourers": 68,
+    "hh_industry": 61,
+    "other_workers": 1752,
+    "non_workers": 2693,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "bastora",
+   "kind": "village_panchayat",
+   "name": "Bastora",
+   "lgd_code": 254367,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626678,
+     "name": "Bastora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 917,
+    "population": 3943,
+    "male": 1918,
+    "female": 2025,
+    "sc": 191,
+    "st": 33,
+    "literates": 3302,
+    "workers": 1458,
+    "cultivators": 88,
+    "agri_labourers": 21,
+    "hh_industry": 61,
+    "other_workers": 1288,
+    "non_workers": 2485,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "calangute",
+   "kind": "village_panchayat",
+   "name": "Calangute",
+   "lgd_code": 254377,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626695,
+     "name": "Calangute (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1652,
+    "population": 6905,
+    "male": 3600,
+    "female": 3306,
+    "sc": 101,
+    "st": 41,
+    "literates": 5527,
+    "workers": 2941,
+    "cultivators": 60,
+    "agri_labourers": 22,
+    "hh_industry": 126,
+    "other_workers": 2732,
+    "non_workers": 3964,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "camurli",
+   "kind": "village_panchayat",
+   "name": "Camurli",
+   "lgd_code": 254378,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626663,
+     "name": "Camurlim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 674,
+    "population": 3015,
+    "male": 1501,
+    "female": 1514,
+    "sc": 2,
+    "st": 7,
+    "literates": 2505,
+    "workers": 1207,
+    "cultivators": 125,
+    "agri_labourers": 26,
+    "hh_industry": 61,
+    "other_workers": 995,
+    "non_workers": 1808,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "candolim",
+   "kind": "village_panchayat",
+   "name": "Candolim",
+   "lgd_code": 254380,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626689,
+     "name": "Marra",
+     "share": 0.5
+    },
+    {
+     "code": 626695,
+     "name": "Calangute (CT)",
+     "share": 0.5
+    },
+    {
+     "code": 626697,
+     "name": "Candolim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3952,
+    "population": 16399,
+    "male": 8506,
+    "female": 7893,
+    "sc": 246,
+    "st": 60,
+    "literates": 13078,
+    "workers": 6716,
+    "cultivators": 103,
+    "agri_labourers": 44,
+    "hh_industry": 262,
+    "other_workers": 6306,
+    "non_workers": 9684,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "colvale",
+   "kind": "village_panchayat",
+   "name": "Colvale",
+   "lgd_code": 254396,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626691,
+     "name": "Colvale (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1147,
+    "population": 4818,
+    "male": 2425,
+    "female": 2393,
+    "sc": 15,
+    "st": 0,
+    "literates": 3946,
+    "workers": 1663,
+    "cultivators": 11,
+    "agri_labourers": 8,
+    "hh_industry": 20,
+    "other_workers": 1624,
+    "non_workers": 3155,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "guirim",
+   "kind": "village_panchayat",
+   "name": "Guirim",
+   "lgd_code": 254419,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626693,
+     "name": "Guirim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1178,
+    "population": 5036,
+    "male": 2502,
+    "female": 2534,
+    "sc": 43,
+    "st": 4,
+    "literates": 4123,
+    "workers": 2031,
+    "cultivators": 32,
+    "agri_labourers": 28,
+    "hh_industry": 49,
+    "other_workers": 1922,
+    "non_workers": 3005,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mapusa",
+   "kind": "municipal_council",
+   "name": "Mapusa",
+   "lgd_code": null,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803242,
+     "name": "Mapusa (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 9466,
+    "population": 39989,
+    "male": 20322,
+    "female": 19667,
+    "sc": 1638,
+    "st": 154,
+    "literates": 33320,
+    "workers": 16248,
+    "cultivators": 155,
+    "agri_labourers": 74,
+    "hh_industry": 584,
+    "other_workers": 15435,
+    "non_workers": 23741,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "moira",
+   "kind": "village_panchayat",
+   "name": "Moira",
+   "lgd_code": 254442,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626692,
+     "name": "Moira (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1077,
+    "population": 4299,
+    "male": 2084,
+    "female": 2215,
+    "sc": 89,
+    "st": 159,
+    "literates": 3562,
+    "workers": 1595,
+    "cultivators": 83,
+    "agri_labourers": 62,
+    "hh_industry": 70,
+    "other_workers": 1380,
+    "non_workers": 2704,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "nachinola",
+   "kind": "village_panchayat",
+   "name": "Nachinola",
+   "lgd_code": 254449,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626682,
+     "name": "Nachinola",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 645,
+    "population": 2725,
+    "male": 1360,
+    "female": 1365,
+    "sc": 103,
+    "st": 45,
+    "literates": 2191,
+    "workers": 1164,
+    "cultivators": 97,
+    "agri_labourers": 19,
+    "hh_industry": 33,
+    "other_workers": 1015,
+    "non_workers": 1561,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "nadora",
+   "kind": "village_panchayat",
+   "name": "Nadora",
+   "lgd_code": 254450,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626665,
+     "name": "Nadora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 295,
+    "population": 1257,
+    "male": 648,
+    "female": 609,
+    "sc": 0,
+    "st": 0,
+    "literates": 1046,
+    "workers": 496,
+    "cultivators": 52,
+    "agri_labourers": 14,
+    "hh_industry": 7,
+    "other_workers": 423,
+    "non_workers": 761,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "nerul",
+   "kind": "village_panchayat",
+   "name": "Nerul",
+   "lgd_code": 254457,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626698,
+     "name": "Nerul (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1178,
+    "population": 5042,
+    "male": 2575,
+    "female": 2467,
+    "sc": 42,
+    "st": 9,
+    "literates": 4134,
+    "workers": 2052,
+    "cultivators": 39,
+    "agri_labourers": 37,
+    "hh_industry": 85,
+    "other_workers": 1891,
+    "non_workers": 2990,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "oxel",
+   "kind": "village_panchayat",
+   "name": "Oxel",
+   "lgd_code": 254462,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626662,
+     "name": "Oxel",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 633,
+    "population": 2794,
+    "male": 1329,
+    "female": 1465,
+    "sc": 8,
+    "st": 1,
+    "literates": 2378,
+    "workers": 891,
+    "cultivators": 81,
+    "agri_labourers": 22,
+    "hh_industry": 7,
+    "other_workers": 781,
+    "non_workers": 1903,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "parra",
+   "kind": "village_panchayat",
+   "name": "Parra",
+   "lgd_code": 254469,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626675,
+     "name": "Parra",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1067,
+    "population": 4449,
+    "male": 2174,
+    "female": 2275,
+    "sc": 108,
+    "st": 4,
+    "literates": 3695,
+    "workers": 1684,
+    "cultivators": 124,
+    "agri_labourers": 27,
+    "hh_industry": 117,
+    "other_workers": 1416,
+    "non_workers": 2765,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "penha-de-france",
+   "kind": "village_panchayat",
+   "name": "Penha-de-France",
+   "lgd_code": 254470,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626701,
+     "name": "Penha-de-Franca (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3850,
+    "population": 15342,
+    "male": 7816,
+    "female": 7526,
+    "sc": 433,
+    "st": 143,
+    "literates": 12873,
+    "workers": 6321,
+    "cultivators": 51,
+    "agri_labourers": 23,
+    "hh_industry": 159,
+    "other_workers": 6088,
+    "non_workers": 9021,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pilerne-marra",
+   "kind": "village_panchayat",
+   "name": "Pilerne - Marra",
+   "lgd_code": 254471,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626689,
+     "name": "Marra",
+     "share": 0.5
+    },
+    {
+     "code": 626700,
+     "name": "Pilerne (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1740,
+    "population": 6821,
+    "male": 3538,
+    "female": 3282,
+    "sc": 79,
+    "st": 63,
+    "literates": 5741,
+    "workers": 2804,
+    "cultivators": 46,
+    "agri_labourers": 24,
+    "hh_industry": 24,
+    "other_workers": 2710,
+    "non_workers": 4018,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pirna",
+   "kind": "village_panchayat",
+   "name": "Pirna",
+   "lgd_code": 254473,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626666,
+     "name": "Pirna",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 632,
+    "population": 2568,
+    "male": 1267,
+    "female": 1301,
+    "sc": 45,
+    "st": 0,
+    "literates": 2045,
+    "workers": 955,
+    "cultivators": 91,
+    "agri_labourers": 104,
+    "hh_industry": 83,
+    "other_workers": 677,
+    "non_workers": 1613,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pomburpa-olaulim",
+   "kind": "village_panchayat",
+   "name": "Pomburpa, Olaulim",
+   "lgd_code": 254476,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626686,
+     "name": "Olaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626687,
+     "name": "Pomburpa",
+     "share": 1.0
+    },
+    {
+     "code": 626702,
+     "name": "Salvador do Mundo (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1687,
+    "population": 6940,
+    "male": 3476,
+    "female": 3464,
+    "sc": 146,
+    "st": 87,
+    "literates": 5868,
+    "workers": 2858,
+    "cultivators": 111,
+    "agri_labourers": 222,
+    "hh_industry": 68,
+    "other_workers": 2456,
+    "non_workers": 4082,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "reis-magos",
+   "kind": "village_panchayat",
+   "name": "Reis-Magos",
+   "lgd_code": 254529,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626699,
+     "name": "Reis Magos (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1871,
+    "population": 8053,
+    "male": 4238,
+    "female": 3815,
+    "sc": 196,
+    "st": 86,
+    "literates": 6555,
+    "workers": 3380,
+    "cultivators": 24,
+    "agri_labourers": 11,
+    "hh_industry": 118,
+    "other_workers": 3227,
+    "non_workers": 4673,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "revora",
+   "kind": "village_panchayat",
+   "name": "Revora",
+   "lgd_code": 254482,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626664,
+     "name": "Revora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 631,
+    "population": 2630,
+    "male": 1308,
+    "female": 1322,
+    "sc": 112,
+    "st": 8,
+    "literates": 2207,
+    "workers": 1147,
+    "cultivators": 129,
+    "agri_labourers": 182,
+    "hh_industry": 83,
+    "other_workers": 753,
+    "non_workers": 1483,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "saligao",
+   "kind": "village_panchayat",
+   "name": "Saligao",
+   "lgd_code": 254486,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626696,
+     "name": "Saligao (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1512,
+    "population": 6280,
+    "male": 3175,
+    "female": 3105,
+    "sc": 49,
+    "st": 80,
+    "literates": 5260,
+    "workers": 2403,
+    "cultivators": 30,
+    "agri_labourers": 75,
+    "hh_industry": 77,
+    "other_workers": 2221,
+    "non_workers": 3877,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "salvador-do-mundo",
+   "kind": "village_panchayat",
+   "name": "Salvador-do-Mundo",
+   "lgd_code": 254487,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626702,
+     "name": "Salvador do Mundo (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 758,
+    "population": 3186,
+    "male": 1614,
+    "female": 1572,
+    "sc": 100,
+    "st": 75,
+    "literates": 2670,
+    "workers": 1309,
+    "cultivators": 12,
+    "agri_labourers": 24,
+    "hh_industry": 23,
+    "other_workers": 1250,
+    "non_workers": 1878,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sangolda",
+   "kind": "village_panchayat",
+   "name": "Sangolda",
+   "lgd_code": 254490,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626688,
+     "name": "Sangolda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1084,
+    "population": 4429,
+    "male": 2305,
+    "female": 2124,
+    "sc": 122,
+    "st": 12,
+    "literates": 3585,
+    "workers": 1821,
+    "cultivators": 127,
+    "agri_labourers": 30,
+    "hh_industry": 48,
+    "other_workers": 1616,
+    "non_workers": 2608,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "siolim-marna",
+   "kind": "village_panchayat",
+   "name": "Siolim Marna",
+   "lgd_code": 254500,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626671,
+     "name": "Marna",
+     "share": 1.0
+    },
+    {
+     "code": 626690,
+     "name": "Siolim (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1616,
+    "population": 6702,
+    "male": 3190,
+    "female": 3512,
+    "sc": 57,
+    "st": 16,
+    "literates": 5465,
+    "workers": 2376,
+    "cultivators": 62,
+    "agri_labourers": 74,
+    "hh_industry": 112,
+    "other_workers": 2128,
+    "non_workers": 4326,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "siolim-sodiem",
+   "kind": "village_panchayat",
+   "name": "Siolim-Sodiem",
+   "lgd_code": 254501,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626690,
+     "name": "Siolim (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1318,
+    "population": 5468,
+    "male": 2620,
+    "female": 2848,
+    "sc": 46,
+    "st": 12,
+    "literates": 4424,
+    "workers": 2010,
+    "cultivators": 28,
+    "agri_labourers": 58,
+    "hh_industry": 94,
+    "other_workers": 1831,
+    "non_workers": 3458,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sirsaim",
+   "kind": "village_panchayat",
+   "name": "Sirsaim",
+   "lgd_code": 254504,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626669,
+     "name": "Sircaim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 713,
+    "population": 2850,
+    "male": 1442,
+    "female": 1408,
+    "sc": 63,
+    "st": 2,
+    "literates": 2422,
+    "workers": 1083,
+    "cultivators": 69,
+    "agri_labourers": 44,
+    "hh_industry": 25,
+    "other_workers": 945,
+    "non_workers": 1767,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "socorro",
+   "kind": "village_panchayat",
+   "name": "Socorro",
+   "lgd_code": 254506,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626703,
+     "name": "Socorro (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3247,
+    "population": 12908,
+    "male": 6634,
+    "female": 6274,
+    "sc": 387,
+    "st": 27,
+    "literates": 10725,
+    "workers": 5541,
+    "cultivators": 55,
+    "agri_labourers": 34,
+    "hh_industry": 95,
+    "other_workers": 5357,
+    "non_workers": 7367,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "thivim",
+   "kind": "village_panchayat",
+   "name": "Thivim",
+   "lgd_code": 254516,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626670,
+     "name": "Tivim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2244,
+    "population": 9076,
+    "male": 4552,
+    "female": 4524,
+    "sc": 291,
+    "st": 22,
+    "literates": 7519,
+    "workers": 3421,
+    "cultivators": 266,
+    "agri_labourers": 137,
+    "hh_industry": 63,
+    "other_workers": 2955,
+    "non_workers": 5655,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ucassaim-paliem-punola",
+   "kind": "village_panchayat",
+   "name": "Ucassaim-Paliem-Punola",
+   "lgd_code": 254520,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626679,
+     "name": "Paliem",
+     "share": 1.0
+    },
+    {
+     "code": 626680,
+     "name": "Punola",
+     "share": 1.0
+    },
+    {
+     "code": 626681,
+     "name": "Ucassaim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 791,
+    "population": 3318,
+    "male": 1732,
+    "female": 1586,
+    "sc": 56,
+    "st": 85,
+    "literates": 2733,
+    "workers": 1259,
+    "cultivators": 80,
+    "agri_labourers": 32,
+    "hh_industry": 82,
+    "other_workers": 1065,
+    "non_workers": 2059,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "verla-canca",
+   "kind": "village_panchayat",
+   "name": "Verla Canca",
+   "lgd_code": 254531,
+   "taluka": "Bardez",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626676,
+     "name": "Verla",
+     "share": 1.0
+    },
+    {
+     "code": 626677,
+     "name": "Canca",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1652,
+    "population": 7236,
+    "male": 3735,
+    "female": 3501,
+    "sc": 271,
+    "st": 13,
+    "literates": 5926,
+    "workers": 2832,
+    "cultivators": 203,
+    "agri_labourers": 30,
+    "hh_industry": 120,
+    "other_workers": 2479,
+    "non_workers": 4404,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "advalpal",
+   "kind": "village_panchayat",
+   "name": "Advalpal",
+   "lgd_code": 254346,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626745,
+     "name": "Adwalpale",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 326,
+    "population": 1412,
+    "male": 686,
+    "female": 726,
+    "sc": 115,
+    "st": 0,
+    "literates": 1110,
+    "workers": 602,
+    "cultivators": 70,
+    "agri_labourers": 59,
+    "hh_industry": 8,
+    "other_workers": 465,
+    "non_workers": 810,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "amona",
+   "kind": "village_panchayat",
+   "name": "Amona",
+   "lgd_code": 254353,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626758,
+     "name": "Amone",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 694,
+    "population": 2963,
+    "male": 1482,
+    "female": 1481,
+    "sc": 15,
+    "st": 0,
+    "literates": 2437,
+    "workers": 1005,
+    "cultivators": 83,
+    "agri_labourers": 46,
+    "hh_industry": 47,
+    "other_workers": 829,
+    "non_workers": 1958,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "bicholim",
+   "kind": "municipal_council",
+   "name": "Bicholim",
+   "lgd_code": null,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803244,
+     "name": "Bicholim (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3978,
+    "population": 16986,
+    "male": 8771,
+    "female": 8215,
+    "sc": 381,
+    "st": 83,
+    "literates": 13971,
+    "workers": 6401,
+    "cultivators": 85,
+    "agri_labourers": 31,
+    "hh_industry": 128,
+    "other_workers": 6157,
+    "non_workers": 10585,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "cudnem",
+   "kind": "village_panchayat",
+   "name": "Cudnem",
+   "lgd_code": 254402,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626757,
+     "name": "Cudnem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 763,
+    "population": 3308,
+    "male": 1714,
+    "female": 1594,
+    "sc": 63,
+    "st": 31,
+    "literates": 2648,
+    "workers": 1274,
+    "cultivators": 116,
+    "agri_labourers": 63,
+    "hh_industry": 33,
+    "other_workers": 1062,
+    "non_workers": 2034,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "karapur-sarvan",
+   "kind": "village_panchayat",
+   "name": "Karapur-Sarvan",
+   "lgd_code": 254424,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626751,
+     "name": "Sarvona",
+     "share": 1.0
+    },
+    {
+     "code": 626763,
+     "name": "Carapur (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1966,
+    "population": 9086,
+    "male": 4566,
+    "female": 4520,
+    "sc": 190,
+    "st": 371,
+    "literates": 7355,
+    "workers": 3343,
+    "cultivators": 145,
+    "agri_labourers": 58,
+    "hh_industry": 115,
+    "other_workers": 3025,
+    "non_workers": 5743,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "latambarcem",
+   "kind": "village_panchayat",
+   "name": "Latambarcem",
+   "lgd_code": 254430,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626744,
+     "name": "Latambarcem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1533,
+    "population": 6722,
+    "male": 3437,
+    "female": 3285,
+    "sc": 306,
+    "st": 10,
+    "literates": 5083,
+    "workers": 2872,
+    "cultivators": 308,
+    "agri_labourers": 452,
+    "hh_industry": 56,
+    "other_workers": 2056,
+    "non_workers": 3850,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mayem",
+   "kind": "village_panchayat",
+   "name": "Mayem",
+   "lgd_code": 254439,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626752,
+     "name": "Maem",
+     "share": 1.0
+    },
+    {
+     "code": 626753,
+     "name": "Vainguinim",
+     "share": 1.0
+    },
+    {
+     "code": 626754,
+     "name": "Aturli",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1996,
+    "population": 8717,
+    "male": 4344,
+    "female": 4373,
+    "sc": 76,
+    "st": 1,
+    "literates": 7102,
+    "workers": 3303,
+    "cultivators": 367,
+    "agri_labourers": 291,
+    "hh_industry": 56,
+    "other_workers": 2589,
+    "non_workers": 5414,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mencurem-dumacem",
+   "kind": "village_panchayat",
+   "name": "Mencurem Dumacem",
+   "lgd_code": 254440,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626741,
+     "name": "Mencurem",
+     "share": 1.0
+    },
+    {
+     "code": 626742,
+     "name": "Dumacem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 365,
+    "population": 1677,
+    "male": 821,
+    "female": 856,
+    "sc": 73,
+    "st": 0,
+    "literates": 1311,
+    "workers": 691,
+    "cultivators": 90,
+    "agri_labourers": 15,
+    "hh_industry": 40,
+    "other_workers": 546,
+    "non_workers": 986,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mulgao",
+   "kind": "village_panchayat",
+   "name": "Mulgao",
+   "lgd_code": 254448,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626747,
+     "name": "Mulgao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 926,
+    "population": 3892,
+    "male": 1998,
+    "female": 1894,
+    "sc": 166,
+    "st": 0,
+    "literates": 3229,
+    "workers": 1435,
+    "cultivators": 97,
+    "agri_labourers": 67,
+    "hh_industry": 80,
+    "other_workers": 1191,
+    "non_workers": 2457,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "naroa",
+   "kind": "village_panchayat",
+   "name": "Naroa",
+   "lgd_code": 254454,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626755,
+     "name": "Naroa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 419,
+    "population": 1897,
+    "male": 952,
+    "female": 945,
+    "sc": 84,
+    "st": 174,
+    "literates": 1514,
+    "workers": 749,
+    "cultivators": 65,
+    "agri_labourers": 84,
+    "hh_industry": 16,
+    "other_workers": 584,
+    "non_workers": 1148,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "navelim-bicholim",
+   "kind": "village_panchayat",
+   "name": "Navelim",
+   "lgd_code": 254456,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626759,
+     "name": "Navelim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 611,
+    "population": 2703,
+    "male": 1387,
+    "female": 1316,
+    "sc": 5,
+    "st": 397,
+    "literates": 2149,
+    "workers": 983,
+    "cultivators": 97,
+    "agri_labourers": 10,
+    "hh_industry": 60,
+    "other_workers": 816,
+    "non_workers": 1720,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ona-maulinguem-curchirem",
+   "kind": "village_panchayat",
+   "name": "Ona Maulinguem Curchirem",
+   "lgd_code": 254437,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626748,
+     "name": "Ona",
+     "share": 1.0
+    },
+    {
+     "code": 626749,
+     "name": "Maulinguem North",
+     "share": 1.0
+    },
+    {
+     "code": 626750,
+     "name": "Curchirem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 925,
+    "population": 4185,
+    "male": 2108,
+    "female": 2077,
+    "sc": 226,
+    "st": 1,
+    "literates": 2940,
+    "workers": 1579,
+    "cultivators": 155,
+    "agri_labourers": 278,
+    "hh_industry": 45,
+    "other_workers": 1101,
+    "non_workers": 2606,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pale-cotombi",
+   "kind": "village_panchayat",
+   "name": "Pale, Cotombi",
+   "lgd_code": 254464,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626760,
+     "name": "Cotombi",
+     "share": 1.0
+    },
+    {
+     "code": 626764,
+     "name": "Pale (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1499,
+    "population": 6634,
+    "male": 3429,
+    "female": 3205,
+    "sc": 151,
+    "st": 1016,
+    "literates": 5325,
+    "workers": 2674,
+    "cultivators": 43,
+    "agri_labourers": 42,
+    "hh_industry": 14,
+    "other_workers": 2575,
+    "non_workers": 3960,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "piligao",
+   "kind": "village_panchayat",
+   "name": "Piligao",
+   "lgd_code": 254472,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626756,
+     "name": "Piligao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 600,
+    "population": 2643,
+    "male": 1295,
+    "female": 1348,
+    "sc": 44,
+    "st": 1009,
+    "literates": 2123,
+    "workers": 990,
+    "cultivators": 60,
+    "agri_labourers": 31,
+    "hh_industry": 19,
+    "other_workers": 880,
+    "non_workers": 1653,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "salem",
+   "kind": "village_panchayat",
+   "name": "Salem",
+   "lgd_code": 254485,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626743,
+     "name": "Salem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 761,
+    "population": 3427,
+    "male": 1724,
+    "female": 1703,
+    "sc": 105,
+    "st": 0,
+    "literates": 2702,
+    "workers": 1170,
+    "cultivators": 154,
+    "agri_labourers": 157,
+    "hh_industry": 53,
+    "other_workers": 806,
+    "non_workers": 2257,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sanquelim",
+   "kind": "municipal_council",
+   "name": "Sanquelim",
+   "lgd_code": null,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803245,
+     "name": "Sanquelim (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3239,
+    "population": 13651,
+    "male": 7071,
+    "female": 6580,
+    "sc": 160,
+    "st": 91,
+    "literates": 11204,
+    "workers": 5504,
+    "cultivators": 71,
+    "agri_labourers": 121,
+    "hh_industry": 187,
+    "other_workers": 5125,
+    "non_workers": 8147,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "sirigao",
+   "kind": "village_panchayat",
+   "name": "Sirigao",
+   "lgd_code": 254503,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626746,
+     "name": "Sirigao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 361,
+    "population": 1617,
+    "male": 820,
+    "female": 797,
+    "sc": 0,
+    "st": 0,
+    "literates": 1331,
+    "workers": 530,
+    "cultivators": 42,
+    "agri_labourers": 2,
+    "hh_industry": 1,
+    "other_workers": 485,
+    "non_workers": 1087,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "surla",
+   "kind": "village_panchayat",
+   "name": "Surla",
+   "lgd_code": 254511,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626761,
+     "name": "Surla",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 836,
+    "population": 3818,
+    "male": 1967,
+    "female": 1851,
+    "sc": 65,
+    "st": 1255,
+    "literates": 3063,
+    "workers": 1442,
+    "cultivators": 147,
+    "agri_labourers": 53,
+    "hh_industry": 32,
+    "other_workers": 1210,
+    "non_workers": 2376,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "velguem",
+   "kind": "village_panchayat",
+   "name": "Velguem",
+   "lgd_code": 254525,
+   "taluka": "Bicholim",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626762,
+     "name": "Velguem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 616,
+    "population": 2617,
+    "male": 1359,
+    "female": 1258,
+    "sc": 39,
+    "st": 53,
+    "literates": 2031,
+    "workers": 1056,
+    "cultivators": 77,
+    "agri_labourers": 4,
+    "hh_industry": 3,
+    "other_workers": 972,
+    "non_workers": 1561,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "agarwada-chopdem",
+   "kind": "village_panchayat",
+   "name": "Agarwada Chopdem",
+   "lgd_code": 254347,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626656,
+     "name": "Chopdem",
+     "share": 1.0
+    },
+    {
+     "code": 626657,
+     "name": "Agarvado",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 520,
+    "population": 2452,
+    "male": 1199,
+    "female": 1253,
+    "sc": 240,
+    "st": 0,
+    "literates": 1801,
+    "workers": 942,
+    "cultivators": 93,
+    "agri_labourers": 19,
+    "hh_industry": 11,
+    "other_workers": 819,
+    "non_workers": 1510,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "alorna",
+   "kind": "village_panchayat",
+   "name": "Alorna",
+   "lgd_code": 254350,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626649,
+     "name": "Alorna",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 600,
+    "population": 2651,
+    "male": 1351,
+    "female": 1300,
+    "sc": 156,
+    "st": 4,
+    "literates": 2103,
+    "workers": 1069,
+    "cultivators": 234,
+    "agri_labourers": 146,
+    "hh_industry": 117,
+    "other_workers": 572,
+    "non_workers": 1582,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "arambol",
+   "kind": "village_panchayat",
+   "name": "Arambol",
+   "lgd_code": 254356,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626658,
+     "name": "Arambol (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1234,
+    "population": 5322,
+    "male": 2780,
+    "female": 2542,
+    "sc": 125,
+    "st": 0,
+    "literates": 4280,
+    "workers": 1945,
+    "cultivators": 27,
+    "agri_labourers": 123,
+    "hh_industry": 13,
+    "other_workers": 1782,
+    "non_workers": 3377,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "casnem-amberem-poroscodem",
+   "kind": "village_panchayat",
+   "name": "Casnem, Amberem,poroscodem",
+   "lgd_code": 254383,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626640,
+     "name": "Poroscodem",
+     "share": 1.0
+    },
+    {
+     "code": 626641,
+     "name": "Casnem",
+     "share": 1.0
+    },
+    {
+     "code": 626643,
+     "name": "Amberem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 319,
+    "population": 1335,
+    "male": 711,
+    "female": 624,
+    "sc": 233,
+    "st": 0,
+    "literates": 1036,
+    "workers": 452,
+    "cultivators": 40,
+    "agri_labourers": 21,
+    "hh_industry": 8,
+    "other_workers": 383,
+    "non_workers": 883,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chandel-hasapur",
+   "kind": "village_panchayat",
+   "name": "Chandel Hasapur",
+   "lgd_code": 254386,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626648,
+     "name": "Chandel",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 272,
+    "population": 1152,
+    "male": 590,
+    "female": 562,
+    "sc": 35,
+    "st": 0,
+    "literates": 775,
+    "workers": 452,
+    "cultivators": 57,
+    "agri_labourers": 32,
+    "hh_industry": 41,
+    "other_workers": 322,
+    "non_workers": 700,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "corgao",
+   "kind": "village_panchayat",
+   "name": "Corgao",
+   "lgd_code": 254397,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626638,
+     "name": "Corgao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1497,
+    "population": 6639,
+    "male": 3389,
+    "female": 3250,
+    "sc": 138,
+    "st": 0,
+    "literates": 5409,
+    "workers": 2451,
+    "cultivators": 261,
+    "agri_labourers": 191,
+    "hh_industry": 75,
+    "other_workers": 1924,
+    "non_workers": 4188,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "dhargal",
+   "kind": "village_panchayat",
+   "name": "Dhargal",
+   "lgd_code": 254411,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626653,
+     "name": "Dargalim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1331,
+    "population": 5696,
+    "male": 2872,
+    "female": 2824,
+    "sc": 282,
+    "st": 2,
+    "literates": 4669,
+    "workers": 2447,
+    "cultivators": 212,
+    "agri_labourers": 206,
+    "hh_industry": 115,
+    "other_workers": 1914,
+    "non_workers": 3249,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ibrampur",
+   "kind": "village_panchayat",
+   "name": "Ibrampur",
+   "lgd_code": 254422,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626650,
+     "name": "Ibrampur",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 555,
+    "population": 2429,
+    "male": 1262,
+    "female": 1167,
+    "sc": 166,
+    "st": 10,
+    "literates": 1812,
+    "workers": 960,
+    "cultivators": 194,
+    "agri_labourers": 77,
+    "hh_industry": 23,
+    "other_workers": 666,
+    "non_workers": 1469,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "kasarvanem",
+   "kind": "village_panchayat",
+   "name": "Kasarvanem",
+   "lgd_code": 254425,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626651,
+     "name": "Cansarvornem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 310,
+    "population": 1382,
+    "male": 752,
+    "female": 630,
+    "sc": 33,
+    "st": 0,
+    "literates": 1031,
+    "workers": 562,
+    "cultivators": 72,
+    "agri_labourers": 20,
+    "hh_industry": 12,
+    "other_workers": 458,
+    "non_workers": 820,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "keri-terecol",
+   "kind": "village_panchayat",
+   "name": "Keri Terecol",
+   "lgd_code": 254426,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626635,
+     "name": "Tiracol",
+     "share": 1.0
+    },
+    {
+     "code": 626636,
+     "name": "Querim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 741,
+    "population": 3243,
+    "male": 1706,
+    "female": 1537,
+    "sc": 133,
+    "st": 0,
+    "literates": 2611,
+    "workers": 1405,
+    "cultivators": 301,
+    "agri_labourers": 91,
+    "hh_industry": 6,
+    "other_workers": 1007,
+    "non_workers": 1838,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mandrem",
+   "kind": "village_panchayat",
+   "name": "Mandrem",
+   "lgd_code": 254435,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626659,
+     "name": "Mandrem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1882,
+    "population": 8336,
+    "male": 4164,
+    "female": 4172,
+    "sc": 173,
+    "st": 3,
+    "literates": 6811,
+    "workers": 3038,
+    "cultivators": 124,
+    "agri_labourers": 130,
+    "hh_industry": 68,
+    "other_workers": 2716,
+    "non_workers": 5298,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "morjim",
+   "kind": "village_panchayat",
+   "name": "Morjim",
+   "lgd_code": 254445,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626661,
+     "name": "Morjim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1477,
+    "population": 6760,
+    "male": 3356,
+    "female": 3404,
+    "sc": 46,
+    "st": 12,
+    "literates": 5530,
+    "workers": 2425,
+    "cultivators": 61,
+    "agri_labourers": 26,
+    "hh_industry": 102,
+    "other_workers": 2236,
+    "non_workers": 4335,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ozarim",
+   "kind": "village_panchayat",
+   "name": "Ozarim",
+   "lgd_code": 254463,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626652,
+     "name": "Ozorim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 394,
+    "population": 1669,
+    "male": 892,
+    "female": 777,
+    "sc": 57,
+    "st": 0,
+    "literates": 1266,
+    "workers": 646,
+    "cultivators": 82,
+    "agri_labourers": 74,
+    "hh_industry": 6,
+    "other_workers": 484,
+    "non_workers": 1023,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "paliem",
+   "kind": "village_panchayat",
+   "name": "Paliem",
+   "lgd_code": 254465,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626637,
+     "name": "Paliem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 609,
+    "population": 2776,
+    "male": 1446,
+    "female": 1330,
+    "sc": 82,
+    "st": 0,
+    "literates": 2205,
+    "workers": 1065,
+    "cultivators": 131,
+    "agri_labourers": 198,
+    "hh_industry": 17,
+    "other_workers": 719,
+    "non_workers": 1711,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "parcem",
+   "kind": "village_panchayat",
+   "name": "Parcem",
+   "lgd_code": 254467,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626660,
+     "name": "Parcem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1030,
+    "population": 4627,
+    "male": 2345,
+    "female": 2282,
+    "sc": 188,
+    "st": 11,
+    "literates": 3754,
+    "workers": 1600,
+    "cultivators": 36,
+    "agri_labourers": 63,
+    "hh_industry": 35,
+    "other_workers": 1466,
+    "non_workers": 3027,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pernem",
+   "kind": "municipal_council",
+   "name": "Pernem",
+   "lgd_code": null,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803241,
+     "name": "Pernem (M Cl)",
+     "share": 1
+    },
+    {
+     "code": 626639,
+     "name": "Pernem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1831,
+    "population": 7722,
+    "male": 3947,
+    "female": 3775,
+    "sc": 276,
+    "st": 0,
+    "literates": 6382,
+    "workers": 2724,
+    "cultivators": 157,
+    "agri_labourers": 112,
+    "hh_industry": 48,
+    "other_workers": 2407,
+    "non_workers": 4998,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "tamboxem-mopa-uguem",
+   "kind": "village_panchayat",
+   "name": "Tamboxem, Mopa, Uguem",
+   "lgd_code": 254514,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626644,
+     "name": "Uguem",
+     "share": 1.0
+    },
+    {
+     "code": 626645,
+     "name": "Tamboxem",
+     "share": 1.0
+    },
+    {
+     "code": 626647,
+     "name": "Mopa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 615,
+    "population": 2806,
+    "male": 1430,
+    "female": 1376,
+    "sc": 227,
+    "st": 0,
+    "literates": 2238,
+    "workers": 1122,
+    "cultivators": 191,
+    "agri_labourers": 71,
+    "hh_industry": 168,
+    "other_workers": 692,
+    "non_workers": 1684,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "torxem",
+   "kind": "village_panchayat",
+   "name": "Torxem",
+   "lgd_code": 254518,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626646,
+     "name": "Torxem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 553,
+    "population": 2405,
+    "male": 1233,
+    "female": 1172,
+    "sc": 189,
+    "st": 0,
+    "literates": 1940,
+    "workers": 797,
+    "cultivators": 133,
+    "agri_labourers": 143,
+    "hh_industry": 12,
+    "other_workers": 509,
+    "non_workers": 1608,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "tuem",
+   "kind": "village_panchayat",
+   "name": "Tuem",
+   "lgd_code": 254519,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626655,
+     "name": "Tuem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 652,
+    "population": 2751,
+    "male": 1422,
+    "female": 1329,
+    "sc": 134,
+    "st": 4,
+    "literates": 2187,
+    "workers": 1107,
+    "cultivators": 110,
+    "agri_labourers": 74,
+    "hh_industry": 25,
+    "other_workers": 898,
+    "non_workers": 1644,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "varkhand-nagzar",
+   "kind": "village_panchayat",
+   "name": "Varkhand Nagzar",
+   "lgd_code": 254524,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626642,
+     "name": "Varconda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 507,
+    "population": 2208,
+    "male": 1120,
+    "female": 1088,
+    "sc": 71,
+    "st": 0,
+    "literates": 1707,
+    "workers": 689,
+    "cultivators": 67,
+    "agri_labourers": 38,
+    "hh_industry": 3,
+    "other_workers": 581,
+    "non_workers": 1519,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "virnoda",
+   "kind": "village_panchayat",
+   "name": "Virnoda",
+   "lgd_code": 254533,
+   "taluka": "Pernem",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626654,
+     "name": "Virnora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 319,
+    "population": 1386,
+    "male": 685,
+    "female": 701,
+    "sc": 86,
+    "st": 0,
+    "literates": 1068,
+    "workers": 540,
+    "cultivators": 72,
+    "agri_labourers": 21,
+    "hh_industry": 13,
+    "other_workers": 434,
+    "non_workers": 846,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "bandora",
+   "kind": "village_panchayat",
+   "name": "Bandora",
+   "lgd_code": 254365,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626869,
+     "name": "Bandora (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2517,
+    "population": 12722,
+    "male": 7263,
+    "female": 5459,
+    "sc": 259,
+    "st": 1819,
+    "literates": 10409,
+    "workers": 5913,
+    "cultivators": 77,
+    "agri_labourers": 96,
+    "hh_industry": 43,
+    "other_workers": 5697,
+    "non_workers": 6809,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "betora-nirancal",
+   "kind": "village_panchayat",
+   "name": "Betora-Nirancal",
+   "lgd_code": 254371,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626859,
+     "name": "Betora",
+     "share": 1.0
+    },
+    {
+     "code": 626860,
+     "name": "Codar",
+     "share": 1.0
+    },
+    {
+     "code": 626861,
+     "name": "Nirancal",
+     "share": 1.0
+    },
+    {
+     "code": 626862,
+     "name": "Conxem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2022,
+    "population": 8824,
+    "male": 4580,
+    "female": 4244,
+    "sc": 108,
+    "st": 1582,
+    "literates": 6559,
+    "workers": 3615,
+    "cultivators": 327,
+    "agri_labourers": 222,
+    "hh_industry": 89,
+    "other_workers": 2977,
+    "non_workers": 5209,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "betqui-candola",
+   "kind": "village_panchayat",
+   "name": "Betqui, Candola",
+   "lgd_code": 254372,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626844,
+     "name": "Betqui",
+     "share": 1.0
+    },
+    {
+     "code": 626865,
+     "name": "Candola (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1662,
+    "population": 7061,
+    "male": 3613,
+    "female": 3448,
+    "sc": 106,
+    "st": 1504,
+    "literates": 5674,
+    "workers": 2856,
+    "cultivators": 124,
+    "agri_labourers": 136,
+    "hh_industry": 26,
+    "other_workers": 2570,
+    "non_workers": 4205,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "bhoma-adcolna",
+   "kind": "village_panchayat",
+   "name": "Bhoma-Adcolna",
+   "lgd_code": 254374,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626847,
+     "name": "Adcolna",
+     "share": 1.0
+    },
+    {
+     "code": 626848,
+     "name": "Boma",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1038,
+    "population": 4495,
+    "male": 2350,
+    "female": 2145,
+    "sc": 18,
+    "st": 1167,
+    "literates": 3453,
+    "workers": 2036,
+    "cultivators": 154,
+    "agri_labourers": 125,
+    "hh_industry": 155,
+    "other_workers": 1602,
+    "non_workers": 2459,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "borim",
+   "kind": "village_panchayat",
+   "name": "Borim",
+   "lgd_code": 254376,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626872,
+     "name": "Borim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1871,
+    "population": 8257,
+    "male": 4129,
+    "female": 4128,
+    "sc": 91,
+    "st": 1529,
+    "literates": 6764,
+    "workers": 3394,
+    "cultivators": 56,
+    "agri_labourers": 167,
+    "hh_industry": 78,
+    "other_workers": 3093,
+    "non_workers": 4863,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "curti-khandepar",
+   "kind": "village_panchayat",
+   "name": "Curti-Khandepar",
+   "lgd_code": 254407,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626853,
+     "name": "Candepar",
+     "share": 1.0
+    },
+    {
+     "code": 626870,
+     "name": "Curti (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 4719,
+    "population": 20153,
+    "male": 10638,
+    "female": 9515,
+    "sc": 282,
+    "st": 2300,
+    "literates": 15786,
+    "workers": 8527,
+    "cultivators": 233,
+    "agri_labourers": 273,
+    "hh_industry": 160,
+    "other_workers": 7861,
+    "non_workers": 11626,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "durbhat",
+   "kind": "village_panchayat",
+   "name": "Durbhat",
+   "lgd_code": 254414,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626856,
+     "name": "Durbhat",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 771,
+    "population": 3443,
+    "male": 1700,
+    "female": 1743,
+    "sc": 0,
+    "st": 425,
+    "literates": 2817,
+    "workers": 1406,
+    "cultivators": 85,
+    "agri_labourers": 33,
+    "hh_industry": 38,
+    "other_workers": 1250,
+    "non_workers": 2037,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "kundaim",
+   "kind": "village_panchayat",
+   "name": "Kundaim",
+   "lgd_code": 254429,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626855,
+     "name": "Cundaim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 913,
+    "population": 3859,
+    "male": 1988,
+    "female": 1871,
+    "sc": 79,
+    "st": 904,
+    "literates": 3102,
+    "workers": 1577,
+    "cultivators": 118,
+    "agri_labourers": 57,
+    "hh_industry": 37,
+    "other_workers": 1365,
+    "non_workers": 2282,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "marcaim",
+   "kind": "village_panchayat",
+   "name": "Marcaim",
+   "lgd_code": 254436,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626867,
+     "name": "Marcaim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1408,
+    "population": 6215,
+    "male": 3143,
+    "female": 3072,
+    "sc": 23,
+    "st": 2252,
+    "literates": 4967,
+    "workers": 2597,
+    "cultivators": 69,
+    "agri_labourers": 109,
+    "hh_industry": 37,
+    "other_workers": 2382,
+    "non_workers": 3618,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "panchawadi",
+   "kind": "village_panchayat",
+   "name": "Panchawadi",
+   "lgd_code": 254466,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626864,
+     "name": "Ponchavadi",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 931,
+    "population": 4295,
+    "male": 2140,
+    "female": 2155,
+    "sc": 3,
+    "st": 882,
+    "literates": 3360,
+    "workers": 1568,
+    "cultivators": 98,
+    "agri_labourers": 199,
+    "hh_industry": 59,
+    "other_workers": 1212,
+    "non_workers": 2727,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ponda",
+   "kind": "municipal_council",
+   "name": "Ponda",
+   "lgd_code": null,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803247,
+     "name": "Ponda (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 5818,
+    "population": 22664,
+    "male": 11729,
+    "female": 10935,
+    "sc": 264,
+    "st": 113,
+    "literates": 19302,
+    "workers": 9381,
+    "cultivators": 81,
+    "agri_labourers": 164,
+    "hh_industry": 108,
+    "other_workers": 9028,
+    "non_workers": 13283,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "quela",
+   "kind": "village_panchayat",
+   "name": "Quela",
+   "lgd_code": 254478,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626871,
+     "name": "Quela (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1623,
+    "population": 6852,
+    "male": 3500,
+    "female": 3352,
+    "sc": 95,
+    "st": 385,
+    "literates": 5669,
+    "workers": 2871,
+    "cultivators": 46,
+    "agri_labourers": 59,
+    "hh_industry": 68,
+    "other_workers": 2698,
+    "non_workers": 3981,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "querim-ponda",
+   "kind": "village_panchayat",
+   "name": "Querim",
+   "lgd_code": 254427,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626850,
+     "name": "Querim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 774,
+    "population": 3474,
+    "male": 1732,
+    "female": 1742,
+    "sc": 56,
+    "st": 2030,
+    "literates": 2762,
+    "workers": 1655,
+    "cultivators": 113,
+    "agri_labourers": 159,
+    "hh_industry": 17,
+    "other_workers": 1366,
+    "non_workers": 1819,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "shiroda",
+   "kind": "village_panchayat",
+   "name": "Shiroda",
+   "lgd_code": 254498,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626863,
+     "name": "Siroda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3197,
+    "population": 14041,
+    "male": 6886,
+    "female": 7155,
+    "sc": 297,
+    "st": 2895,
+    "literates": 11190,
+    "workers": 5372,
+    "cultivators": 492,
+    "agri_labourers": 372,
+    "hh_industry": 214,
+    "other_workers": 4294,
+    "non_workers": 8669,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "tivrem-orgao",
+   "kind": "village_panchayat",
+   "name": "Tivrem-Orgao",
+   "lgd_code": 254517,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626843,
+     "name": "Tivrem",
+     "share": 1.0
+    },
+    {
+     "code": 626866,
+     "name": "Orgao (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1610,
+    "population": 6480,
+    "male": 3224,
+    "female": 3256,
+    "sc": 18,
+    "st": 701,
+    "literates": 5460,
+    "workers": 2695,
+    "cultivators": 116,
+    "agri_labourers": 73,
+    "hh_industry": 90,
+    "other_workers": 2416,
+    "non_workers": 3785,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "usgao-ganjem",
+   "kind": "village_panchayat",
+   "name": "Usgao-Ganjem",
+   "lgd_code": 254522,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626852,
+     "name": "Gangem",
+     "share": 1.0
+    },
+    {
+     "code": 626873,
+     "name": "Usgao (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2979,
+    "population": 12909,
+    "male": 6621,
+    "female": 6288,
+    "sc": 128,
+    "st": 2110,
+    "literates": 10104,
+    "workers": 5165,
+    "cultivators": 97,
+    "agri_labourers": 118,
+    "hh_industry": 128,
+    "other_workers": 4822,
+    "non_workers": 7744,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "vadi-talaulim",
+   "kind": "village_panchayat",
+   "name": "Vadi Talaulim",
+   "lgd_code": 254512,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626857,
+     "name": "Telaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626858,
+     "name": "Vadi",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 714,
+    "population": 3060,
+    "male": 1535,
+    "female": 1525,
+    "sc": 3,
+    "st": 214,
+    "literates": 2558,
+    "workers": 1256,
+    "cultivators": 85,
+    "agri_labourers": 20,
+    "hh_industry": 39,
+    "other_workers": 1112,
+    "non_workers": 1804,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "veling-priol",
+   "kind": "village_panchayat",
+   "name": "Veling-Priol",
+   "lgd_code": 254527,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626849,
+     "name": "Cuncoliem",
+     "share": 1.0
+    },
+    {
+     "code": 626854,
+     "name": "Velinga",
+     "share": 1.0
+    },
+    {
+     "code": 626868,
+     "name": "Priol (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2581,
+    "population": 11470,
+    "male": 5859,
+    "female": 5611,
+    "sc": 43,
+    "st": 4538,
+    "literates": 9374,
+    "workers": 4844,
+    "cultivators": 195,
+    "agri_labourers": 295,
+    "hh_industry": 80,
+    "other_workers": 4274,
+    "non_workers": 6626,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "verem-vaghurme",
+   "kind": "village_panchayat",
+   "name": "Verem-Vaghurme",
+   "lgd_code": 254530,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626846,
+     "name": "Savoi-Verem",
+     "share": 1.0
+    },
+    {
+     "code": 626851,
+     "name": "Vagurbem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 816,
+    "population": 3714,
+    "male": 1838,
+    "female": 1876,
+    "sc": 52,
+    "st": 220,
+    "literates": 2998,
+    "workers": 1570,
+    "cultivators": 143,
+    "agri_labourers": 150,
+    "hh_industry": 65,
+    "other_workers": 1212,
+    "non_workers": 2144,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "volvoi",
+   "kind": "village_panchayat",
+   "name": "Volvoi",
+   "lgd_code": 254534,
+   "taluka": "Ponda",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626845,
+     "name": "Volvoi",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 385,
+    "population": 1842,
+    "male": 1024,
+    "female": 818,
+    "sc": 0,
+    "st": 29,
+    "literates": 1551,
+    "workers": 819,
+    "cultivators": 57,
+    "agri_labourers": 6,
+    "hh_industry": 12,
+    "other_workers": 744,
+    "non_workers": 1023,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "birondem",
+   "kind": "village_panchayat",
+   "name": "Birondem",
+   "lgd_code": 254375,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626814,
+     "name": "Ansolem",
+     "share": 1.0
+    },
+    {
+     "code": 626824,
+     "name": "Sanvorcem",
+     "share": 1.0
+    },
+    {
+     "code": 626825,
+     "name": "Advoi",
+     "share": 1.0
+    },
+    {
+     "code": 626827,
+     "name": "Vantem",
+     "share": 1.0
+    },
+    {
+     "code": 626829,
+     "name": "Padeli",
+     "share": 1.0
+    },
+    {
+     "code": 626830,
+     "name": "Birondem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 971,
+    "population": 4101,
+    "male": 2098,
+    "female": 2003,
+    "sc": 12,
+    "st": 1417,
+    "literates": 2971,
+    "workers": 1628,
+    "cultivators": 249,
+    "agri_labourers": 261,
+    "hh_industry": 39,
+    "other_workers": 1079,
+    "non_workers": 2473,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cotodem",
+   "kind": "village_panchayat",
+   "name": "Cotodem",
+   "lgd_code": 254401,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626822,
+     "name": "Velguem",
+     "share": 1.0
+    },
+    {
+     "code": 626823,
+     "name": "Codqui",
+     "share": 1.0
+    },
+    {
+     "code": 626832,
+     "name": "Cotorem",
+     "share": 1.0
+    },
+    {
+     "code": 626833,
+     "name": "Xelopo-Curdo",
+     "share": 1.0
+    },
+    {
+     "code": 626834,
+     "name": "Siranguli",
+     "share": 1.0
+    },
+    {
+     "code": 626835,
+     "name": "Sirsodem",
+     "share": 1.0
+    },
+    {
+     "code": 626836,
+     "name": "Assodem",
+     "share": 1.0
+    },
+    {
+     "code": 626837,
+     "name": "Govanem",
+     "share": 1.0
+    },
+    {
+     "code": 626838,
+     "name": "Malpona",
+     "share": 1.0
+    },
+    {
+     "code": 626839,
+     "name": "Ambeli",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 902,
+    "population": 4102,
+    "male": 2105,
+    "female": 1997,
+    "sc": 225,
+    "st": 69,
+    "literates": 3169,
+    "workers": 1588,
+    "cultivators": 216,
+    "agri_labourers": 513,
+    "hh_industry": 50,
+    "other_workers": 809,
+    "non_workers": 2514,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "dongurli-thane",
+   "kind": "village_panchayat",
+   "name": "Dongurli-Thane",
+   "lgd_code": 254412,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626773,
+     "name": "Choraundem",
+     "share": 1.0
+    },
+    {
+     "code": 626774,
+     "name": "Ivrem-Buzruco",
+     "share": 1.0
+    },
+    {
+     "code": 626775,
+     "name": "Ivrem-Curdo",
+     "share": 1.0
+    },
+    {
+     "code": 626776,
+     "name": "Golauli",
+     "share": 1.0
+    },
+    {
+     "code": 626777,
+     "name": "Surla",
+     "share": 1.0
+    },
+    {
+     "code": 626781,
+     "name": "Rivem",
+     "share": 1.0
+    },
+    {
+     "code": 626782,
+     "name": "Dongurli",
+     "share": 1.0
+    },
+    {
+     "code": 626783,
+     "name": "Pale",
+     "share": 1.0
+    },
+    {
+     "code": 626792,
+     "name": "Naneli",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1190,
+    "population": 5488,
+    "male": 2734,
+    "female": 2754,
+    "sc": 256,
+    "st": 0,
+    "literates": 4095,
+    "workers": 2012,
+    "cultivators": 234,
+    "agri_labourers": 541,
+    "hh_industry": 94,
+    "other_workers": 1143,
+    "non_workers": 3476,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "guleli",
+   "kind": "village_panchayat",
+   "name": "Guleli",
+   "lgd_code": 254420,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626828,
+     "name": "Guleli",
+     "share": 1.0
+    },
+    {
+     "code": 626831,
+     "name": "Damocem",
+     "share": 1.0
+    },
+    {
+     "code": 626840,
+     "name": "Melauli",
+     "share": 1.0
+    },
+    {
+     "code": 626841,
+     "name": "Conquirem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 695,
+    "population": 3119,
+    "male": 1574,
+    "female": 1545,
+    "sc": 6,
+    "st": 760,
+    "literates": 2298,
+    "workers": 1177,
+    "cultivators": 227,
+    "agri_labourers": 233,
+    "hh_industry": 41,
+    "other_workers": 676,
+    "non_workers": 1942,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "honda",
+   "kind": "village_panchayat",
+   "name": "Honda",
+   "lgd_code": 254421,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626787,
+     "name": "Saleli",
+     "share": 1.0
+    },
+    {
+     "code": 626807,
+     "name": "Buimpal",
+     "share": 1.0
+    },
+    {
+     "code": 626810,
+     "name": "Sonus-Vonvoliem",
+     "share": 1.0
+    },
+    {
+     "code": 626842,
+     "name": "Onda (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2302,
+    "population": 9014,
+    "male": 4763,
+    "female": 4251,
+    "sc": 71,
+    "st": 660,
+    "literates": 6897,
+    "workers": 3562,
+    "cultivators": 180,
+    "agri_labourers": 200,
+    "hh_industry": 69,
+    "other_workers": 3113,
+    "non_workers": 5452,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mauxi",
+   "kind": "village_panchayat",
+   "name": "Mauxi",
+   "lgd_code": 254438,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626788,
+     "name": "Zormen",
+     "share": 1.0
+    },
+    {
+     "code": 626789,
+     "name": "Dabem",
+     "share": 1.0
+    },
+    {
+     "code": 626790,
+     "name": "Compordem",
+     "share": 1.0
+    },
+    {
+     "code": 626806,
+     "name": "Mauzi",
+     "share": 1.0
+    },
+    {
+     "code": 626813,
+     "name": "Naguem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 862,
+    "population": 4080,
+    "male": 2099,
+    "female": 1981,
+    "sc": 146,
+    "st": 3,
+    "literates": 3053,
+    "workers": 1428,
+    "cultivators": 138,
+    "agri_labourers": 271,
+    "hh_industry": 14,
+    "other_workers": 1005,
+    "non_workers": 2652,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "morlem",
+   "kind": "village_panchayat",
+   "name": "Morlem",
+   "lgd_code": 254446,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626786,
+     "name": "Morlem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 762,
+    "population": 3290,
+    "male": 1674,
+    "female": 1616,
+    "sc": 120,
+    "st": 0,
+    "literates": 2553,
+    "workers": 1431,
+    "cultivators": 204,
+    "agri_labourers": 188,
+    "hh_industry": 64,
+    "other_workers": 975,
+    "non_workers": 1859,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "nagargao",
+   "kind": "village_panchayat",
+   "name": "Nagargao",
+   "lgd_code": 254451,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626778,
+     "name": "Satrem",
+     "share": 1.0
+    },
+    {
+     "code": 626779,
+     "name": "Derodem",
+     "share": 1.0
+    },
+    {
+     "code": 626780,
+     "name": "Codal",
+     "share": 1.0
+    },
+    {
+     "code": 626791,
+     "name": "Edorem",
+     "share": 1.0
+    },
+    {
+     "code": 626793,
+     "name": "Carambolim- Brama",
+     "share": 1.0
+    },
+    {
+     "code": 626794,
+     "name": "Xelopo-Buzruco",
+     "share": 1.0
+    },
+    {
+     "code": 626795,
+     "name": "Sigonem",
+     "share": 1.0
+    },
+    {
+     "code": 626796,
+     "name": "Maloli",
+     "share": 1.0
+    },
+    {
+     "code": 626797,
+     "name": "Nanorem",
+     "share": 1.0
+    },
+    {
+     "code": 626798,
+     "name": "Vainguinim",
+     "share": 1.0
+    },
+    {
+     "code": 626799,
+     "name": "Zarani",
+     "share": 1.0
+    },
+    {
+     "code": 626800,
+     "name": "Ustem",
+     "share": 1.0
+    },
+    {
+     "code": 626801,
+     "name": "Davem",
+     "share": 1.0
+    },
+    {
+     "code": 626802,
+     "name": "Bombedem",
+     "share": 1.0
+    },
+    {
+     "code": 626803,
+     "name": "Ambedem",
+     "share": 1.0
+    },
+    {
+     "code": 626804,
+     "name": "Nagargao",
+     "share": 1.0
+    },
+    {
+     "code": 626805,
+     "name": "Satorem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1006,
+    "population": 4652,
+    "male": 2358,
+    "female": 2294,
+    "sc": 14,
+    "st": 9,
+    "literates": 3574,
+    "workers": 1930,
+    "cultivators": 416,
+    "agri_labourers": 676,
+    "hh_industry": 7,
+    "other_workers": 831,
+    "non_workers": 2722,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "pissurlem",
+   "kind": "village_panchayat",
+   "name": "Pissurlem",
+   "lgd_code": 254474,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626808,
+     "name": "Cumarconda",
+     "share": 1.0
+    },
+    {
+     "code": 626809,
+     "name": "Pissurlem",
+     "share": 1.0
+    },
+    {
+     "code": 626811,
+     "name": "Vaguriem",
+     "share": 1.0
+    },
+    {
+     "code": 626812,
+     "name": "Codiem",
+     "share": 1.0
+    },
+    {
+     "code": 626826,
+     "name": "Ponocem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 799,
+    "population": 3287,
+    "male": 1668,
+    "female": 1619,
+    "sc": 127,
+    "st": 1084,
+    "literates": 2463,
+    "workers": 1168,
+    "cultivators": 140,
+    "agri_labourers": 62,
+    "hh_industry": 44,
+    "other_workers": 922,
+    "non_workers": 2119,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "poriem",
+   "kind": "village_panchayat",
+   "name": "Poriem",
+   "lgd_code": 254477,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626765,
+     "name": "Podocem",
+     "share": 1.0
+    },
+    {
+     "code": 626766,
+     "name": "Poriem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1144,
+    "population": 5156,
+    "male": 2651,
+    "female": 2505,
+    "sc": 18,
+    "st": 0,
+    "literates": 3963,
+    "workers": 2061,
+    "cultivators": 191,
+    "agri_labourers": 325,
+    "hh_industry": 19,
+    "other_workers": 1526,
+    "non_workers": 3095,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "querim-sattari",
+   "kind": "village_panchayat",
+   "name": "Querim",
+   "lgd_code": 254479,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626767,
+     "name": "Ravona",
+     "share": 1.0
+    },
+    {
+     "code": 626768,
+     "name": "Gonteli",
+     "share": 1.0
+    },
+    {
+     "code": 626769,
+     "name": "Siroli",
+     "share": 1.0
+    },
+    {
+     "code": 626770,
+     "name": "Anjunem",
+     "share": 1.0
+    },
+    {
+     "code": 626771,
+     "name": "Quelaudem",
+     "share": 1.0
+    },
+    {
+     "code": 626772,
+     "name": "Ponsuli",
+     "share": 1.0
+    },
+    {
+     "code": 626784,
+     "name": "Gululem",
+     "share": 1.0
+    },
+    {
+     "code": 626785,
+     "name": "Querim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1216,
+    "population": 5713,
+    "male": 2872,
+    "female": 2841,
+    "sc": 54,
+    "st": 0,
+    "literates": 4431,
+    "workers": 2162,
+    "cultivators": 221,
+    "agri_labourers": 483,
+    "hh_industry": 35,
+    "other_workers": 1423,
+    "non_workers": 3551,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sanvordem-sattari",
+   "kind": "village_panchayat",
+   "name": "Sanvordem",
+   "lgd_code": 254492,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626815,
+     "name": "Cudcem",
+     "share": 1.0
+    },
+    {
+     "code": 626816,
+     "name": "Sanvordem",
+     "share": 1.0
+    },
+    {
+     "code": 626817,
+     "name": "Sonal",
+     "share": 1.0
+    },
+    {
+     "code": 626818,
+     "name": "Codvol",
+     "share": 1.0
+    },
+    {
+     "code": 626819,
+     "name": "Pendral",
+     "share": 1.0
+    },
+    {
+     "code": 626820,
+     "name": "Caranzol",
+     "share": 1.0
+    },
+    {
+     "code": 626821,
+     "name": "Carambolim-Bozruco",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 684,
+    "population": 3283,
+    "male": 1651,
+    "female": 1632,
+    "sc": 63,
+    "st": 0,
+    "literates": 2394,
+    "workers": 1353,
+    "cultivators": 114,
+    "agri_labourers": 797,
+    "hh_industry": 14,
+    "other_workers": 428,
+    "non_workers": 1930,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "valpoi",
+   "kind": "municipal_council",
+   "name": "Valpoi",
+   "lgd_code": null,
+   "taluka": "Sattari",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803246,
+     "name": "Valpoi (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1834,
+    "population": 8532,
+    "male": 4327,
+    "female": 4205,
+    "sc": 93,
+    "st": 28,
+    "literates": 7068,
+    "workers": 2852,
+    "cultivators": 34,
+    "agri_labourers": 104,
+    "hh_industry": 39,
+    "other_workers": 2675,
+    "non_workers": 5680,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "azossim-mandur",
+   "kind": "village_panchayat",
+   "name": "Azossim-Mandur",
+   "lgd_code": 254363,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626719,
+     "name": "Azossim",
+     "share": 1.0
+    },
+    {
+     "code": 626720,
+     "name": "Mandur",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 996,
+    "population": 4255,
+    "male": 2068,
+    "female": 2187,
+    "sc": 9,
+    "st": 547,
+    "literates": 3476,
+    "workers": 1524,
+    "cultivators": 153,
+    "agri_labourers": 56,
+    "hh_industry": 41,
+    "other_workers": 1274,
+    "non_workers": 2731,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "batim",
+   "kind": "village_panchayat",
+   "name": "Batim",
+   "lgd_code": 254368,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626721,
+     "name": "Gancim",
+     "share": 1.0
+    },
+    {
+     "code": 626722,
+     "name": "Batim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 469,
+    "population": 2008,
+    "male": 1002,
+    "female": 1006,
+    "sc": 12,
+    "st": 21,
+    "literates": 1646,
+    "workers": 652,
+    "cultivators": 75,
+    "agri_labourers": 26,
+    "hh_industry": 32,
+    "other_workers": 519,
+    "non_workers": 1356,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "carambolim",
+   "kind": "village_panchayat",
+   "name": "Carambolim",
+   "lgd_code": 254381,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626718,
+     "name": "Carambolim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1195,
+    "population": 5179,
+    "male": 2518,
+    "female": 2661,
+    "sc": 62,
+    "st": 2299,
+    "literates": 4079,
+    "workers": 2058,
+    "cultivators": 173,
+    "agri_labourers": 94,
+    "hh_industry": 54,
+    "other_workers": 1737,
+    "non_workers": 3121,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chimbel",
+   "kind": "village_panchayat",
+   "name": "Chimbel",
+   "lgd_code": 254390,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626730,
+     "name": "Chimbel (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3093,
+    "population": 15289,
+    "male": 7688,
+    "female": 7601,
+    "sc": 371,
+    "st": 2592,
+    "literates": 10774,
+    "workers": 5856,
+    "cultivators": 69,
+    "agri_labourers": 108,
+    "hh_industry": 169,
+    "other_workers": 5510,
+    "non_workers": 9433,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chodan-madel",
+   "kind": "village_panchayat",
+   "name": "Chodan-Madel",
+   "lgd_code": 254392,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626705,
+     "name": "Ambarim",
+     "share": 1.0
+    },
+    {
+     "code": 626706,
+     "name": "Chorao",
+     "share": 1.0
+    },
+    {
+     "code": 626707,
+     "name": "Caraim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1273,
+    "population": 5563,
+    "male": 2751,
+    "female": 2812,
+    "sc": 87,
+    "st": 444,
+    "literates": 4494,
+    "workers": 2116,
+    "cultivators": 150,
+    "agri_labourers": 101,
+    "hh_industry": 187,
+    "other_workers": 1678,
+    "non_workers": 3447,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "corlim",
+   "kind": "village_panchayat",
+   "name": "Corlim",
+   "lgd_code": 254398,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626729,
+     "name": "Corlim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1583,
+    "population": 6568,
+    "male": 3386,
+    "female": 3182,
+    "sc": 36,
+    "st": 1207,
+    "literates": 5245,
+    "workers": 2960,
+    "cultivators": 82,
+    "agri_labourers": 72,
+    "hh_industry": 159,
+    "other_workers": 2647,
+    "non_workers": 3608,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cumbharjua",
+   "kind": "village_panchayat",
+   "name": "Cumbharjua",
+   "lgd_code": 254404,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626713,
+     "name": "Gandaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626728,
+     "name": "Cumbarjua (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1194,
+    "population": 5218,
+    "male": 2701,
+    "female": 2517,
+    "sc": 45,
+    "st": 686,
+    "literates": 4331,
+    "workers": 2267,
+    "cultivators": 192,
+    "agri_labourers": 42,
+    "hh_industry": 54,
+    "other_workers": 1979,
+    "non_workers": 2951,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "curca-bambolim-talaulim",
+   "kind": "village_panchayat",
+   "name": "Curca, Bambolim, Talaulim",
+   "lgd_code": 254405,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626716,
+     "name": "Talaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626717,
+     "name": "Goalim Moula",
+     "share": 1.0
+    },
+    {
+     "code": 626723,
+     "name": "Curca",
+     "share": 1.0
+    },
+    {
+     "code": 626733,
+     "name": "Bambolim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2043,
+    "population": 10816,
+    "male": 6759,
+    "female": 4057,
+    "sc": 202,
+    "st": 1641,
+    "literates": 9054,
+    "workers": 5952,
+    "cultivators": 136,
+    "agri_labourers": 52,
+    "hh_industry": 33,
+    "other_workers": 5731,
+    "non_workers": 4864,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "goltim-navelim",
+   "kind": "village_panchayat",
+   "name": "Goltim-Navelim",
+   "lgd_code": 254417,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626709,
+     "name": "Navelim",
+     "share": 1.0
+    },
+    {
+     "code": 626710,
+     "name": "Goltim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 703,
+    "population": 2767,
+    "male": 1277,
+    "female": 1490,
+    "sc": 26,
+    "st": 557,
+    "literates": 2299,
+    "workers": 960,
+    "cultivators": 79,
+    "agri_labourers": 41,
+    "hh_industry": 15,
+    "other_workers": 825,
+    "non_workers": 1807,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "merces",
+   "kind": "village_panchayat",
+   "name": "Merces",
+   "lgd_code": 254441,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626731,
+     "name": "Murda (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1803,
+    "population": 7517,
+    "male": 3699,
+    "female": 3818,
+    "sc": 81,
+    "st": 314,
+    "literates": 6117,
+    "workers": 3015,
+    "cultivators": 22,
+    "agri_labourers": 17,
+    "hh_industry": 95,
+    "other_workers": 2881,
+    "non_workers": 4502,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "neura",
+   "kind": "village_panchayat",
+   "name": "Neura",
+   "lgd_code": 254459,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626725,
+     "name": "Neura-O-Pequeno",
+     "share": 1.0
+    },
+    {
+     "code": 626726,
+     "name": "Neura-O-Grande",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 461,
+    "population": 2003,
+    "male": 1007,
+    "female": 996,
+    "sc": 4,
+    "st": 109,
+    "literates": 1686,
+    "workers": 742,
+    "cultivators": 91,
+    "agri_labourers": 18,
+    "hh_industry": 8,
+    "other_workers": 625,
+    "non_workers": 1261,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "panaji",
+   "kind": "municipal_corporation",
+   "name": "Panaji",
+   "lgd_code": null,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 803243,
+     "name": "Panaji (M Corp. + OG)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 17807,
+    "population": 70991,
+    "male": 35988,
+    "female": 35003,
+    "sc": 1707,
+    "st": 4586,
+    "literates": 60071,
+    "workers": 30220,
+    "cultivators": 263,
+    "agri_labourers": 120,
+    "hh_industry": 424,
+    "other_workers": 29413,
+    "non_workers": 40771,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "sao-lourence-agassaim",
+   "kind": "village_panchayat",
+   "name": "Sao Lourence(agassaim)",
+   "lgd_code": 254493,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626735,
+     "name": "Mercurim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1233,
+    "population": 4970,
+    "male": 2329,
+    "female": 2641,
+    "sc": 14,
+    "st": 602,
+    "literates": 3982,
+    "workers": 1718,
+    "cultivators": 135,
+    "agri_labourers": 156,
+    "hh_industry": 49,
+    "other_workers": 1378,
+    "non_workers": 3252,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sao-matias",
+   "kind": "village_panchayat",
+   "name": "Sao Matias",
+   "lgd_code": 254494,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626708,
+     "name": "Capao",
+     "share": 1.0
+    },
+    {
+     "code": 626711,
+     "name": "Malar",
+     "share": 1.0
+    },
+    {
+     "code": 626712,
+     "name": "Naroa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 538,
+    "population": 2252,
+    "male": 1110,
+    "female": 1142,
+    "sc": 5,
+    "st": 108,
+    "literates": 1905,
+    "workers": 852,
+    "cultivators": 115,
+    "agri_labourers": 30,
+    "hh_industry": 25,
+    "other_workers": 682,
+    "non_workers": 1400,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "se-old-goa",
+   "kind": "village_panchayat",
+   "name": "Se-Old-Goa",
+   "lgd_code": 254496,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626714,
+     "name": "Ella",
+     "share": 1.0
+    },
+    {
+     "code": 626715,
+     "name": "Bainguinim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1646,
+    "population": 6873,
+    "male": 3456,
+    "female": 3417,
+    "sc": 63,
+    "st": 396,
+    "literates": 5484,
+    "workers": 2758,
+    "cultivators": 165,
+    "agri_labourers": 24,
+    "hh_industry": 33,
+    "other_workers": 2536,
+    "non_workers": 4115,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "siridao-pale",
+   "kind": "village_panchayat",
+   "name": "Siridao-Pale",
+   "lgd_code": 254502,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626724,
+     "name": "Siridao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 578,
+    "population": 2417,
+    "male": 1179,
+    "female": 1238,
+    "sc": 0,
+    "st": 1265,
+    "literates": 1786,
+    "workers": 867,
+    "cultivators": 83,
+    "agri_labourers": 24,
+    "hh_industry": 18,
+    "other_workers": 742,
+    "non_workers": 1550,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "st-andre",
+   "kind": "village_panchayat",
+   "name": "St. Andre",
+   "lgd_code": 254507,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626734,
+     "name": "Goa Velha (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1055,
+    "population": 4322,
+    "male": 2129,
+    "female": 2193,
+    "sc": 20,
+    "st": 116,
+    "literates": 3473,
+    "workers": 1771,
+    "cultivators": 41,
+    "agri_labourers": 40,
+    "hh_industry": 139,
+    "other_workers": 1551,
+    "non_workers": 2551,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "st-cruz",
+   "kind": "village_panchayat",
+   "name": "St. Cruz",
+   "lgd_code": 254508,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626732,
+     "name": "Calapor (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3514,
+    "population": 14077,
+    "male": 7118,
+    "female": 6959,
+    "sc": 427,
+    "st": 1211,
+    "literates": 11628,
+    "workers": 5743,
+    "cultivators": 56,
+    "agri_labourers": 37,
+    "hh_industry": 111,
+    "other_workers": 5539,
+    "non_workers": 8334,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "st-estevam",
+   "kind": "village_panchayat",
+   "name": "St. Estevam",
+   "lgd_code": 254509,
+   "taluka": "Tiswadi",
+   "district": "North Goa",
+   "villages": [
+    {
+     "code": 626727,
+     "name": "Jua (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1057,
+    "population": 4134,
+    "male": 1971,
+    "female": 2163,
+    "sc": 38,
+    "st": 84,
+    "literates": 3484,
+    "workers": 1455,
+    "cultivators": 11,
+    "agri_labourers": 14,
+    "hh_industry": 34,
+    "other_workers": 1396,
+    "non_workers": 2679,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "agonda",
+   "kind": "village_panchayat",
+   "name": "Agonda",
+   "lgd_code": 254348,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627023,
+     "name": "Agonda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 924,
+    "population": 3801,
+    "male": 1801,
+    "female": 2000,
+    "sc": 9,
+    "st": 371,
+    "literates": 2932,
+    "workers": 1281,
+    "cultivators": 153,
+    "agri_labourers": 50,
+    "hh_industry": 46,
+    "other_workers": 1032,
+    "non_workers": 2520,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "canacona",
+   "kind": "municipal_council",
+   "name": "Canacona",
+   "lgd_code": null,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803254,
+     "name": "Canacona (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2879,
+    "population": 12434,
+    "male": 6294,
+    "female": 6140,
+    "sc": 70,
+    "st": 206,
+    "literates": 9980,
+    "workers": 4326,
+    "cultivators": 49,
+    "agri_labourers": 52,
+    "hh_industry": 173,
+    "other_workers": 4052,
+    "non_workers": 8108,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "cola",
+   "kind": "village_panchayat",
+   "name": "Cola",
+   "lgd_code": 254393,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627022,
+     "name": "Cola",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1107,
+    "population": 5382,
+    "male": 2779,
+    "female": 2603,
+    "sc": 4,
+    "st": 2977,
+    "literates": 3838,
+    "workers": 2443,
+    "cultivators": 629,
+    "agri_labourers": 693,
+    "hh_industry": 60,
+    "other_workers": 1061,
+    "non_workers": 2939,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cotigao",
+   "kind": "village_panchayat",
+   "name": "Cotigao",
+   "lgd_code": 254400,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627028,
+     "name": "Cotigao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 510,
+    "population": 2640,
+    "male": 1336,
+    "female": 1304,
+    "sc": 0,
+    "st": 2418,
+    "literates": 1665,
+    "workers": 1387,
+    "cultivators": 938,
+    "agri_labourers": 88,
+    "hh_industry": 24,
+    "other_workers": 337,
+    "non_workers": 1253,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "gaondongri",
+   "kind": "village_panchayat",
+   "name": "Gaondongri",
+   "lgd_code": 254416,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627025,
+     "name": "Gaodongrem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1004,
+    "population": 4946,
+    "male": 2561,
+    "female": 2385,
+    "sc": 22,
+    "st": 4321,
+    "literates": 3264,
+    "workers": 2901,
+    "cultivators": 2119,
+    "agri_labourers": 99,
+    "hh_industry": 75,
+    "other_workers": 608,
+    "non_workers": 2045,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "loliem-polem",
+   "kind": "village_panchayat",
+   "name": "Loliem-Polem",
+   "lgd_code": 254431,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627027,
+     "name": "Loliem",
+     "share": 1.0
+    },
+    {
+     "code": 627029,
+     "name": "Anjadip",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1248,
+    "population": 4797,
+    "male": 2213,
+    "female": 2584,
+    "sc": 15,
+    "st": 154,
+    "literates": 3964,
+    "workers": 1969,
+    "cultivators": 194,
+    "agri_labourers": 67,
+    "hh_industry": 162,
+    "other_workers": 1546,
+    "non_workers": 2828,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "poinguinim",
+   "kind": "village_panchayat",
+   "name": "Poinguinim",
+   "lgd_code": 254475,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627026,
+     "name": "Poinguinim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1574,
+    "population": 6625,
+    "male": 3226,
+    "female": 3399,
+    "sc": 20,
+    "st": 1197,
+    "literates": 5299,
+    "workers": 2584,
+    "cultivators": 424,
+    "agri_labourers": 322,
+    "hh_industry": 134,
+    "other_workers": 1704,
+    "non_workers": 4041,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "shristhal",
+   "kind": "village_panchayat",
+   "name": "Shristhal",
+   "lgd_code": 254499,
+   "taluka": "Canacona",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627024,
+     "name": "Canacona",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 993,
+    "population": 4547,
+    "male": 2322,
+    "female": 2225,
+    "sc": 33,
+    "st": 2013,
+    "literates": 3383,
+    "workers": 2157,
+    "cultivators": 503,
+    "agri_labourers": 549,
+    "hh_industry": 93,
+    "other_workers": 1012,
+    "non_workers": 2390,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "colem",
+   "kind": "village_panchayat",
+   "name": "Colem",
+   "lgd_code": 254394,
+   "taluka": "Dharbandora",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626976,
+     "name": "Caranzol",
+     "share": 1.0
+    },
+    {
+     "code": 626977,
+     "name": "Colem",
+     "share": 1.0
+    },
+    {
+     "code": 626978,
+     "name": "Sigao",
+     "share": 1.0
+    },
+    {
+     "code": 626989,
+     "name": "Sonauli",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1428,
+    "population": 6006,
+    "male": 3020,
+    "female": 2986,
+    "sc": 92,
+    "st": 300,
+    "literates": 4550,
+    "workers": 2521,
+    "cultivators": 244,
+    "agri_labourers": 289,
+    "hh_industry": 128,
+    "other_workers": 1860,
+    "non_workers": 3485,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "dharbandora",
+   "kind": "village_panchayat",
+   "name": "Dharbandora",
+   "lgd_code": 254410,
+   "taluka": "Dharbandora",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626970,
+     "name": "Piliem",
+     "share": 1.0
+    },
+    {
+     "code": 626971,
+     "name": "Darbandora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1616,
+    "population": 7049,
+    "male": 3590,
+    "female": 3459,
+    "sc": 98,
+    "st": 2135,
+    "literates": 5190,
+    "workers": 3008,
+    "cultivators": 261,
+    "agri_labourers": 332,
+    "hh_industry": 86,
+    "other_workers": 2329,
+    "non_workers": 4041,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "kirlapal-dabhal",
+   "kind": "village_panchayat",
+   "name": "Kirlapal-Dabhal",
+   "lgd_code": 254428,
+   "taluka": "Dharbandora",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626980,
+     "name": "Cormonem",
+     "share": 1.0
+    },
+    {
+     "code": 626981,
+     "name": "Codli",
+     "share": 1.0
+    },
+    {
+     "code": 626982,
+     "name": "Camarconda",
+     "share": 1.0
+    },
+    {
+     "code": 626983,
+     "name": "Moissal",
+     "share": 1.0
+    },
+    {
+     "code": 626984,
+     "name": "Bandoli",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1442,
+    "population": 6307,
+    "male": 3225,
+    "female": 3082,
+    "sc": 69,
+    "st": 2012,
+    "literates": 4712,
+    "workers": 2537,
+    "cultivators": 313,
+    "agri_labourers": 301,
+    "hh_industry": 26,
+    "other_workers": 1897,
+    "non_workers": 3770,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mollem",
+   "kind": "village_panchayat",
+   "name": "Mollem",
+   "lgd_code": 254444,
+   "taluka": "Dharbandora",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626975,
+     "name": "Molem",
+     "share": 1.0
+    },
+    {
+     "code": 626979,
+     "name": "Sangod",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 619,
+    "population": 2798,
+    "male": 1440,
+    "female": 1358,
+    "sc": 10,
+    "st": 179,
+    "literates": 2029,
+    "workers": 1099,
+    "cultivators": 101,
+    "agri_labourers": 123,
+    "hh_industry": 20,
+    "other_workers": 855,
+    "non_workers": 1699,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sancordem",
+   "kind": "village_panchayat",
+   "name": "Sancordem",
+   "lgd_code": 254489,
+   "taluka": "Dharbandora",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626972,
+     "name": "Sancordem",
+     "share": 1.0
+    },
+    {
+     "code": 626973,
+     "name": "Aglote",
+     "share": 1.0
+    },
+    {
+     "code": 626974,
+     "name": "Surla",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 922,
+    "population": 4114,
+    "male": 2048,
+    "female": 2066,
+    "sc": 25,
+    "st": 403,
+    "literates": 3163,
+    "workers": 1801,
+    "cultivators": 143,
+    "agri_labourers": 340,
+    "hh_industry": 10,
+    "other_workers": 1308,
+    "non_workers": 2313,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cansaulim-arossim-cuelim",
+   "kind": "village_panchayat",
+   "name": "Cansaulim-Arossim-Cuelim",
+   "lgd_code": 254403,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626877,
+     "name": "Cuelim",
+     "share": 1.0
+    },
+    {
+     "code": 626883,
+     "name": "Cansaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626884,
+     "name": "Arossim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1419,
+    "population": 5717,
+    "male": 2705,
+    "female": 3012,
+    "sc": 43,
+    "st": 903,
+    "literates": 4513,
+    "workers": 2000,
+    "cultivators": 202,
+    "agri_labourers": 144,
+    "hh_industry": 71,
+    "other_workers": 1583,
+    "non_workers": 3717,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chicalim",
+   "kind": "village_panchayat",
+   "name": "Chicalim",
+   "lgd_code": 254388,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626874,
+     "name": "Dabolim",
+     "share": 1.0
+    },
+    {
+     "code": 626875,
+     "name": "Sao Jacinto Island",
+     "share": 1.0
+    },
+    {
+     "code": 626881,
+     "name": "Sao Jorge Island",
+     "share": 1.0
+    },
+    {
+     "code": 626885,
+     "name": "Chicalim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2964,
+    "population": 13155,
+    "male": 7167,
+    "female": 5988,
+    "sc": 141,
+    "st": 541,
+    "literates": 10796,
+    "workers": 6055,
+    "cultivators": 228,
+    "agri_labourers": 62,
+    "hh_industry": 80,
+    "other_workers": 5685,
+    "non_workers": 7100,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chicolna-bogmalo",
+   "kind": "village_panchayat",
+   "name": "Chicolna-Bogmalo",
+   "lgd_code": 254389,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626880,
+     "name": "Chicolna",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 669,
+    "population": 2680,
+    "male": 1350,
+    "female": 1330,
+    "sc": 45,
+    "st": 376,
+    "literates": 2117,
+    "workers": 1032,
+    "cultivators": 81,
+    "agri_labourers": 10,
+    "hh_industry": 45,
+    "other_workers": 896,
+    "non_workers": 1648,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cortalim",
+   "kind": "village_panchayat",
+   "name": "Cortalim",
+   "lgd_code": 254399,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626887,
+     "name": "Cortalim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2319,
+    "population": 9080,
+    "male": 4796,
+    "female": 4284,
+    "sc": 37,
+    "st": 2255,
+    "literates": 7111,
+    "workers": 3978,
+    "cultivators": 42,
+    "agri_labourers": 130,
+    "hh_industry": 20,
+    "other_workers": 3786,
+    "non_workers": 5102,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "mormugao",
+   "kind": "municipal_council",
+   "name": "Mormugao",
+   "lgd_code": null,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803248,
+     "name": "Mormugao (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 21524,
+    "population": 94393,
+    "male": 49633,
+    "female": 44760,
+    "sc": 2161,
+    "st": 480,
+    "literates": 76068,
+    "workers": 36929,
+    "cultivators": 503,
+    "agri_labourers": 147,
+    "hh_industry": 501,
+    "other_workers": 35778,
+    "non_workers": 57464,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "quelossim",
+   "kind": "village_panchayat",
+   "name": "Quelossim",
+   "lgd_code": 276388,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626876,
+     "name": "Quelossim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 775,
+    "population": 3262,
+    "male": 1643,
+    "female": 1619,
+    "sc": 12,
+    "st": 1637,
+    "literates": 2424,
+    "workers": 1345,
+    "cultivators": 81,
+    "agri_labourers": 53,
+    "hh_industry": 27,
+    "other_workers": 1184,
+    "non_workers": 1917,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sancoale",
+   "kind": "village_panchayat",
+   "name": "Sancoale",
+   "lgd_code": 254488,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626886,
+     "name": "Sancoale (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 5035,
+    "population": 21923,
+    "male": 11657,
+    "female": 10266,
+    "sc": 114,
+    "st": 597,
+    "literates": 16656,
+    "workers": 9310,
+    "cultivators": 79,
+    "agri_labourers": 102,
+    "hh_industry": 101,
+    "other_workers": 9028,
+    "non_workers": 12613,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "velsao-pale",
+   "kind": "village_panchayat",
+   "name": "Velsao-Pale",
+   "lgd_code": 254528,
+   "taluka": "Mormugao",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626878,
+     "name": "Pale",
+     "share": 1.0
+    },
+    {
+     "code": 626879,
+     "name": "Issorcim",
+     "share": 1.0
+    },
+    {
+     "code": 626882,
+     "name": "Velsao",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 997,
+    "population": 4351,
+    "male": 2187,
+    "female": 2164,
+    "sc": 13,
+    "st": 81,
+    "literates": 3503,
+    "workers": 1513,
+    "cultivators": 116,
+    "agri_labourers": 84,
+    "hh_industry": 32,
+    "other_workers": 1281,
+    "non_workers": 2838,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ambaulim",
+   "kind": "village_panchayat",
+   "name": "Ambaulim",
+   "lgd_code": 254351,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626947,
+     "name": "Ambaulim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 679,
+    "population": 2987,
+    "male": 1431,
+    "female": 1556,
+    "sc": 6,
+    "st": 2579,
+    "literates": 1961,
+    "workers": 1098,
+    "cultivators": 68,
+    "agri_labourers": 514,
+    "hh_industry": 46,
+    "other_workers": 470,
+    "non_workers": 1889,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "assolda",
+   "kind": "village_panchayat",
+   "name": "Assolda",
+   "lgd_code": 254360,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626934,
+     "name": "Assolda",
+     "share": 1.0
+    },
+    {
+     "code": 626935,
+     "name": "Xic-Xelvona",
+     "share": 1.0
+    },
+    {
+     "code": 626936,
+     "name": "Xelvona",
+     "share": 1.0
+    },
+    {
+     "code": 626937,
+     "name": "Odar",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 898,
+    "population": 3676,
+    "male": 1855,
+    "female": 1821,
+    "sc": 21,
+    "st": 565,
+    "literates": 2951,
+    "workers": 1470,
+    "cultivators": 119,
+    "agri_labourers": 78,
+    "hh_industry": 18,
+    "other_workers": 1255,
+    "non_workers": 2206,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "avedem-cotombi",
+   "kind": "village_panchayat",
+   "name": "Avedem-Cotombi",
+   "lgd_code": 254362,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626938,
+     "name": "Cotombi",
+     "share": 1.0
+    },
+    {
+     "code": 626939,
+     "name": "Avedem",
+     "share": 1.0
+    },
+    {
+     "code": 626940,
+     "name": "Chaifi",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 713,
+    "population": 2898,
+    "male": 1321,
+    "female": 1577,
+    "sc": 59,
+    "st": 1241,
+    "literates": 2095,
+    "workers": 1095,
+    "cultivators": 130,
+    "agri_labourers": 202,
+    "hh_industry": 22,
+    "other_workers": 741,
+    "non_workers": 1803,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "balli-adnem",
+   "kind": "village_panchayat",
+   "name": "Balli-Adnem",
+   "lgd_code": 254364,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626948,
+     "name": "Adnem",
+     "share": 1.0
+    },
+    {
+     "code": 626949,
+     "name": "Bali",
+     "share": 1.0
+    },
+    {
+     "code": 626954,
+     "name": "Tiloi",
+     "share": 1.0
+    },
+    {
+     "code": 626955,
+     "name": "Bendordem",
+     "share": 1.0
+    },
+    {
+     "code": 626958,
+     "name": "Cordem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1668,
+    "population": 7415,
+    "male": 3734,
+    "female": 3681,
+    "sc": 92,
+    "st": 3896,
+    "literates": 5434,
+    "workers": 3299,
+    "cultivators": 894,
+    "agri_labourers": 485,
+    "hh_industry": 63,
+    "other_workers": 1857,
+    "non_workers": 4116,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "barcem",
+   "kind": "village_panchayat",
+   "name": "Barcem",
+   "lgd_code": 254366,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626959,
+     "name": "Padi",
+     "share": 1.0
+    },
+    {
+     "code": 626960,
+     "name": "Quedem",
+     "share": 1.0
+    },
+    {
+     "code": 626961,
+     "name": "Barcem",
+     "share": 1.0
+    },
+    {
+     "code": 626962,
+     "name": "Gocoldem",
+     "share": 1.0
+    },
+    {
+     "code": 626963,
+     "name": "Quisconda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 798,
+    "population": 4437,
+    "male": 2348,
+    "female": 2089,
+    "sc": 39,
+    "st": 3977,
+    "literates": 2760,
+    "workers": 2113,
+    "cultivators": 789,
+    "agri_labourers": 413,
+    "hh_industry": 19,
+    "other_workers": 892,
+    "non_workers": 2324,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "caurem",
+   "kind": "village_panchayat",
+   "name": "Caurem",
+   "lgd_code": 254384,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626956,
+     "name": "Cavorem",
+     "share": 1.0
+    },
+    {
+     "code": 626957,
+     "name": "Maina",
+     "share": 1.0
+    },
+    {
+     "code": 626964,
+     "name": "Pirla",
+     "share": 1.0
+    },
+    {
+     "code": 626965,
+     "name": "Sulcorna",
+     "share": 1.0
+    },
+    {
+     "code": 626966,
+     "name": "Corla",
+     "share": 1.0
+    },
+    {
+     "code": 626967,
+     "name": "Cazur",
+     "share": 1.0
+    },
+    {
+     "code": 626968,
+     "name": "Mangal",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 745,
+    "population": 3508,
+    "male": 1943,
+    "female": 1565,
+    "sc": 21,
+    "st": 1753,
+    "literates": 2483,
+    "workers": 1940,
+    "cultivators": 477,
+    "agri_labourers": 212,
+    "hh_industry": 85,
+    "other_workers": 1166,
+    "non_workers": 1568,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "curchorem-cacora",
+   "kind": "municipal_council",
+   "name": "Curchorem-Cacora",
+   "lgd_code": null,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803252,
+     "name": "Curchorem-Cacora (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 5667,
+    "population": 22730,
+    "male": 11601,
+    "female": 11129,
+    "sc": 338,
+    "st": 1362,
+    "literates": 18066,
+    "workers": 9133,
+    "cultivators": 119,
+    "agri_labourers": 184,
+    "hh_industry": 249,
+    "other_workers": 8581,
+    "non_workers": 13597,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "fatorpa-quitol",
+   "kind": "village_panchayat",
+   "name": "Fatorpa-Quitol",
+   "lgd_code": 254415,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626950,
+     "name": "Fatorpa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 558,
+    "population": 2378,
+    "male": 1109,
+    "female": 1269,
+    "sc": 8,
+    "st": 505,
+    "literates": 1736,
+    "workers": 912,
+    "cultivators": 99,
+    "agri_labourers": 139,
+    "hh_industry": 25,
+    "other_workers": 649,
+    "non_workers": 1466,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "molcornem",
+   "kind": "village_panchayat",
+   "name": "Molcornem",
+   "lgd_code": 254443,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626942,
+     "name": "Nagvem",
+     "share": 1.0
+    },
+    {
+     "code": 626943,
+     "name": "Zanodem",
+     "share": 1.0
+    },
+    {
+     "code": 626944,
+     "name": "Undorna",
+     "share": 1.0
+    },
+    {
+     "code": 626945,
+     "name": "Molcopona",
+     "share": 1.0
+    },
+    {
+     "code": 626946,
+     "name": "Molcarnem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 654,
+    "population": 2887,
+    "male": 1400,
+    "female": 1487,
+    "sc": 11,
+    "st": 1411,
+    "literates": 2089,
+    "workers": 1219,
+    "cultivators": 176,
+    "agri_labourers": 541,
+    "hh_industry": 33,
+    "other_workers": 469,
+    "non_workers": 1668,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "morpirla",
+   "kind": "village_panchayat",
+   "name": "Morpirla",
+   "lgd_code": 254447,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626953,
+     "name": "Morpila",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 569,
+    "population": 2857,
+    "male": 1480,
+    "female": 1377,
+    "sc": 0,
+    "st": 2752,
+    "literates": 1924,
+    "workers": 1504,
+    "cultivators": 538,
+    "agri_labourers": 604,
+    "hh_industry": 11,
+    "other_workers": 351,
+    "non_workers": 1353,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "naqueri-betul",
+   "kind": "village_panchayat",
+   "name": "Naqueri-Betul",
+   "lgd_code": 254453,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626951,
+     "name": "Quitol",
+     "share": 1.0
+    },
+    {
+     "code": 626952,
+     "name": "Naquerim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 461,
+    "population": 2062,
+    "male": 971,
+    "female": 1091,
+    "sc": 0,
+    "st": 642,
+    "literates": 1514,
+    "workers": 581,
+    "cultivators": 78,
+    "agri_labourers": 46,
+    "hh_industry": 17,
+    "other_workers": 440,
+    "non_workers": 1481,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "quepem",
+   "kind": "municipal_council",
+   "name": "Quepem",
+   "lgd_code": null,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803251,
+     "name": "Quepem (M Cl)",
+     "share": 1
+    },
+    {
+     "code": 626941,
+     "name": "Sirvoi",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3753,
+    "population": 15359,
+    "male": 7557,
+    "female": 7803,
+    "sc": 219,
+    "st": 3474,
+    "literates": 11514,
+    "workers": 5640,
+    "cultivators": 97,
+    "agri_labourers": 635,
+    "hh_industry": 82,
+    "other_workers": 4826,
+    "non_workers": 9720,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "rivona",
+   "kind": "village_panchayat",
+   "name": "Rivona",
+   "lgd_code": 254483,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627013,
+     "name": "Colomba",
+     "share": 1.0
+    },
+    {
+     "code": 627014,
+     "name": "Rivona",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1275,
+    "population": 5452,
+    "male": 2761,
+    "female": 2691,
+    "sc": 20,
+    "st": 1858,
+    "literates": 4045,
+    "workers": 2473,
+    "cultivators": 258,
+    "agri_labourers": 558,
+    "hh_industry": 41,
+    "other_workers": 1616,
+    "non_workers": 2979,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "xeldem",
+   "kind": "village_panchayat",
+   "name": "Xeldem",
+   "lgd_code": 254535,
+   "taluka": "Quepem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626941,
+     "name": "Sirvoi",
+     "share": 0.5
+    },
+    {
+     "code": 626969,
+     "name": "Xeldem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1956,
+    "population": 7998,
+    "male": 3972,
+    "female": 4026,
+    "sc": 117,
+    "st": 1134,
+    "literates": 5837,
+    "workers": 2886,
+    "cultivators": 100,
+    "agri_labourers": 236,
+    "hh_industry": 38,
+    "other_workers": 2512,
+    "non_workers": 5112,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "ambelim",
+   "kind": "village_panchayat",
+   "name": "Ambelim",
+   "lgd_code": 254352,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626922,
+     "name": "Ambelim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 693,
+    "population": 2853,
+    "male": 1340,
+    "female": 1513,
+    "sc": 6,
+    "st": 670,
+    "literates": 2162,
+    "workers": 1016,
+    "cultivators": 159,
+    "agri_labourers": 75,
+    "hh_industry": 25,
+    "other_workers": 757,
+    "non_workers": 1837,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "aquem-baixo",
+   "kind": "village_panchayat",
+   "name": "Aquem Baixo",
+   "lgd_code": 254355,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626929,
+     "name": "Aquem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1580,
+    "population": 6511,
+    "male": 3291,
+    "female": 3220,
+    "sc": 98,
+    "st": 779,
+    "literates": 5194,
+    "workers": 2413,
+    "cultivators": 15,
+    "agri_labourers": 26,
+    "hh_industry": 66,
+    "other_workers": 2306,
+    "non_workers": 4098,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "assolna",
+   "kind": "village_panchayat",
+   "name": "Assolna",
+   "lgd_code": 254361,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626919,
+     "name": "Assolna",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 891,
+    "population": 3410,
+    "male": 1669,
+    "female": 1741,
+    "sc": 16,
+    "st": 95,
+    "literates": 2923,
+    "workers": 1193,
+    "cultivators": 98,
+    "agri_labourers": 6,
+    "hh_industry": 15,
+    "other_workers": 1074,
+    "non_workers": 2217,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "benaulim",
+   "kind": "village_panchayat",
+   "name": "Benaulim",
+   "lgd_code": 254369,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626904,
+     "name": "Cana",
+     "share": 1.0
+    },
+    {
+     "code": 626906,
+     "name": "Adsulim",
+     "share": 1.0
+    },
+    {
+     "code": 626931,
+     "name": "Benaulim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2966,
+    "population": 12627,
+    "male": 6121,
+    "female": 6506,
+    "sc": 118,
+    "st": 31,
+    "literates": 10098,
+    "workers": 4544,
+    "cultivators": 74,
+    "agri_labourers": 35,
+    "hh_industry": 184,
+    "other_workers": 4251,
+    "non_workers": 8083,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "betalbatim",
+   "kind": "village_panchayat",
+   "name": "Betalbatim",
+   "lgd_code": 254370,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626894,
+     "name": "Gonsua",
+     "share": 1.0
+    },
+    {
+     "code": 626895,
+     "name": "Betalbatim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 995,
+    "population": 3773,
+    "male": 1811,
+    "female": 1962,
+    "sc": 13,
+    "st": 10,
+    "literates": 3094,
+    "workers": 1197,
+    "cultivators": 74,
+    "agri_labourers": 27,
+    "hh_industry": 10,
+    "other_workers": 1086,
+    "non_workers": 2576,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "camurlim",
+   "kind": "village_panchayat",
+   "name": "Camurlim",
+   "lgd_code": 254379,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626890,
+     "name": "Camurlim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 595,
+    "population": 2247,
+    "male": 1078,
+    "female": 1169,
+    "sc": 4,
+    "st": 110,
+    "literates": 1874,
+    "workers": 787,
+    "cultivators": 57,
+    "agri_labourers": 12,
+    "hh_industry": 42,
+    "other_workers": 676,
+    "non_workers": 1460,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "carmona",
+   "kind": "village_panchayat",
+   "name": "Carmona",
+   "lgd_code": 254382,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626917,
+     "name": "Carmona",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1006,
+    "population": 3864,
+    "male": 1856,
+    "female": 2008,
+    "sc": 5,
+    "st": 28,
+    "literates": 3188,
+    "workers": 1304,
+    "cultivators": 123,
+    "agri_labourers": 41,
+    "hh_industry": 17,
+    "other_workers": 1123,
+    "non_workers": 2560,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cavelossim",
+   "kind": "village_panchayat",
+   "name": "Cavelossim",
+   "lgd_code": 254385,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626920,
+     "name": "Cavelossim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 481,
+    "population": 1955,
+    "male": 990,
+    "female": 965,
+    "sc": 0,
+    "st": 10,
+    "literates": 1592,
+    "workers": 718,
+    "cultivators": 59,
+    "agri_labourers": 7,
+    "hh_industry": 42,
+    "other_workers": 610,
+    "non_workers": 1237,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chandor-cavorim",
+   "kind": "village_panchayat",
+   "name": "Chandor-Cavorim",
+   "lgd_code": 254387,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626910,
+     "name": "Cavorim",
+     "share": 1.0
+    },
+    {
+     "code": 626911,
+     "name": "Chandor",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 760,
+    "population": 2935,
+    "male": 1338,
+    "female": 1597,
+    "sc": 22,
+    "st": 59,
+    "literates": 2277,
+    "workers": 887,
+    "cultivators": 77,
+    "agri_labourers": 47,
+    "hh_industry": 26,
+    "other_workers": 737,
+    "non_workers": 2048,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "chinchinim-deussa",
+   "kind": "village_panchayat",
+   "name": "Chinchinim- Deussa",
+   "lgd_code": 254391,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626918,
+     "name": "Deussua",
+     "share": 1.0
+    },
+    {
+     "code": 626933,
+     "name": "Chinchinim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2123,
+    "population": 8387,
+    "male": 3899,
+    "female": 4488,
+    "sc": 25,
+    "st": 1067,
+    "literates": 6737,
+    "workers": 2485,
+    "cultivators": 71,
+    "agri_labourers": 72,
+    "hh_industry": 76,
+    "other_workers": 2266,
+    "non_workers": 5902,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "colva",
+   "kind": "village_panchayat",
+   "name": "Colva",
+   "lgd_code": 254395,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626896,
+     "name": "Gandaulim",
+     "share": 1.0
+    },
+    {
+     "code": 626897,
+     "name": "Colva",
+     "share": 1.0
+    },
+    {
+     "code": 626898,
+     "name": "Vanelim",
+     "share": 1.0
+    },
+    {
+     "code": 626905,
+     "name": "Sernabatim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1725,
+    "population": 6987,
+    "male": 3354,
+    "female": 3633,
+    "sc": 24,
+    "st": 34,
+    "literates": 5607,
+    "workers": 2456,
+    "cultivators": 173,
+    "agri_labourers": 38,
+    "hh_industry": 20,
+    "other_workers": 2225,
+    "non_workers": 4531,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "cuncolim",
+   "kind": "municipal_council",
+   "name": "Cuncolim",
+   "lgd_code": null,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803250,
+     "name": "Cuncolim (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 4070,
+    "population": 16623,
+    "male": 7924,
+    "female": 8699,
+    "sc": 157,
+    "st": 738,
+    "literates": 13663,
+    "workers": 5598,
+    "cultivators": 104,
+    "agri_labourers": 162,
+    "hh_industry": 185,
+    "other_workers": 5147,
+    "non_workers": 11025,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "curtorim",
+   "kind": "village_panchayat",
+   "name": "Curtorim",
+   "lgd_code": 254408,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626926,
+     "name": "Curtorim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 3102,
+    "population": 12886,
+    "male": 6216,
+    "female": 6670,
+    "sc": 53,
+    "st": 1628,
+    "literates": 10051,
+    "workers": 4537,
+    "cultivators": 122,
+    "agri_labourers": 164,
+    "hh_industry": 87,
+    "other_workers": 4164,
+    "non_workers": 8349,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "davorlim-dicarpale",
+   "kind": "village_panchayat",
+   "name": "Davorlim Dicarpale",
+   "lgd_code": 254409,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626909,
+     "name": "Dicarpale",
+     "share": 1.0
+    },
+    {
+     "code": 626928,
+     "name": "Davorlim (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2399,
+    "population": 10732,
+    "male": 5495,
+    "female": 5237,
+    "sc": 276,
+    "st": 1374,
+    "literates": 8290,
+    "workers": 4020,
+    "cultivators": 132,
+    "agri_labourers": 63,
+    "hh_industry": 72,
+    "other_workers": 3754,
+    "non_workers": 6712,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "dramapur-sirlim",
+   "kind": "village_panchayat",
+   "name": "Dramapur- Sirlim",
+   "lgd_code": 254413,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626908,
+     "name": "Dramapur",
+     "share": 1.0
+    },
+    {
+     "code": 626915,
+     "name": "Sirlim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1075,
+    "population": 4286,
+    "male": 1980,
+    "female": 2306,
+    "sc": 34,
+    "st": 130,
+    "literates": 3470,
+    "workers": 1191,
+    "cultivators": 118,
+    "agri_labourers": 14,
+    "hh_industry": 27,
+    "other_workers": 1032,
+    "non_workers": 3095,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "guirdolim",
+   "kind": "village_panchayat",
+   "name": "Guirdolim",
+   "lgd_code": 254418,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626903,
+     "name": "Guirdolim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 909,
+    "population": 3622,
+    "male": 1736,
+    "female": 1886,
+    "sc": 27,
+    "st": 317,
+    "literates": 2944,
+    "workers": 1082,
+    "cultivators": 91,
+    "agri_labourers": 25,
+    "hh_industry": 22,
+    "other_workers": 944,
+    "non_workers": 2540,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "loutulim",
+   "kind": "village_panchayat",
+   "name": "Loutulim",
+   "lgd_code": 254432,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626889,
+     "name": "Loutulim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1368,
+    "population": 6121,
+    "male": 2954,
+    "female": 3167,
+    "sc": 27,
+    "st": 2193,
+    "literates": 4809,
+    "workers": 2409,
+    "cultivators": 160,
+    "agri_labourers": 118,
+    "hh_industry": 34,
+    "other_workers": 2097,
+    "non_workers": 3712,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "macasana",
+   "kind": "village_panchayat",
+   "name": "Macasana",
+   "lgd_code": 254433,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626902,
+     "name": "Macasana",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 503,
+    "population": 1972,
+    "male": 880,
+    "female": 1092,
+    "sc": 0,
+    "st": 0,
+    "literates": 1572,
+    "workers": 487,
+    "cultivators": 46,
+    "agri_labourers": 24,
+    "hh_industry": 24,
+    "other_workers": 393,
+    "non_workers": 1485,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "majorda",
+   "kind": "village_panchayat",
+   "name": "Majorda",
+   "lgd_code": 254434,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626891,
+     "name": "Calata",
+     "share": 1.0
+    },
+    {
+     "code": 626892,
+     "name": "Majorda",
+     "share": 1.0
+    },
+    {
+     "code": 626893,
+     "name": "Utorda",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1703,
+    "population": 6570,
+    "male": 3039,
+    "female": 3531,
+    "sc": 7,
+    "st": 30,
+    "literates": 5400,
+    "workers": 1874,
+    "cultivators": 210,
+    "agri_labourers": 52,
+    "hh_industry": 53,
+    "other_workers": 1559,
+    "non_workers": 4696,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "margao",
+   "kind": "municipal_council",
+   "name": "Margao",
+   "lgd_code": null,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803249,
+     "name": "Margao (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 21406,
+    "population": 87650,
+    "male": 44367,
+    "female": 43283,
+    "sc": 1581,
+    "st": 4857,
+    "literates": 71928,
+    "workers": 35656,
+    "cultivators": 250,
+    "agri_labourers": 154,
+    "hh_industry": 985,
+    "other_workers": 34267,
+    "non_workers": 51994,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "nagoa",
+   "kind": "village_panchayat",
+   "name": "Nagoa",
+   "lgd_code": 254452,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626888,
+     "name": "Nagoa",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 995,
+    "population": 3873,
+    "male": 1937,
+    "female": 1936,
+    "sc": 26,
+    "st": 774,
+    "literates": 3200,
+    "workers": 1631,
+    "cultivators": 101,
+    "agri_labourers": 55,
+    "hh_industry": 50,
+    "other_workers": 1425,
+    "non_workers": 2242,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "navelim-salcete",
+   "kind": "village_panchayat",
+   "name": "Navelim",
+   "lgd_code": 254455,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626930,
+     "name": "Navelim (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2799,
+    "population": 12323,
+    "male": 6875,
+    "female": 5448,
+    "sc": 79,
+    "st": 756,
+    "literates": 10066,
+    "workers": 5488,
+    "cultivators": 49,
+    "agri_labourers": 54,
+    "hh_industry": 148,
+    "other_workers": 5237,
+    "non_workers": 6835,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "nuvem",
+   "kind": "village_panchayat",
+   "name": "Nuvem",
+   "lgd_code": 254460,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626924,
+     "name": "Nuvem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2248,
+    "population": 9288,
+    "male": 4450,
+    "female": 4838,
+    "sc": 45,
+    "st": 3634,
+    "literates": 7224,
+    "workers": 3389,
+    "cultivators": 55,
+    "agri_labourers": 229,
+    "hh_industry": 124,
+    "other_workers": 2981,
+    "non_workers": 5899,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "orlim",
+   "kind": "village_panchayat",
+   "name": "Orlim",
+   "lgd_code": 254461,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626916,
+     "name": "Orlim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 499,
+    "population": 2049,
+    "male": 1011,
+    "female": 1038,
+    "sc": 16,
+    "st": 28,
+    "literates": 1567,
+    "workers": 683,
+    "cultivators": 55,
+    "agri_labourers": 34,
+    "hh_industry": 25,
+    "other_workers": 569,
+    "non_workers": 1366,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "paroda",
+   "kind": "village_panchayat",
+   "name": "Paroda",
+   "lgd_code": 254468,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626912,
+     "name": "Paroda",
+     "share": 1.0
+    },
+    {
+     "code": 626913,
+     "name": "Mulem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 819,
+    "population": 3419,
+    "male": 1644,
+    "female": 1775,
+    "sc": 8,
+    "st": 1073,
+    "literates": 2521,
+    "workers": 1178,
+    "cultivators": 105,
+    "agri_labourers": 80,
+    "hh_industry": 98,
+    "other_workers": 895,
+    "non_workers": 2241,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "rachol",
+   "kind": "village_panchayat",
+   "name": "Rachol",
+   "lgd_code": 254480,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626901,
+     "name": "Rachol",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 382,
+    "population": 1686,
+    "male": 827,
+    "female": 859,
+    "sc": 0,
+    "st": 1209,
+    "literates": 1310,
+    "workers": 507,
+    "cultivators": 46,
+    "agri_labourers": 22,
+    "hh_industry": 2,
+    "other_workers": 437,
+    "non_workers": 1179,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "raia",
+   "kind": "village_panchayat",
+   "name": "Raia",
+   "lgd_code": 254481,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626925,
+     "name": "Raia (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2580,
+    "population": 10706,
+    "male": 5256,
+    "female": 5450,
+    "sc": 66,
+    "st": 2968,
+    "literates": 8387,
+    "workers": 3545,
+    "cultivators": 51,
+    "agri_labourers": 57,
+    "hh_industry": 81,
+    "other_workers": 3356,
+    "non_workers": 7161,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "rumdamol-davorlim",
+   "kind": "village_panchayat",
+   "name": "Rumdamol-Davorlim",
+   "lgd_code": 254484,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626928,
+     "name": "Davorlim (CT)",
+     "share": 0.5
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1704,
+    "population": 7675,
+    "male": 3922,
+    "female": 3753,
+    "sc": 246,
+    "st": 814,
+    "literates": 5960,
+    "workers": 2874,
+    "cultivators": 40,
+    "agri_labourers": 53,
+    "hh_industry": 50,
+    "other_workers": 2730,
+    "non_workers": 4802,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sarzora",
+   "kind": "village_panchayat",
+   "name": "Sarzora",
+   "lgd_code": 254495,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626914,
+     "name": "Sarzora",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 605,
+    "population": 2270,
+    "male": 1000,
+    "female": 1270,
+    "sc": 63,
+    "st": 267,
+    "literates": 1781,
+    "workers": 646,
+    "cultivators": 71,
+    "agri_labourers": 25,
+    "hh_industry": 16,
+    "other_workers": 534,
+    "non_workers": 1624,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "seraulim",
+   "kind": "village_panchayat",
+   "name": "Seraulim",
+   "lgd_code": 254497,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626899,
+     "name": "Seraulim",
+     "share": 1.0
+    },
+    {
+     "code": 626900,
+     "name": "Duncolim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 970,
+    "population": 3998,
+    "male": 1951,
+    "female": 2047,
+    "sc": 143,
+    "st": 8,
+    "literates": 3122,
+    "workers": 1483,
+    "cultivators": 101,
+    "agri_labourers": 21,
+    "hh_industry": 49,
+    "other_workers": 1312,
+    "non_workers": 2515,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "st-jose-de-areal",
+   "kind": "village_panchayat",
+   "name": "St. Jose-de-Areal",
+   "lgd_code": 254510,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626927,
+     "name": "Sao Jose de Areal (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 2470,
+    "population": 10229,
+    "male": 5213,
+    "female": 5016,
+    "sc": 113,
+    "st": 2321,
+    "literates": 7672,
+    "workers": 3698,
+    "cultivators": 33,
+    "agri_labourers": 54,
+    "hh_industry": 58,
+    "other_workers": 3553,
+    "non_workers": 6531,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "telaulim",
+   "kind": "village_panchayat",
+   "name": "Telaulim",
+   "lgd_code": 254515,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626907,
+     "name": "Talaulim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 699,
+    "population": 2911,
+    "male": 1387,
+    "female": 1524,
+    "sc": 24,
+    "st": 0,
+    "literates": 2384,
+    "workers": 926,
+    "cultivators": 66,
+    "agri_labourers": 13,
+    "hh_industry": 13,
+    "other_workers": 834,
+    "non_workers": 1985,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "varca",
+   "kind": "village_panchayat",
+   "name": "Varca",
+   "lgd_code": 254523,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626932,
+     "name": "Varca (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1393,
+    "population": 5439,
+    "male": 2583,
+    "female": 2856,
+    "sc": 20,
+    "st": 14,
+    "literates": 4371,
+    "workers": 1823,
+    "cultivators": 12,
+    "agri_labourers": 10,
+    "hh_industry": 53,
+    "other_workers": 1748,
+    "non_workers": 3616,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "velim",
+   "kind": "village_panchayat",
+   "name": "Velim",
+   "lgd_code": 254526,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626921,
+     "name": "Velim",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1536,
+    "population": 5955,
+    "male": 2805,
+    "female": 3150,
+    "sc": 53,
+    "st": 2021,
+    "literates": 4639,
+    "workers": 1950,
+    "cultivators": 151,
+    "agri_labourers": 84,
+    "hh_industry": 33,
+    "other_workers": 1682,
+    "non_workers": 4005,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "verna",
+   "kind": "village_panchayat",
+   "name": "Verna",
+   "lgd_code": 254532,
+   "taluka": "Salcete",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626923,
+     "name": "Verna (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1668,
+    "population": 6632,
+    "male": 3249,
+    "female": 3383,
+    "sc": 48,
+    "st": 2516,
+    "literates": 5005,
+    "workers": 2534,
+    "cultivators": 121,
+    "agri_labourers": 216,
+    "hh_industry": 113,
+    "other_workers": 2084,
+    "non_workers": 4098,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "bhati",
+   "kind": "village_panchayat",
+   "name": "Bhati",
+   "lgd_code": 254373,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627004,
+     "name": "Tudou",
+     "share": 1.0
+    },
+    {
+     "code": 627005,
+     "name": "Potrem",
+     "share": 1.0
+    },
+    {
+     "code": 627006,
+     "name": "Bati",
+     "share": 1.0
+    },
+    {
+     "code": 627007,
+     "name": "Cumbari",
+     "share": 1.0
+    },
+    {
+     "code": 627008,
+     "name": "Viliena",
+     "share": 1.0
+    },
+    {
+     "code": 627009,
+     "name": "Dongor",
+     "share": 1.0
+    },
+    {
+     "code": 627010,
+     "name": "Naiquinim",
+     "share": 1.0
+    },
+    {
+     "code": 627017,
+     "name": "Sigonem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 753,
+    "population": 3283,
+    "male": 1612,
+    "female": 1671,
+    "sc": 6,
+    "st": 1294,
+    "literates": 2343,
+    "workers": 1405,
+    "cultivators": 244,
+    "agri_labourers": 219,
+    "hh_industry": 82,
+    "other_workers": 860,
+    "non_workers": 1878,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "curdi",
+   "kind": "village_panchayat",
+   "name": "Curdi",
+   "lgd_code": 254406,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627011,
+     "name": "Porteem",
+     "share": 1.0
+    },
+    {
+     "code": 627012,
+     "name": "Curdi",
+     "share": 1.0
+    },
+    {
+     "code": 627015,
+     "name": "Curpem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 773,
+    "population": 3241,
+    "male": 1596,
+    "female": 1645,
+    "sc": 47,
+    "st": 1301,
+    "literates": 2277,
+    "workers": 1473,
+    "cultivators": 202,
+    "agri_labourers": 401,
+    "hh_industry": 42,
+    "other_workers": 828,
+    "non_workers": 1768,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "kalay-kalem",
+   "kind": "village_panchayat",
+   "name": "Kalay(kalem)",
+   "lgd_code": 254423,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626988,
+     "name": "Calem",
+     "share": 1.0
+    },
+    {
+     "code": 626990,
+     "name": "Boma",
+     "share": 1.0
+    },
+    {
+     "code": 626991,
+     "name": "Oxel",
+     "share": 1.0
+    },
+    {
+     "code": 626992,
+     "name": "Dongurli",
+     "share": 1.0
+    },
+    {
+     "code": 626994,
+     "name": "Maulinguem",
+     "share": 1.0
+    },
+    {
+     "code": 626995,
+     "name": "Dudal",
+     "share": 1.0
+    },
+    {
+     "code": 626996,
+     "name": "Costi",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 939,
+    "population": 4364,
+    "male": 2226,
+    "female": 2138,
+    "sc": 42,
+    "st": 939,
+    "literates": 3252,
+    "workers": 1685,
+    "cultivators": 158,
+    "agri_labourers": 192,
+    "hh_industry": 11,
+    "other_workers": 1324,
+    "non_workers": 2679,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "neturlim",
+   "kind": "village_panchayat",
+   "name": "Neturlim",
+   "lgd_code": 254458,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 627016,
+     "name": "Vichundrem",
+     "share": 1.0
+    },
+    {
+     "code": 627018,
+     "name": "Netorli",
+     "share": 1.0
+    },
+    {
+     "code": 627019,
+     "name": "Nundem",
+     "share": 1.0
+    },
+    {
+     "code": 627020,
+     "name": "Verlem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 825,
+    "population": 3552,
+    "male": 1721,
+    "female": 1831,
+    "sc": 31,
+    "st": 2171,
+    "literates": 2584,
+    "workers": 1657,
+    "cultivators": 429,
+    "agri_labourers": 365,
+    "hh_industry": 51,
+    "other_workers": 812,
+    "non_workers": 1895,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "sanguem",
+   "kind": "municipal_council",
+   "name": "Sanguem",
+   "lgd_code": null,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 803253,
+     "name": "Sanguem (M Cl)",
+     "share": 1
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1545,
+    "population": 6444,
+    "male": 3162,
+    "female": 3282,
+    "sc": 72,
+    "st": 379,
+    "literates": 5109,
+    "workers": 2476,
+    "cultivators": 61,
+    "agri_labourers": 69,
+    "hh_industry": 24,
+    "other_workers": 2322,
+    "non_workers": 3968,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": []
+  },
+  {
+   "id": "sanvordem-sanguem",
+   "kind": "village_panchayat",
+   "name": "Sanvordem",
+   "lgd_code": 254491,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626985,
+     "name": "Rumbrem",
+     "share": 1.0
+    },
+    {
+     "code": 626986,
+     "name": "Antoriem",
+     "share": 1.0
+    },
+    {
+     "code": 626987,
+     "name": "Santona",
+     "share": 1.0
+    },
+    {
+     "code": 626997,
+     "name": "Coranginim",
+     "share": 1.0
+    },
+    {
+     "code": 626998,
+     "name": "Comproi",
+     "share": 1.0
+    },
+    {
+     "code": 627021,
+     "name": "Sanvordem (CT)",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1820,
+    "population": 7804,
+    "male": 3906,
+    "female": 3898,
+    "sc": 157,
+    "st": 87,
+    "literates": 5802,
+    "workers": 3240,
+    "cultivators": 106,
+    "agri_labourers": 33,
+    "hh_industry": 20,
+    "other_workers": 3081,
+    "non_workers": 4564,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  },
+  {
+   "id": "uguem",
+   "kind": "village_panchayat",
+   "name": "Uguem",
+   "lgd_code": 254521,
+   "taluka": "Sanguem",
+   "district": "South Goa",
+   "villages": [
+    {
+     "code": 626993,
+     "name": "Patiem",
+     "share": 1.0
+    },
+    {
+     "code": 626999,
+     "name": "Muguli",
+     "share": 1.0
+    },
+    {
+     "code": 627000,
+     "name": "Cotarli",
+     "share": 1.0
+    },
+    {
+     "code": 627001,
+     "name": "Xelpem",
+     "share": 1.0
+    },
+    {
+     "code": 627002,
+     "name": "Salauli",
+     "share": 1.0
+    },
+    {
+     "code": 627003,
+     "name": "Uguem",
+     "share": 1.0
+    }
+   ],
+   "census": {
+    "year": 2011,
+    "households": 1111,
+    "population": 4733,
+    "male": 2316,
+    "female": 2417,
+    "sc": 61,
+    "st": 1232,
+    "literates": 3412,
+    "workers": 1906,
+    "cultivators": 138,
+    "agri_labourers": 308,
+    "hh_industry": 27,
+    "other_workers": 1433,
+    "non_workers": 2827,
+    "confidence": "mapped"
+   },
+   "flags": {
+    "coastal": null,
+    "estuarine": null
+   },
+   "programmes": {},
+   "sources": [
+    "Local Government Directory (village to local body, 2023 snapshot)"
+   ]
+  }
+ ],
+ "sources": [
+  "Census of India 2011, Primary Census Abstract, village and town level, Goa (censusindia.gov.in NADA catalogue 6776, 6777)",
+  "Local Government Directory, village to local body mapping for Goa (lgdirectory.gov.in, via the India Data Portal snapshot of 2023-10-20)"
+ ]
+}

@@ -1187,14 +1187,14 @@ HOME_CSS = """<style>body{max-width:760px}.stage{display:inline-block;padding:7p
 .budget{margin:14px 0 6px}.track{display:flex;height:22px;border:2px solid var(--ink);border-radius:4px;background:var(--paper);overflow:hidden}
 .seg{display:block;height:100%}.seg+.seg{border-left:2px solid var(--card)}.paid{background:var(--ink)}.approved{background:var(--gold)}.asked{background:repeating-linear-gradient(135deg,var(--gold) 0 4px,transparent 4px 9px)}.left{background:var(--paper);border:1px solid var(--line)}
 .legend{font:400 13px/1.6 "IBM Plex Mono",monospace;color:var(--muted);margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
-table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin-top:8px}
+table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin-top:8px;text-align:center}h2.first{margin-top:22px}.cta{margin:18px 0 4px}button.primary{background:var(--gold);font-size:14px;padding:18px 22px;box-shadow:4px 4px 0 var(--ink);border-width:2px}button.primary span{margin-left:6px}button.primary:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
 .strip{list-style:none;padding:0;margin:8px 0 4px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:560px){.strip{grid-template-columns:repeat(2,1fr)}}
 .strip li{position:relative;border:2px solid var(--line);border-radius:4px;background:var(--card);padding:12px 10px 10px;font:400 14px/1.3 Newsreader,Georgia,serif;color:var(--muted)}
 .strip svg{display:block;width:30px;height:30px;stroke:var(--muted);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
 .strip li.done{border-color:var(--ink);color:var(--ink)}.strip li.done svg{stroke:var(--ink)}
 .strip li.now{border-color:var(--ink);background:var(--gold);color:var(--ink);box-shadow:3px 3px 0 var(--shadow)}.strip li.now svg{stroke:var(--ink)}
 .strip em{position:absolute;top:8px;right:8px;font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;color:var(--ink)}
-.items{display:grid;gap:10px}.item{display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:4px;background:var(--card);padding:12px 14px;box-shadow:3px 3px 0 var(--shadow)}.item b{display:block;font-weight:500}.item .muted{font-size:14px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:10px;background:var(--gold);color:var(--ink);padding:8px 12px;text-decoration:none;font:500 15px 'IBM Plex Mono',monospace;box-shadow:2px 2px 0 var(--shadow)}.thumb svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:active{transform:translate(2px,2px);box-shadow:none}
+.items{display:grid;gap:10px}.item{display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:4px;background:var(--card);padding:12px 14px;box-shadow:3px 3px 0 var(--shadow)}.item b{display:block;font-weight:500}.item .muted{font-size:14px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:8px 12px;text-decoration:none;font:500 15px 'IBM Plex Mono',monospace;box-shadow:2px 2px 0 var(--shadow)}.thumb svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:active{transform:translate(2px,2px);box-shadow:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
 NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
@@ -1248,30 +1248,31 @@ def home():
         kids = sorted(core.children(con, node["id"]), key=lambda k: -k["created_at"])
         first = min((k["created_at"] for k in kids), default=None)
         proof = (f"{len(kids)} business{'es' if len(kids) != 1 else ''} in since {core._ist(first)[:10]}" if kids else "Opening now") + (f" · {STAGE_WORDS.get(b['stage'], b['stage'])}" if b["stage"] else "")
-        body = ("<p class=lead>A ₹5 lakh fund that Goan businesses spend together. You say what your shop needs; the businesses vote; the fund pays the vendor.</p>"
-                f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form><p class='muted proof'>{esc(proof)}</p>")
-        body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
-        # what gets funded: the drafts on the table as items, not records
+        cta = f"<form method=get action='/apply/{esc(HOME_POOL)}' class=cta><button class=primary>Register your business <span aria-hidden=true>→</span></button></form>"
+        body = "<p class=lead>A ₹5 lakh fund that Goan businesses spend together. You say what your shop needs; the businesses vote; the fund pays the vendor.</p>"
+        # the hero: what is on the table, most backed first, each with a thumb that leads into registering
         props = []
         if rnd and rnd["status"] == "proposals":
             props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
             props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
             props = props[:6]
-        body += "<h2>What gets funded</h2>"
+        body += "<h2 class=first>On the table</h2>"
         if props:
             body += "<div class=items>" + "".join(
                 f"<div class=item><div><b>{esc(p['title'])}</b><span class=muted>about {_rupees(p['ideal_paise'])}</span></div>"
                 f"<a class=thumb href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}' title='Back this: register your business'><svg viewBox='0 0 24 24' aria-hidden=true><path d='M7 11v9H4v-9z M7 11l4-7c2 0 3 1 3 3v3h5c1 0 2 1 2 2l-1.5 7c0 1-1 1-2 1H7'/></svg><span>{len(db.j(p['cosign_nodes'], []))}</span></a></div>"
                 for p in props) + "</div>"
-            body += "<p class=muted>Proposals on the table now, written from what businesses said they need, most backed first. The thumb is how many businesses back one; tap it to register and add yours.</p>"
+            body += "<p class=muted>Written from what businesses said they need, most backed first. The thumb is how many businesses back one; tap it to add yours.</p>"
         else:
             body += "<div class=items><div class=item><div><b>A delivery scooter shared along a lane</b><span class=muted>about ₹50,000</span></div></div><div class=item><div><b>One billing licence for several shops</b><span class=muted>about ₹15,000</span></div></div><div class=item><div><b>A two-day trainer for counter staff</b><span class=muted>about ₹20,000</span></div></div></div><p class=muted>The kind of thing the fund buys: things several businesses use together.</p>"
+        body += cta + f"<p class='muted proof'>{esc(proof)}</p>"
+        body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
         body += "<h2>Who's in</h2>" + ("<p class=chips>" + "".join(f"<span class=chip>{esc(k['name'])}</span>" for k in kids) + "</p>" if kids else "<p class=muted>Be the first.</p>")
         body += (f"<h2>Where the money stands</h2><div class=card><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
                  f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}<p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan.</p></div>")
         body += (f"<h2>For the record</h2><p><a href='/b/{esc(HOME_POOL)}'>The live board</a> · <a href='/export/{esc(node['id'])}'>the export</a> · <a href='/privacy'>privacy</a></p>"
                  + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items()))
-        body += f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form>"
+        body += cta
         html = page(node["name"], body).body.decode()
         return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=60><title>", 1))
     pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
@@ -1284,7 +1285,150 @@ def home():
     if not pools:
         body += "<p class=muted>Nothing is running here yet.</p>"
     body += "<h2>Notes</h2>" + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items())
+    body += "<h2>Digital twin</h2><p><a href='/twin'>Every local body in Goa, read against the government's schemes</a>: what the place is eligible for now, what it could plausibly become eligible for, and the step that gets it there.</p>"
     return page("Public Bank", body)
+
+
+# ----------------------------------------------------------------------------
+# the digital twin: every local body in Goa read against the scheme catalogue
+# ----------------------------------------------------------------------------
+from . import places, schemes  # noqa: E402
+
+TWIN_CSS = ("<style>.tag.ok{background:#2f6b3f;color:#fbf6e9}.tag.maybe{background:var(--gold)}.tag.no{background:var(--card);border:1px solid var(--line);color:var(--muted)}"
+            ".tag.draw{background:var(--ink);color:#fbf6e9}.lv a{margin-right:14px}.lv b{margin-right:14px}.twin .prop{padding:10px 0}.twin .why{display:block;color:var(--muted);font-size:15px;line-height:1.45;margin-top:3px}"
+            ".twin .step{display:block;font-size:15px;color:var(--ink);margin-top:3px}.twin .step:before{content:'→ '}.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px 16px}"
+            ".facts div{font:400 14px 'IBM Plex Mono',monospace;color:var(--muted)}.facts b{display:block;font:500 22px 'IBM Plex Mono',monospace;color:var(--ink)}.sum{font:400 15px 'IBM Plex Mono',monospace;color:var(--muted)}"
+            "table.places td a{text-decoration:none;border-bottom:1px solid var(--line)}details.fold summary{font-weight:400;color:var(--muted)}</style>")
+LEVELS = [("village_panchayat", "Village panchayats"), ("municipal", "Towns"), ("taluka", "Talukas"), ("district", "Districts"), ("state", "Goa")]
+STATUS_WORDS = {"eligible": ("ok", "eligible"), "plausible": ("maybe", "plausible"), "unlikely": ("no", "unlikely")}
+
+
+def _pct(x: float | None) -> str:
+    return f"{x:.0%}" if x is not None else "?"
+
+
+def _num(x) -> str:
+    return f"{int(x):,}" if x is not None else "?"
+
+
+def _places_at(level: str) -> list[dict]:
+    if level == "municipal":
+        return places.divisions("municipal_council") + places.divisions("municipal_corporation")
+    if level in places.ROLLUPS:
+        return places.rollups(level)
+    return places.divisions("village_panchayat")
+
+
+@app.get("/twin")
+def twin_index(level: str = "village_panchayat"):
+    if level not in dict(LEVELS):
+        raise HTTPException(404)
+    ds = sorted(_places_at(level), key=lambda d: (d.get("district") or "", d.get("taluka") or "", d["name"]))
+    cat = schemes.load()
+    body = ("<p>A digital twin of each local body in Goa: what the public figures say about the place, read against "
+            f"{len(cat['schemes'])} government schemes. For every scheme the twin says whether the place is <span class='tag ok'>eligible</span> now, "
+            "<span class='tag maybe'>plausible</span> with a step people there could take, or <span class='tag no'>unlikely</span>, and why.</p>"
+            "<p class=lv>" + " ".join(f"<b>{esc(w)}</b>" if k == level else f"<a href='/twin?level={k}'>{esc(w)}</a>" for k, w in LEVELS) + "</p>")
+    if not ds:
+        body += "<p class=muted>No places loaded yet.</p>"
+    else:
+        body += "<table class=places><tr><th>Place</th><th>Taluka</th><th>Households</th><th>People</th><th>ST</th><th>Coast</th><th>Eligible</th><th>Plausible</th></tr>"
+        for d in ds:
+            p = places.profile(d); sm = places.summary_of(d["id"]) or {}
+            coast = "yes" if p["coastal"] else ("—" if p["coastal"] is False else "?")
+            body += (f"<tr><td><a href='/twin/{esc(d['id'])}'>{esc(d['name'])}</a></td><td class=muted>{esc(d.get('taluka') or (d.get('district') or ''))}</td>"
+                     f"<td>{_num(p['households'])}</td><td>{_num(p['population'])}</td><td>{_pct(p['st_share'])}</td><td>{coast}</td>"
+                     f"<td>{sm.get('eligible', '')}</td><td>{sm.get('plausible', '')}</td></tr>")
+        body += "</table>"
+    body += (f"<p class=muted>Figures: Census 2011 (village totals summed per panchayat) and whatever programme tables are published per panchayat. "
+             f"Schemes: {esc(cat['caveat'])} The rules that read a scheme against a place are in the open; argue with the rule, not the answer.</p>")
+    html = page("Digital twin", body).body.decode()
+    return HTMLResponse(html.replace(CSS, CSS + TWIN_CSS, 1))
+
+
+def _twin_row(s: dict, v: dict, members: dict | None, n_members: int) -> str:
+    cls, word = STATUS_WORDS[v["status"]]
+    tags = f"<span class='tag {cls}'>{word}</span>" + ("<span class='tag draw'>already running</span>" if v["drawing"] else "")
+    if members is not None:
+        m = members.get(s["id"], {})
+        tags += f" <span class=sum>in {m.get('eligible', 0) + m.get('plausible', 0)} of {n_members}</span>"
+    name = f"<a href='{esc(s['source_url'])}'>{esc(s['name'])}</a>" if s.get("source_url") else esc(s["name"])
+    meta = esc(s["department"]) + (f" · up to {_rupees(s['max_rupees'] * 100)}" if s.get("max_rupees") else "") + (f" · {len(s['amendments'])} amendment{'s' if len(s['amendments']) != 1 else ''}" if s["amendments"] else "")
+    out = f"<div class=prop>{tags} <b>{name}</b> <span class=muted>· {meta}</span><span class=why>{esc('; '.join(v['why']))}</span>"
+    for st in v["steps"]:
+        out += f"<span class=step>{esc(st)}</span>"
+    return out + "</div>"
+
+
+@app.get("/twin/{div_id}.json")
+def twin_json(div_id: str):
+    d = places.get(div_id)
+    if not d:
+        raise HTTPException(404)
+    t = places.twin(d)
+    return JSONResponse({"division": t["division"], "profile": t["profile"], "summary": t["summary"], "verdicts": t["verdicts"], "members": t["members"],
+                         "caveat": schemes.load()["caveat"]})
+
+
+@app.get("/twin/{div_id}")
+def twin_page(div_id: str):
+    d = places.get(div_id)
+    if not d:
+        raise HTTPException(404)
+    t = places.twin(d); p = t["profile"]; sm = t["summary"]
+    by_id = {s["id"]: s for s in schemes.schemes()}
+    kind = places.KINDS.get(d["kind"], d["kind"])
+    crumbs = [f"<a href='/twin'>Digital twin</a>"]
+    if d.get("district") and d["kind"] != "district":
+        crumbs.append(f"<a href='/twin/{places.slug('district-' + d['district'])}'>{esc(d['district'])}</a>")
+    if d.get("taluka") and d["kind"] not in places.ROLLUPS:
+        crumbs.append(f"<a href='/twin/{places.slug('taluka-' + d['taluka'])}'>{esc(d['taluka'])}</a>")
+    body = f"<p class=muted>{' · '.join(crumbs)} · {esc(kind)}</p>"
+    n_members = len(d.get("members", [])) if d["kind"] in places.ROLLUPS else 0
+    if n_members:
+        mk = d.get("member_kinds", {})
+        body += "<p class=muted>" + ", ".join(f"{n} {places.KINDS.get(k, k).lower()}{'s' if n != 1 else ''}" for k, n in mk.items()) + "</p>"
+    facts = [("Households", _num(p["households"])), ("People", _num(p["population"])), ("Scheduled Tribes", _pct(p["st_share"])), ("Scheduled Castes", _pct(p["sc_share"])),
+             ("Literacy", _pct(p["literacy"])), ("In agriculture", _num(p["farmers"])), ("Coast", "yes" if p["coastal"] else ("no" if p["coastal"] is False else "?")),
+             ("Tidal water", "yes" if p["estuarine"] else ("no" if p["estuarine"] is False else "?"))]
+    if p.get("mgnrega_job_cards") is not None: facts.append(("MGNREGA job cards", _num(p["mgnrega_job_cards"])))
+    if p.get("shgs") is not None: facts.append(("Self-help groups", _num(p["shgs"])))
+    if p.get("fisher_households") is not None: facts.append(("Fishing households", _num(p["fisher_households"])))
+    if p.get("dairy_societies") is not None: facts.append(("Dairy societies", _num(p["dairy_societies"])))
+    if p.get("pmayg_houses") is not None: facts.append(("PMAY-G houses", _num(p["pmayg_houses"])))
+    body += "<div class=card><div class=facts>" + "".join(f"<div>{esc(k)}<b>{esc(v)}</b></div>" for k, v in facts) + "</div>"
+    conf = {"mapped": "village totals mapped to this body", "name": "matched by name only", "none": "no census figures found"}.get(p["census_confidence"], p["census_confidence"])
+    src = [f"Census 2011 ({conf})"] + [esc(x) for x in d.get("sources", []) if x]
+    body += f"<p class=muted style='margin:12px 0 0'>Figures: {'; '.join(src)}. A question mark is a figure we do not hold yet.</p></div>"
+    body += (f"<p class=sum><span class='tag ok'>eligible</span> {sm['eligible']} &nbsp; <span class='tag maybe'>plausible</span> {sm['plausible']} &nbsp; "
+             f"<span class='tag no'>unlikely</span> {sm['unlikely']} &nbsp; <span class='tag draw'>already running</span> {sm['drawing']} &nbsp;· of {sm['schemes']} schemes</p>")
+    order = {"eligible": 0, "plausible": 1, "unlikely": 2}
+    groups = {"body": [], "groups": [], "people": []}
+    for v in t["verdicts"]:
+        groups[places.section(by_id[v["scheme_id"]])].append(v)
+    heads = {"body": f"For the {kind.lower()} itself" if d["kind"] not in places.ROLLUPS else "For the local bodies here",
+             "groups": "For groups, societies and organisations here", "people": "For households and people here"}
+    for key in ("body", "groups", "people"):
+        vs = sorted(groups[key], key=lambda v: (order[v["status"]], not v["drawing"], by_id[v["scheme_id"]]["name"]))
+        if not vs:
+            continue
+        live = [v for v in vs if v["status"] != "unlikely"]; dead = [v for v in vs if v["status"] == "unlikely"]
+        body += f"<h2>{esc(heads[key])} <span class=sum>· {len(live)}</span></h2><div class=twin>"
+        body += "".join(_twin_row(by_id[v["scheme_id"]], v, t["members"], n_members) for v in live)
+        if dead:
+            body += f"<details class=fold><summary>{len(dead)} unlikely here</summary>" + "".join(_twin_row(by_id[v["scheme_id"]], v, t["members"], n_members) for v in dead) + "</details>"
+        body += "</div>"
+    cat = schemes.load()
+    want = "Demand 55" if d["kind"].startswith("municipal") else "Demand 31" if d["kind"] == "village_panchayat" else None
+    lines = [g for g in cat["grants"] if want is None or g["demand"].startswith(want)]
+    if lines:
+        body += "<h2>Budget lines that fund local bodies, 2026-27</h2><p class=muted>Line names are from the Demands for Grants; the amounts read from the PDFs did not reconcile with the official totals, so they are shown as pointers to check, not figures to quote.</p><table><tr><th>Line</th><th>Plan</th><th>Recipient</th><th>Rs lakh (unverified)</th></tr>"
+        for g in lines:
+            body += f"<tr><td><a href='{esc(g['source_url'])}'>{esc(g['line'])}</a></td><td class=muted>{esc(g['plan'])}</td><td class=muted>{esc(g['recipient'])}</td><td class=muted>{g['amount_lakh_unverified'] if g['amount_lakh_unverified'] is not None else ''}</td></tr>"
+        body += "</table>"
+    body += f"<p class=muted><a href='/twin/{esc(d['id'])}.json'>JSON</a> · {esc(cat['caveat'])}</p>"
+    html = page(d["name"], body).body.decode()
+    return HTMLResponse(html.replace(CSS, CSS + TWIN_CSS, 1))
 
 
 # ----------------------------------------------------------------------------
