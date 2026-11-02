@@ -910,12 +910,12 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
 <label>What the business does <span class=hint>e.g. tailoring, or a cafe</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
-<label>Where is the shop? Village panchayat or town <span class=hint>Start typing and pick from the list, or tap the button and we fill it in from where you are standing. The taluka and district follow from it.</span>
-<div class=row style='gap:8px;align-items:stretch'><input list=pb-places name=place maxlength=80 autocomplete=off value='{g('place')}' style='flex:1;width:auto'><button type=button class='small quiet' id=pb-locate style='width:auto;margin:8px 0 0;white-space:nowrap'>Use my location</button></div>
+<label>Where is the shop? Village panchayat or town <span class=hint>Start typing and pick from the list, or tap the button and we fill it in from where you are standing. The taluka and district follow from it. Required.</span>
+<div class=row style='gap:8px;align-items:stretch'><input list=pb-places name=place maxlength=80 autocomplete=off required value='{g('place')}' style='flex:1;width:auto'><button type=button class='small quiet' id=pb-locate style='width:auto;margin:8px 0 0;white-space:nowrap'>Use my location</button></div>
 <input type=hidden name=place_id value='{g('place_id')}'><span class=hint id=pb-place-hint></span></label>
 <label>Pin code <span class=hint>Optional.</span><input name=pin inputmode=numeric pattern='[0-9]{{6}}' maxlength=6 placeholder='403527' value='{g('pin')}' style='width:12ch'></label>
-<label>House number, lane or landmark <span class=hint>Optional. So we can find the shop.</span>
-<input name=address maxlength=200 autocomplete=street-address value='{g('address')}'></label>
+<label>House number, lane or landmark <span class=hint>So we can find the shop.</span>
+<input name=address required maxlength=200 autocomplete=street-address value='{g('address')}'></label>
 <datalist id=pb-places>{_place_options()}</datalist>
 <script>(function(){{var P={_places_json()};var place=document.querySelector('input[name=place]'),pid=document.querySelector('input[name=place_id]'),addr=document.querySelector('input[name=address]'),hint=document.getElementById('pb-place-hint'),btn=document.getElementById('pb-locate');
 function norm(s){{return (s||'').toLowerCase().replace(/[^a-z]/g,'')}}
@@ -1011,6 +1011,8 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     challenge = _joined(challenge, challenge_other, HELP_OPTIONS); share = _joined(share, share_other, SHARE_OPTIONS)
     if not challenge or not share:
         return _apply_form(pool, v, "Tick at least one box under 'help with' and under 'share'.", path=pool_id)
+    if not address.strip() or not (place.strip() or place_id):
+        return _apply_form(pool, v, "Tell us where the shop is: the village or town, and the house number or lane.", path=pool_id)
     if not core.normalize_phone(phone, DIAL[cc]):
         return _apply_form(pool, v, "That doesn't look like a WhatsApp number. The number without the country code; the code is in the box next to it.", path=pool_id)
     try:

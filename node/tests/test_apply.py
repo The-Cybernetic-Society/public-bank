@@ -80,6 +80,9 @@ assert client(tre["id"]).get(f"/c/{a['node_id']}").status_code == 200   # the po
 r = anon.post("/apply/commons", data=dict(form, need="A bigger shop sign"))
 assert r.status_code == 200 and "Already registered" in r.text and len(core.applications_of(con, "commons")) == 1
 assert [n["text"] for n in core.needs_of(con, a["node_id"], include_children=False)] == ["A scooter for deliveries, customers keep asking", "A bigger shop sign"]
+# the shop's location is required: no lane line, or no place anywhere, and the form comes back
+r = client().post("/apply/commons", data=dict(form, business="No Address Co", phone="+91 90000 22222", address="", place=""))
+assert r.status_code == 200 and "Tell us where the shop is" in r.text and not any(x["business"] == "No Address Co" for x in core.applications_of(con, "commons"))
 # another business, same slug, its own id; nothing ticked, a bot, a bad number
 r = client().post("/apply/commons", data=dict(form, phone="+91 91234 56789", applicant="Sunil")); assert r.status_code == 303
 assert {x["node_id"] for x in core.applications_of(con, "commons")} == {"commons/mandrem-tailors", "commons/mandrem-tailors-2"}
