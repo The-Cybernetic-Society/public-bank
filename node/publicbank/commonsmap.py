@@ -181,8 +181,8 @@ def map_section(pool_id: str) -> str:
 def twin_section(pool_id: str) -> str:
     """The digital twin, the AI and the simulation, in three short paragraphs, with the two sliders as a live
     demonstration of how the twin picks a draft for a business."""
-    return ("<h2>The digital twin behind the Commons</h2>"
-            "<p>Behind the page is a <b>digital twin</b> of the Commons: a record of each business, what it said it needs, where it sits, and what the "
+    return ("<h2>What is an AI digital twin?</h2>"
+            "<p>Behind the page is a <b>digital twin</b> of Goan businesses: a record of each business, what it said it needs, where it sits, and what the "
             "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town.</p>"
             "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
             "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
