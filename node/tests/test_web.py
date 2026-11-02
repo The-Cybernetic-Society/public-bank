@@ -65,5 +65,5 @@ assert resid[0].post("/n/goa-2026/lead", data={"pid": dft["id"]}).status_code ==
 assert "Co-sign for Residency A" in C.get("/n/goa-2026").text
 assert C.post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303 and client(cb["id"]).post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303
 assert core.get_proposal(con, dft["id"])["status"] == "eligible"
-pb = client().get("/b/goa-2026"); assert "2 nodes" in pb.text and "backed by Residency A, Residency B" in pb.text and "suggested from needs" in pb.text
+pb = client().get("/b/goa-2026"); assert "2 businesses" in pb.text and "backed by Residency A, Residency B" in pb.text and "suggested from needs" in pb.text
 print("WEB OK · board · pool page: lead + cosign ·", "stage:", core.get_round(con, rnd["id"])["status"], "· decision", d["verdict"], d["approvals"], "/", d["eligible"], "· levy ₹", ex["contributions"][0]["amount"] // 100)

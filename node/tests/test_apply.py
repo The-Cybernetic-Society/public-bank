@@ -257,3 +257,13 @@ print("APPLY OK · login link two-step · treasurer told · /me folded")
 r = anon.get("/notes/simulating-a-thousand-businesses"); assert r.status_code == 200 and "Method of Equal Shares" in r.text and "equalshares.net" in r.text
 assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thousand-businesses" in anon.get("/").text
 print("APPLY OK · notes")
+
+# removing one business from the pool leaves the rest, strips its backing, anonymises its owner
+from publicbank import wipe_businesses  # noqa: E402
+before = len(core.children(con, "commons"))
+res = wipe_businesses.remove_business(con, pid2)
+assert res["children_now"] == before - 1 and not db.row(con.execute("SELECT 1 FROM nodes WHERE id=?", (pid2,)).fetchone())
+assert db.row(con.execute("SELECT display, wa_phone, verified_by FROM members WHERE id=?", (cafe_owner,)).fetchone()) == {"display": None, "wa_phone": None, "verified_by": "removed"}
+assert all(pid2 not in db.j(p["cosign_nodes"], []) for p in db.rows(con.execute("SELECT cosign_nodes FROM proposals WHERE round_id=?", (rnd2["id"],)).fetchall()))
+assert "Business" in client().get("/b/commons").text and "businesses · one vote each" in client().get("/b/commons").text
+print("APPLY OK · remove one business")

@@ -798,7 +798,8 @@ def board(node_id: str):
         if rnd:
             for c in db.rows(con.execute("SELECT from_node_id, SUM(amount_paise) AS a FROM contributions WHERE to_round_id=? GROUP BY from_node_id", (rnd["id"],)).fetchall()):
                 contributed[c["from_node_id"]] = c["a"]
-        body += f"<h2>{len(kids)} nodes · {'one vote each' if node.get('pool_vote') == 'nodes' else 'every member votes'}</h2><table><tr><th>Node</th><th>Members</th><th>In the pool</th><th>Joined</th><th>Contributed</th></tr>"
+        what = "business" if node.get("pool_vote") == "nodes" else "node"
+        body += f"<h2>{len(kids)} {what}{'es' if what == 'business' else 's'} · {'one vote each' if node.get('pool_vote') == 'nodes' else 'every member votes'}</h2><table><tr><th>{what.capitalize()}</th><th>Members</th><th>In the pool</th><th>Joined</th><th>Contributed</th></tr>"
         for k in sorted(kids, key=lambda k: k["created_at"]):
             body += f"<tr><td>{esc(k['name'])}</td><td>{len(core.active_members(con, k['id']))}</td><td>{'yes' if k.get('charter_at') else '—'}</td><td class=muted>{esc(core._ist(k['created_at']) or '')}</td><td>{_rupees(contributed[k['id']]) if k['id'] in contributed else '—'}</td></tr>"
         body += "</table>"
@@ -1168,7 +1169,7 @@ def home():
             "plan, and watch every rupee on a public board. Nothing moves without the group's approval.</p>")
     for p in pools:
         n = len(core.children(con, p["id"]))
-        body += (f"<div class=card><b>{esc(p['name'])}</b>" + (f" <span class=muted>· {n} nodes</span>" if n else "")
+        body += (f"<div class=card><b>{esc(p['name'])}</b>" + (f" <span class=muted>· {n} {'businesses' if p.get('pool_vote') == 'nodes' else 'nodes'}</span>" if n else "")
                  + f"<br><a href='/b/{esc(p['id'])}'>Live board</a> · <a href='/apply/{esc(p['id'])}'>Register a business</a></div>")
     if not pools:
         body += "<p class=muted>Nothing is running here yet.</p>"
