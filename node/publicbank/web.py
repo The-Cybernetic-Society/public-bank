@@ -526,7 +526,7 @@ def applications_csv(node_id: str, request: Request):
     import io
     from fastapi.responses import Response
     buf = io.StringIO(); w = csv.writer(buf)
-    cols = ["business", "applicant", "role", "phone", "about", "address", "place_id", "challenge", "team_size", "need", "share", "contribute", "consent", "status", "node_id", "created_at"]
+    cols = ["business", "applicant", "role", "phone", "about", "place_id", "pin", "address", "challenge", "team_size", "need", "share", "contribute", "consent", "status", "node_id", "created_at"]
     w.writerow(cols)
     for a in core.applications_of(con, node_id):
         w.writerow([a.get(c, "") for c in cols])
@@ -592,7 +592,7 @@ def coordinate(node_id: str, request: Request):
                 else:
                     act = f"<a href='https://wa.me/{esc(a['phone'])}?text={esc(urllib.parse.quote(msg))}'>Send card</a>"
                 chal = f"<br><span class=muted>Needs help with: {esc(a['challenge'])}</span>" if a.get("challenge") else ""
-                where = " · ".join(x for x in (a.get("address") or "", (places.get(a["place_id"]) or {}).get("name", "") if a.get("place_id") else "") if x)
+                where = " · ".join(x for x in ((places.get(a["place_id"]) or {}).get("name", "") if a.get("place_id") else "", a.get("pin") or "", a.get("address") or "") if x)
                 body += (f"<tr><td><b>{esc(a['business'])}</b><br><span class=muted>{esc(a['about'] or '')}</span>" + (f"<br><span class=muted>{esc(where)}</span>" if where else "") + f"{chal}</td><td>{esc(a['applicant'])}<br><span class=muted>{esc(a['role'])}"
                          + (" · would chip in" if a["contribute"] == "yes" else "") + f"</span></td><td>{a['team_size'] or ''}</td><td>{esc(a['need'] or '')}</td><td>{act}</td></tr>")
             body += "</table>"
@@ -910,11 +910,12 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
 <label>Your role {radio('role', [('owner', 'Owner'), ('manager', 'Manager'), ('staff', 'Staff')])}</label>
 <label>What the business does <span class=hint>e.g. tailoring, or a cafe</span>
 <input name=about required maxlength=200 value='{g('about')}'></label>
-<label>Where is the shop? <span class=hint>Lane or road, and the village or town. Or tap the button and we fill it in from where you are standing.</span>
-<input name=address maxlength=200 autocomplete=street-address value='{g('address')}'></label>
-<label>Village panchayat or town <span class=hint>Start typing and pick from the list.</span>
+<label>Where is the shop? Village panchayat or town <span class=hint>Start typing and pick from the list, or tap the button and we fill it in from where you are standing. The taluka and district follow from it.</span>
 <div class=row style='gap:8px;align-items:stretch'><input list=pb-places name=place maxlength=80 autocomplete=off value='{g('place')}' style='flex:1;width:auto'><button type=button class='small quiet' id=pb-locate style='width:auto;margin:8px 0 0;white-space:nowrap'>Use my location</button></div>
 <input type=hidden name=place_id value='{g('place_id')}'><span class=hint id=pb-place-hint></span></label>
+<label>Pin code <span class=hint>Optional.</span><input name=pin inputmode=numeric pattern='[0-9]{{6}}' maxlength=6 placeholder='403527' value='{g('pin')}' style='width:12ch'></label>
+<label>House number, lane or landmark <span class=hint>Optional. So we can find the shop; it is never shown publicly.</span>
+<input name=address maxlength=200 autocomplete=street-address value='{g('address')}'></label>
 <datalist id=pb-places>{_place_options()}</datalist>
 <script>(function(){{var P={_places_json()};var place=document.querySelector('input[name=place]'),pid=document.querySelector('input[name=place_id]'),addr=document.querySelector('input[name=address]'),hint=document.getElementById('pb-place-hint'),btn=document.getElementById('pb-locate');
 function norm(s){{return (s||'').toLowerCase().replace(/[^a-z]/g,'')}}
@@ -990,14 +991,14 @@ def apply_get(pool_id: str):
 def apply_post(pool_id: str, request: Request, business: str = Form(""), applicant: str = Form(""), role: str = Form(""), phone: str = Form(""), cc: str = Form("IN"),
                about: str = Form(""), challenge: list[str] = Form([]), challenge_other: str = Form(""), team_size: str = Form(""), need: str = Form(""),
                share: list[str] = Form([]), share_other: str = Form(""), contribute: str = Form(""), consent: str = Form(""), website: str = Form(""),
-               address: str = Form(""), place: str = Form(""), place_id: str = Form(""), registrations: list[str] = Form([]), age_band: str = Form("")):
+               address: str = Form(""), place: str = Form(""), place_id: str = Form(""), pin: str = Form(""), registrations: list[str] = Form([]), age_band: str = Form("")):
     pool = _pool_or_404(pool_id)
     from .countries import DIAL
     from . import places
     cc = cc.upper() if cc.upper() in DIAL else "IN"
     v = dict(business=business, applicant=applicant, role=role, phone=phone, cc=cc, about=about, challenge=challenge, challenge_other=challenge_other, team_size=team_size,
              need=need, share=share, share_other=share_other, contribute=contribute, consent=consent, address=address, place=place, place_id=place_id,
-             registrations=registrations, age_band=age_band)
+             registrations=registrations, age_band=age_band, pin=pin)
     # the place: what the picker set, else the typed name, else a name found in the address
     pl = places.get(place_id) if place_id else None
     if not pl and place:
@@ -1015,7 +1016,7 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
     try:
         a = core.apply(con, pool["id"], business=business, applicant=applicant, role=role, phone=phone, dial=DIAL[cc], about=about, challenge=challenge,
                        team_size=int(team_size or 1) if (team_size or "1").isdigit() else 1, need=need, share=share, contribute=contribute, consent=bool(consent),
-                       address=address, place_id=place_id or None, registrations=",".join(registrations), age_band=age_band)
+                       address=address, place_id=place_id or None, registrations=",".join(registrations), age_band=age_band, pin=pin)
     except core.PBError:
         return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
     if a["status"] == "new":

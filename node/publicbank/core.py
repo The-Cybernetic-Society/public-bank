@@ -830,7 +830,7 @@ def slugify(s: str) -> str:
 
 def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", challenge: str = "",
           team_size: int | None = None, need: str = "", share: str = "", contribute: str = "", consent: bool = False, address: str = "", place_id: str | None = None,
-          registrations: str = "", owner_tags: str = "", age_band: str = "", token_ttl: int = 30 * 86400) -> dict:
+          registrations: str = "", owner_tags: str = "", age_band: str = "", pin: str = "", token_ttl: int = 30 * 86400) -> dict:
     """Register a business under a pool from the public form. Makes the business node and an owner's card
     (a `join_coord` token). The same phone applying again updates its application instead of making a second
     node. Nobody is a member yet: the applicant becomes the coordinator when they open the card. `address` is
@@ -850,13 +850,15 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     registrations = ",".join(x for x in (r.strip() for r in registrations.split(",")) if x in ("udyam", "startup", "gst", "none"))
     owner_tags = ""   # the form asks nothing about who the owner is; the column stays for a later, consented source
     age_band = age_band if age_band in ("new", "young", "established") else ""
+    pin = "".join(ch for ch in pin if ch.isdigit())
+    pin = pin if len(pin) == 6 else ""   # a pin code or nothing; Goa's all start 403, but a shop may bank elsewhere
     fields = (about.strip()[:200], challenge.strip()[:500], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
               1 if consent else 0)
     cur = row(con.execute("SELECT * FROM applications WHERE pool_id=? AND phone=?", (pool_id, ph)).fetchone())
     if cur and cur["status"] == "new":
         with tx(con):
-            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,address=?,place_id=?,registrations=?,owner_tags=?,age_band=?,updated_at=? WHERE id=?",
-                        (business, applicant, role, *fields, address, place_id, registrations, owner_tags, age_band, now(), cur["id"]))
+            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,address=?,place_id=?,registrations=?,owner_tags=?,age_band=?,pin=?,updated_at=? WHERE id=?",
+                        (business, applicant, role, *fields, address, place_id, registrations, owner_tags, age_band, pin or None, now(), cur["id"]))
             con.execute("UPDATE nodes SET name=?, place_id=? WHERE id=?", (business, place_id, cur["node_id"]))
         return row(con.execute("SELECT * FROM applications WHERE id=?", (cur["id"],)).fetchone())
     if cur:   # already joined: a second form from the same phone is a new need at most, not a new business
@@ -870,8 +872,8 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
     aid = new_id("a_")
     with tx(con):
-        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,address,place_id,registrations,owner_tags,age_band,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, address, place_id, registrations, owner_tags, age_band, tok, "new", now(), now()))
+        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,address,place_id,registrations,owner_tags,age_band,pin,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, address, place_id, registrations, owner_tags, age_band, pin or None, tok, "new", now(), now()))
         if place_id:
             con.execute("UPDATE nodes SET place_id=? WHERE id=?", (place_id, nid))
     return row(con.execute("SELECT * FROM applications WHERE id=?", (aid,)).fetchone())

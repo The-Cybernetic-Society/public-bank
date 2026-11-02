@@ -39,7 +39,7 @@ assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.g
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
             team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings",
             address="Shop 3, market road, Mandrem", place="",   # no place picked: the server reads it off the address
-            registrations=["none"], age_band="established")
+            registrations=["none"], age_band="established", pin="403 527")
 # registering signs the applicant in as the business's coordinator, sends them to step 2, and tells the treasurer on Telegram
 os.environ["TELEGRAM_BOT_TOKEN"] = "t"
 tg_sent = []
@@ -101,7 +101,7 @@ assert [(b["name"], b["place_id"]) for b in core.verified_businesses(con, "commo
 assert "Mandrem" in T.get("/c/commons").text and "address" in T.get("/c/commons/applications.csv").text
 assert "name=address" in anon.get("/apply/commons").text and "Mandrem · Pernem" in anon.get("/apply/commons").text and "Use my location" in anon.get("/apply/commons").text
 # the business twin: the three optional answers are kept, the owner sees their schemes, nobody else does
-assert a["registrations"] == "none" and not a["owner_tags"] and a["age_band"] == "established"
+assert a["registrations"] == "none" and not a["owner_tags"] and a["age_band"] == "established" and a["pin"] == "403527"
 assert "The owner is" not in anon.get("/apply/commons").text and "owner_tags" not in anon.get("/apply/commons").text
 r = R.get("/schemes/commons/mandrem-tailors")
 assert r.status_code == 200 and "Udyam not held" in r.text and "register the business on the Udyam portal" in r.text and "unlikely for this business" in r.text, r.text[:400]
@@ -168,7 +168,7 @@ assert "9876543210" not in client().get("/b/commons").text
 print("APPLY OK · landing · form → node + card · same phone updates · honeypot · bad number · treasurer sees businesses + Send card · card on web → coordinator, need kept, charter · team link · card on WhatsApp → need kept, not asked twice · export clean")
 
 # the CSV is the treasurer's, and only theirs
-r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone,about,address,place_id,challenge" in r.text and "off season" in r.text and "919876543210" in r.text
+r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone,about,place_id,pin,address,challenge" in r.text and "off season" in r.text and "919876543210" in r.text
 assert client().get("/c/commons/applications.csv").status_code == 401 and O.get("/c/commons/applications.csv").status_code == 403
 print("APPLY OK · csv")
 

@@ -212,7 +212,8 @@ CREATE TABLE IF NOT EXISTS applications (
   share         TEXT,
   contribute    TEXT,                           -- yes | maybe | no: would put in a small amount
   consent       BIGINT NOT NULL DEFAULT 0,      -- anonymised research
-  address       TEXT,                           -- where the shop is, as typed; never exported, never shown publicly
+  address       TEXT,                           -- house number, lane or landmark, as typed; never exported, never shown publicly
+  pin           TEXT,                           -- six-digit pin code, if given
   place_id      TEXT,                           -- the local body it resolves to (places.py id); copied to the node, shown on the map once verified
   registrations TEXT,                           -- what the business holds, comma-separated: udyam | startup | gst | none (the business twin's entry tickets)
   owner_tags    TEXT,                           -- unused: the form asks nothing about who the owner is (kept for a later, consented source); never public
@@ -287,6 +288,7 @@ MIGRATIONS = [
     "ALTER TABLE applications ADD COLUMN owner_tags TEXT",
     "ALTER TABLE applications ADD COLUMN age_band TEXT",
     "ALTER TABLE proposals ADD COLUMN scheme_json TEXT",
+    "ALTER TABLE applications ADD COLUMN pin TEXT",
 ]
 
 
