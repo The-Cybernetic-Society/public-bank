@@ -1465,7 +1465,7 @@ STEPS = [   # the round as a drawn sequence; which step is lit comes from the li
     ("need", "Say what you need", "M4 5h16v10H9l-4 4v-4H4z"),
     ("drafts", "Drafts appear", "M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"),
     ("back", "Back or lead one", "M5 12l4 4 10-10"),
-    ("points", "Split 100 points", "M6 8h2 M11 8h7 M6 12h5 M14 12h4 M6 16h8 M17 16h1"),
+    ("points", "Local businesses vote", "M6 8h2 M11 8h7 M6 12h5 M14 12h4 M6 16h8 M17 16h1"),
     ("approve", "Approve the plan", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M8 12l3 3 5-6"),
     ("paid", "Fund pays the vendor", "M7 4h10 M7 8h10 M9 4c5 0 7 2 7 4s-2 4-7 4h-2l7 8"),
     ("record", "On the public record", "M3 20h18 M6 17V9 M11 17V5 M16 17v-7 M21 17v-4"),
