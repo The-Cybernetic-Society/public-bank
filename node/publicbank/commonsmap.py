@@ -106,6 +106,7 @@ CSS = """<style>
 .cmap g.dots circle.unv{stroke-dasharray:3 2}
 .cmap .hint{font:400 14px 'IBM Plex Mono',monospace;color:var(--muted);margin:8px 0 0;min-height:20px}
 .ccard{margin-top:16px}.ccard h3{font:500 24px/1.15 Newsreader,Georgia,serif;letter-spacing:-.015em;color:var(--ink);margin:0 0 4px}.ccard .fit{font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 8px;border-radius:8px;margin-right:6px;vertical-align:middle}
+.ccard .tag.twin,.board .tag.twin{background:var(--ink);color:var(--card)}.ccard h3{margin-top:8px}
 .ccard .m{color:var(--muted);font-size:15px;line-height:1.45;margin:6px 0}.ccard .chip{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:3px 8px;margin:4px 6px 0 0;font:400 13px 'IBM Plex Mono',monospace;color:var(--ink);cursor:pointer}.ccard .chip.b{background:var(--ink);color:var(--card)}
 .ccard ol.alt{list-style:none;padding:0;margin:10px 0 0;border-top:1px solid var(--line)}.ccard ol.alt li{padding:8px 0;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer}.ccard ol.alt li b{font-weight:500}
 .ccard a.btn{margin-top:12px}.ccard .scheme{margin:8px 0 0;padding:8px 10px;border:1px dashed var(--line);border-radius:3px;font-size:15px}
@@ -147,9 +148,9 @@ function render(){var R=ranked(),top=R[0];
     mapcard.innerHTML='<h3>'+esc(b.name)+'</h3><p class=m>'+esc(b.place||'place not given')+(b.verified?' · verified':' · registered, not yet verified')+'</p>'+(b.need?'<p><b>Needs:</b> '+esc(b.need)+'</p>':'')+(mine.length?'<p class=m>Part of '+mine.length+' proposal'+(mine.length>1?'s':'')+':</p><ol class=alt>'+mine.map(function(p){return '<li data-p="'+esc(p.id)+'"><b>'+esc(p.title)+'</b> <span class=muted>about '+rupees(p.ideal)+'</span></li>'}).join('')+'</ol>':'<p class=m>Not part of any proposal yet.</p>')+'<a class="btn quiet" href="#" id=cback>Back to the map</a>';
     hint.textContent=b.name+(mine.length?' is connected to '+(Object.keys(ids).length-1)+' other business'+(Object.keys(ids).length!==2?'es':''):'')}
   else{var p=touched&&top?top.p:mostBacked();if(!p){drawLinks(null,null);mapcard.innerHTML='<p class=muted>No proposals on the table yet.</p>'}else{var ids=conn(p),n=Object.keys(ids).length;drawLinks(p,ids);
-    mapcard.innerHTML='<p class=m style="margin:0">'+(touched?'For the lean set below, the twin would show first:':'Most backed on the table:')+'</p><h3>'+esc(p.title)+'</h3><p class=m>about '+rupees(p.ideal)+(p.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+chips(ids,n?'Connects '+n+' business'+(n>1?'es':'')+' (filled: backing or leading; outlined: written from their need):':'')+'<a class=btn href="/apply/'+esc(POOL)+'?for='+esc(p.id)+'">Back this with my business</a>';
+    mapcard.innerHTML='<p class=m style="margin:0">'+(touched?'For the lean set below, the twin would show first:':'Most backed on the table:')+'</p>'+(p.source==='twin'?'<span class="tag twin">from the twin</span>':'')+'<h3>'+esc(p.title)+'</h3><p class=m>about '+rupees(p.ideal)+(p.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+chips(ids,n?'Connects '+n+' business'+(n>1?'es':'')+' (filled: backing or leading; outlined: written from their need):':'')+'<a class=btn href="/apply/'+esc(POOL)+'?for='+esc(p.id)+'">Back this with my business</a>';
     hint.textContent=n?'This proposal connects '+n+' business'+(n>1?'es':'')+' on the map':defaultHint()}}
-  if(card){if(!top){card.innerHTML='<p class=muted>No proposals on the table yet.</p>'}else{var q=top.p;card.innerHTML='<span class=fit>fit '+Math.round(top.f*100)+'%</span><span class=muted>best of '+R.length+' for this lean</span><h3>'+esc(q.title)+'</h3><p class=m>about '+rupees(q.ideal)+(q.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+(q.text?'<p>'+esc(q.text)+'</p>':'')+schemeLine(q)
+  if(card){if(!top){card.innerHTML='<p class=muted>No proposals on the table yet.</p>'}else{var q=top.p;card.innerHTML='<span class=fit>fit '+Math.round(top.f*100)+'%</span>'+(q.source==='twin'?'<span class="tag twin">from the twin</span>':'<span class="tag">from a business</span>')+'<span class=muted> best of '+R.length+' for this lean</span><h3>'+esc(q.title)+'</h3><p class=m>about '+rupees(q.ideal)+(q.source==='twin'?' · suggested from what businesses said they need':' · proposed by a business')+'</p>'+(q.text?'<p>'+esc(q.text)+'</p>':'')+schemeLine(q)
       +(R.length>1?'<p class=m style="margin-top:12px">Next for this lean:</p><ol class=alt>'+R.slice(1,4).map(function(x){return '<li data-p="'+esc(x.p.id)+'"><b>'+esc(x.p.title)+'</b> <span class=muted>fit '+Math.round(x.f*100)+'% · about '+rupees(x.p.ideal)+'</span></li>'}).join('')+'</ol>':'')}}
   wire(mapcard);if(card)wire(card);
   try{history.replaceState(null,'','#'+(touched?'commons='+Object.keys(vec).map(function(k){return k+'='+vec[k]}).join(','):'')+(sel?'&biz='+encodeURIComponent(sel):''))}catch(e){}}
@@ -180,10 +181,9 @@ def map_section(pool_id: str) -> str:
 def twin_section(pool_id: str) -> str:
     """The digital twin, the AI and the simulation, in three short paragraphs, with the two sliders as a live
     demonstration of how the twin picks a draft for a business."""
-    return ("<h2>The twin behind the Commons</h2>"
+    return ("<h2>The digital twin behind the Commons</h2>"
             "<p>Behind the page is a <b>digital twin</b> of the Commons: a record of each business, what it said it needs, where it sits, and what the "
-            "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town. Nothing in it is private: "
-            "the names, the needs and the places are the ones on this page.</p>"
+            "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town.</p>"
             "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
             "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
             "it and others back it, and every proposal on this page says whether a person or the twin wrote it.</p>"

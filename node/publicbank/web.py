@@ -1413,6 +1413,11 @@ def home():
         if rnd and rnd["status"] == "proposals":
             props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
             props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
+            # the leaderboard: everything a business has put forward or backed, then one draft the twin wrote that
+            # nobody has picked up yet, at the bottom, so the board shows what the twin does without crowding people out
+            backed = [p for p in props if p["source"] != "twin" or db.j(p["cosign_nodes"], []) or p.get("lead_id")]
+            spare = [p for p in props if p not in backed]
+            props = backed + spare[:1]
         body += "<h2 class=first>Funding proposals</h2>"
         if props:
             names = {k["id"]: k["name"] for k in kids}
@@ -1420,19 +1425,21 @@ def home():
             for i, p in enumerate(props, 1):
                 signs = [names.get(x, x.rsplit("/", 1)[-1]) for x in db.j(p["cosign_nodes"], [])]
                 who = "Suggested from what businesses said they need" if p["source"] == "twin" else "Proposed by a business"
+                pill = "<span class='tag twin'>from the twin</span> " if p["source"] == "twin" else ""
                 sch = db.j(p.get("scheme_json"), None) if p.get("scheme_json") else None
                 more = (f"<div class=more id='prop-{esc(p['id'])}'><p>{esc(p['text'] or '').replace(chr(10), '<br>')}</p>"
                         + (f"<p class=muted>A scheme could carry part of this: <b>{esc(sch['name'])}</b> ({esc(sch['share'])})" + (f" · <a href='{esc(sch['url'])}'>read it</a>" if sch.get("url") else "") + "</p>" if sch else "")
                         + f"<p class=muted>{who}" + (f" · backed by {esc(', '.join(signs))}" if signs else " · nobody backs it yet")
                         + (f" · at least {_rupees(p['min_paise'])}, ideally {_rupees(p['ideal_paise'])}" if p["min_paise"] else f" · ideally {_rupees(p['ideal_paise'])}") + "</p>"
                         f"<a class='btn small' href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}'>Back this with my business</a></div>")
-                rows_html += (f"<li><span class=n>{i}</span><div class=row-main role=button tabindex=0 aria-expanded=false aria-controls='prop-{esc(p['id'])}'><b>{esc(p['title'])}</b>"
+                rows_html += (f"<li><span class=n>{i}</span><div class=row-main role=button tabindex=0 aria-expanded=false aria-controls='prop-{esc(p['id'])}'>{pill}<b>{esc(p['title'])}</b>"
                               f"<span class=muted>about {_rupees(p['ideal_paise'])}<u> · tap to read</u></span>{more}</div>"
                               f"<a class=thumb href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}' title='Back this: register your business'><svg viewBox='0 0 24 24' aria-hidden=true><path d='M7 11v9H4v-9z M7 11l4-7c2 0 3 1 3 3v3h5c1 0 2 1 2 2l-1.5 7c0 1-1 1-2 1H7'/></svg><span>{len(signs)}</span></a></li>")
             body += ("<ol class=board>" + rows_html + "</ol>"
                      "<script>(function(){document.querySelectorAll('.board .row-main').forEach(function(d){function go(){var li=d.closest('li'),o=li.classList.toggle('open');d.setAttribute('aria-expanded',o?'true':'false')}"
                      "d.addEventListener('click',function(e){if(e.target.closest('a'))return;go()});d.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})})()</script>")
-            note = f"All {len(props)} proposals this round, most backed first. Tap one to read it; the number is how many businesses back it, and tapping that adds yours."
+            note = (f"{len(backed)} proposal{'s' if len(backed) != 1 else ''} businesses have put forward or backed, most backed first" + (", and one the twin drafted from their needs that nobody has picked up yet" if spare else "")
+                    + ". Tap one to read it; the number is how many businesses back it, and tapping that adds yours.")
         else:
             body += "<ol class='board sample'>" + "".join(f"<li><span class=n>{i}</span><div><b>{t}</b><span class=muted>about {r}</span></div></li>" for i, (t, r) in enumerate(
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
