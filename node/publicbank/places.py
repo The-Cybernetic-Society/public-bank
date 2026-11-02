@@ -844,7 +844,25 @@ def main() -> None:
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--kind")
     ap.add_argument("--twin")
+    ap.add_argument("--set-place", nargs=2, metavar=("NODE_ID", "PLACE"), help="put a business on the map: its node id and a place name or id (runs against the service's database)")
+    ap.add_argument("--address", default="", help="with --set-place: the address to keep on the application")
     a = ap.parse_args()
+    if a.set_place:
+        node_id, text = a.set_place
+        d = resolve(text)
+        if not d:
+            raise SystemExit(f"no place matches {text!r}")
+        from . import db
+        con = db.connect()
+        if not con.execute("SELECT 1 FROM nodes WHERE id=?", (node_id,)).fetchone():
+            raise SystemExit(f"no node {node_id!r}")
+        with db.tx(con):
+            con.execute("UPDATE nodes SET place_id=? WHERE id=?", (d["id"], node_id))
+            if a.address:
+                con.execute("UPDATE applications SET place_id=?, address=?, updated_at=? WHERE node_id=?", (d["id"], a.address[:200], db.now(), node_id))
+            else:
+                con.execute("UPDATE applications SET place_id=?, updated_at=? WHERE node_id=?", (d["id"], db.now(), node_id))
+        print(f"{node_id} → {d['name']} ({d['taluka']}), id {d['id']}")
     if a.build:
         data = merge_sources(derive_tables(build_divisions()))
         save(data)
