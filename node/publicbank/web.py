@@ -96,7 +96,7 @@ CSS = """<style>:root{--paper:#f3e9d6;--card:#fbf6e9;--ink:#20201d;--text:#534e4
 body{font:300 18px/1.6 Newsreader,Georgia,serif;background:var(--paper);color:var(--text);max-width:680px;margin:0 auto;padding:28px 20px 72px}
 h1{font:400 44px/1.05 Newsreader,Georgia,serif;letter-spacing:-.025em;color:var(--ink);margin:10px 0 18px}
 h2{font:400 26px/1.15 Newsreader,Georgia,serif;letter-spacing:-.015em;color:var(--ink);margin:36px 0 10px}
-.brand{font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--ink);margin:0 0 6px}.brand a{text-decoration:none;color:inherit}
+.brand{font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--ink);margin:0 0 6px}.brand a{text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:7px}.brand .mark{width:16px;height:16px;display:inline-block}
 a{color:var(--ink)}b,strong{font-weight:500;color:var(--ink)}p{margin:10px 0}
 .card{background:var(--card);border:2px solid var(--ink);border-radius:3px;box-shadow:6px 6px 0 #20201dcc;padding:16px 18px;margin:20px 0}
 label{display:block;margin-top:20px;font-weight:500;color:var(--ink)}.hint{display:block;font-weight:300;color:var(--muted);font-size:16px;line-height:1.4}
@@ -129,9 +129,103 @@ BRAND = os.environ.get("PB_BRAND", "The Cybernetic Society")
 LIVE_STAGES = ("proposals", "ballots", "plans", "ratifying")   # a round someone can still act in
 
 
-def page(title: str, body: str) -> HTMLResponse:
-    return HTMLResponse(f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>{FONTS}{CSS}"
-                        f"<p class=brand><a href='/'>{esc(BRAND)}</a></p><h1>{title}</h1>{body}")
+# the mark from cyberneticsutra.com: a dial in a dark rounded square with a gold centre; served as the favicon and drawn
+# small beside the brand line on every page
+with open(os.path.join(os.path.dirname(__file__), "data", "favicon.svg"), encoding="utf-8") as _f:
+    FAVICON_SVG = _f.read()
+MARK = FAVICON_SVG.replace('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">', "<svg class=mark viewBox='0 0 64 64' aria-hidden=true>", 1)
+SITE_DESCRIPTION = os.environ.get("PB_DESCRIPTION", "A ₹5 lakh common fund for what Goan businesses buy and run together: a shared scooter, a trainer, one licence for several shops. "
+                                                   "Say what you'd share; the businesses vote; the fund pays the vendor.")
+
+
+def brand_html() -> str:
+    return f"<p class=brand><a href='/'>{MARK}{esc(BRAND)}</a></p>"
+
+
+def head(title: str, description: str = "", path: str = "/") -> str:
+    """Everything before the body: fonts, styles, the favicon, and the Open Graph card a shared link shows."""
+    d = esc(description or SITE_DESCRIPTION)
+    return (f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{title}</title>"
+            f"<link rel=icon type=image/svg+xml href=/favicon.svg><meta name=description content='{d}'>"
+            f"<meta property=og:type content=website><meta property=og:site_name content='{esc(BRAND)}'><meta property=og:title content='{esc(title)}'>"
+            f"<meta property=og:description content='{d}'><meta property=og:url content='{esc(BASE_URL + path)}'><meta property=og:image content='{esc(BASE_URL)}/og.png'>"
+            f"<meta property=og:image:width content=1200><meta property=og:image:height content=630><meta name=twitter:card content=summary_large_image>"
+            f"<meta name=twitter:title content='{esc(title)}'><meta name=twitter:description content='{d}'><meta name=twitter:image content='{esc(BASE_URL)}/og.png'>{FONTS}{CSS}")
+
+
+def page(title: str, body: str, description: str = "", path: str = "/") -> HTMLResponse:
+    return HTMLResponse(head(title, description, path) + f"{brand_html()}<h1>{title}</h1>{body}")
+
+
+@app.get("/favicon.svg")
+def favicon():
+    from fastapi.responses import Response
+    return Response(FAVICON_SVG, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.get("/og.png")
+def og_image():
+    """The link preview: the Commons on the map, drawn with Pillow from the same data the page uses. Cached while the
+    set of placed businesses stays the same."""
+    from fastapi.responses import Response
+    from . import commonsmap
+    try:
+        pool_id = _resolve(HOME_POOL)
+        biz = commonsmap.businesses(con, pool_id)
+    except Exception:
+        biz = []
+    key = tuple(sorted((b["node_id"], b["place_id"]) for b in biz if b["placed"]))
+    return Response(_og_png(key), media_type="image/png", headers={"Cache-Control": "public, max-age=3600"})
+
+
+from functools import lru_cache  # noqa: E402
+
+
+@lru_cache(maxsize=4)
+def _og_png(key: tuple) -> bytes:
+    import io
+    from PIL import Image, ImageDraw, ImageFont
+    from . import commonsmap, twinmap
+    W, H = 1200, 630
+    paper, card, ink, gold, line = (243, 233, 214), (251, 246, 233), (32, 32, 29), (217, 163, 61), (200, 190, 170)
+    im = Image.new("RGB", (W, H), paper)
+    dr = ImageDraw.Draw(im)
+    try:   # Pillow's bundled face, the same everywhere; DejaVu only if this Pillow cannot size it
+        big, med, small = ImageFont.load_default(size=58), ImageFont.load_default(size=26), ImageFont.load_default(size=20)
+    except TypeError:
+        big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 58)
+        med = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 26)
+        small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 20)
+    # the map on the right: Goa's talukas faint, the businesses as gold dots
+    if twinmap.available():
+        m = twinmap.load()
+        bx0, by0, bx1, by1 = m["bbox"]
+        mx, my, mw, mh = 640, 40, 520, 550
+        sc = min(mw / (bx1 - bx0), mh / (by1 - by0))
+        ox = mx + (mw - (bx1 - bx0) * sc) / 2; oy = my + (mh - (by1 - by0) * sc) / 2
+        def P(x, y): return (ox + (x - bx0) * sc, oy + (y - by0) * sc)
+        for f in m["features"]:
+            if f["level"] != "taluka": continue
+            for ring in f["rings"]:
+                pts = [P(x, y) for x, y in ring]
+                if len(pts) > 2: dr.polygon(pts, fill=card, outline=line)
+        placed = [b for b in commonsmap.businesses(con, _resolve(HOME_POOL)) if b["placed"]] if key else []
+        for b in placed:
+            x, y = P(b["x"], b["y"]); r = 9
+            dr.ellipse((x - r, y - r, x + r, y + r), fill=gold, outline=ink, width=3)
+    # the words on the left
+    dr.rounded_rectangle((60, 60, 124, 124), radius=14, fill=(20, 24, 31))
+    dr.ellipse((76, 76, 108, 108), outline=(251, 243, 227), width=3); dr.ellipse((87, 87, 97, 97), fill=gold)
+    dr.text((140, 76), BRAND.upper(), font=small, fill=ink)
+    y = 190
+    for word in ("Goa Business", "Commons"):
+        dr.text((60, y), word, font=big, fill=ink); y += 70
+    y += 20
+    for ln in ("A ₹5 lakh common fund for what", "Goan businesses buy and run together.", "Say what you'd share; the businesses", "vote; the fund pays the vendor."):
+        dr.text((60, y), ln.replace("₹", "Rs "), font=med, fill=(83, 78, 65)); y += 36
+    dr.text((60, 560), "goa.cyberneticsutra.com", font=small, fill=ink)
+    buf = io.BytesIO(); im.save(buf, "PNG", optimize=True)
+    return buf.getvalue()
 
 
 def esc(s: Any) -> str:
@@ -772,7 +866,7 @@ def board(node_id: str):
     body = _board_body(node)
     html = page(node["name"], body).body.decode()
     bar = f"<div class=bar><span class=sq></span><a href='/'>{esc(BRAND)}</a> &nbsp;·&nbsp; {esc(node['id'].rsplit('/', 1)[-1])}.log</div><div class=win>"
-    html = html.replace(f"<p class=brand><a href='/'>{esc(BRAND)}</a></p>", bar, 1) + "</div>"
+    html = html.replace(brand_html(), bar, 1) + "</div>"
     return HTMLResponse(html.replace(CSS, CSS + BOARD_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=15><title>", 1))   # board styles after the page's, so they win
 
 

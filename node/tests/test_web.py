@@ -66,4 +66,11 @@ assert "Co-sign for Residency A" in C.get("/n/goa-2026").text
 assert C.post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303 and client(cb["id"]).post("/n/goa-2026/cosign", data={"pid": dft["id"]}).status_code == 303
 assert core.get_proposal(con, dft["id"])["status"] == "eligible"
 pb = client().get("/b/goa-2026"); assert "2 businesses" in pb.text and "backed by Residency A, Residency B" in pb.text and "suggested from needs" in pb.text
+# the link preview and the mark: every page carries the Open Graph card, the favicon and the mark beside the brand
+h = c.get("/b/pool").text if "c" in dir() else ""
+from fastapi.testclient import TestClient as _TC
+_c = _TC(web.app)
+r = _c.get("/privacy"); assert r.status_code == 200 and "og:image" in r.text and "/favicon.svg" in r.text and "class=mark" in r.text and "twitter:card" in r.text
+r = _c.get("/og.png"); assert r.status_code == 200 and r.headers["content-type"] == "image/png" and r.content[:8] == b"\x89PNG\r\n\x1a\n" and len(r.content) > 5000
+r = _c.get("/favicon.svg"); assert r.status_code == 200 and r.text.startswith("<svg")
 print("WEB OK · board · pool page: lead + cosign ·", "stage:", core.get_round(con, rnd["id"])["status"], "· decision", d["verdict"], d["approvals"], "/", d["eligible"], "· levy ₹", ex["contributions"][0]["amount"] // 100)
