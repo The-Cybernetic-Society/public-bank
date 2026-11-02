@@ -1425,7 +1425,7 @@ def home():
             for i, p in enumerate(props, 1):
                 signs = [names.get(x, x.rsplit("/", 1)[-1]) for x in db.j(p["cosign_nodes"], [])]
                 who = "Suggested from what businesses said they need" if p["source"] == "twin" else "Proposed by a business"
-                pill = "<span class='tag twin'>from the twin</span> " if p["source"] == "twin" else ""
+                pill = "<span class='tag twin'>AI twin</span> " if p["source"] == "twin" else ""
                 sch = db.j(p.get("scheme_json"), None) if p.get("scheme_json") else None
                 more = (f"<div class=more id='prop-{esc(p['id'])}'><p>{esc(p['text'] or '').replace(chr(10), '<br>')}</p>"
                         + (f"<p class=muted>A scheme could carry part of this: <b>{esc(sch['name'])}</b> ({esc(sch['share'])})" + (f" · <a href='{esc(sch['url'])}'>read it</a>" if sch.get("url") else "") + "</p>" if sch else "")
