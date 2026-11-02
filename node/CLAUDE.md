@@ -206,9 +206,9 @@ gcloud run jobs execute publicbank-seed --region=asia-southeast1 --wait
 gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed' --limit=30 --format='value(textPayload)' --freshness=10m
 ```
 
-Deployed 2 Nov 2026: revision publicbank-00029 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
+Deployed 2 Nov 2026: revision publicbank-00030 (federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
 the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off, onboarding flow, trade-off sliders, majority ratification, verified-only voting, vendor payees,
-the front page as the Commons with every funding proposal opening on a tap, the digital twin of Goa's local bodies with the tappable map (warmed at startup, one scheme per audience on the card) and the shop's address/place on registration; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The `publicbank-seed` job currently runs
+the front page as the Commons: fund bar and button, Who's in as seals, every funding proposal opening on a tap, the Commons map with the two sliders; the place twin at /twin (warmed at startup); the business portals in the catalogue, the business twin on the owner's pages, co-funding schemes on new proposals; the shop's address/place on registration; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The four proposals already on prod predate co-funding: `python -m publicbank.schemes --attach-cofunding` through the seed job would backfill them. The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
 at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers;
 `pool_ratify='majority'` set on prod 30 Oct via the seed job)
