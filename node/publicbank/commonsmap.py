@@ -182,8 +182,7 @@ def map_section(pool_id: str, con=None) -> str:
 def twin_section() -> str:
     """The digital twin and the AI that drafts from it, in two short paragraphs."""
     return ("<h2>What is an AI digital twin?</h2>"
-            "<p>Behind the page is a <b>digital twin</b> of Goan businesses: a record of each business, what it said it needs, where it sits, and what the "
-            "government already offers for that kind of thing, drawn from 770 Goa schemes read against every village and town.</p>"
+            "<p>Behind the page is a <b>digital twin</b> of Goan businesses: a record of each business, what it said it needs, where it sits, and government schemes that could help support it, drawn from 770 Goa schemes read against every village and town.</p>"
             "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
             "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
             "it and others back it, and every proposal on this page says whether a person or the twin wrote it.</p>")
