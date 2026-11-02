@@ -168,13 +168,21 @@ def _axes() -> str:
                    for k, l, r, h in core.VALUE_DIMENSIONS if k in AXES)
 
 
-def map_section(pool_id: str) -> str:
+def map_section(pool_id: str, con=None) -> str:
     """Where the Commons is: the businesses as dots, the most-backed proposal's connections drawn, a tap for any
-    business. No controls: the sliders live in the twin section below, and drive the same map."""
+    business. No controls: the sliders live in the twin section below, and drive the same map. The SVG gets its
+    final proportions here, server-side, so the page below it does not move when the data lands."""
+    vb = "0 0 100 140"
+    if con is not None:
+        try:
+            b = data(con, pool_id)["bbox"]
+            vb = f"{b[0]:.1f} {b[1]:.1f} {b[2] - b[0]:.1f} {b[3] - b[1]:.1f}"
+        except Exception:
+            pass
     return ("<h2>Where the Commons is</h2><p class=muted>Every registered business sits in its village or town. The lines join the businesses the most-backed "
             "proposal brings together. Tap a business to see what it needs and which proposals it is part of.</p>"
             f"<div class=cmap id=cmap data-pool='{pool_id}'>"
-            "<svg viewBox='0 0 100 100' role=img aria-label='Map of the Commons'><g class=ctx></g><g class=links></g><g class=dots></g></svg><p class=hint>Loading…</p></div>"
+            f"<svg viewBox='{vb}' role=img aria-label='Map of the Commons'><g class=ctx></g><g class=links></g><g class=dots></g></svg><p class=hint>Loading…</p></div>"
             "<div class='card ccard' id=cmapcard><p class=muted>…</p></div>" + CSS)
 
 

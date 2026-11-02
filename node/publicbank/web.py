@@ -1504,7 +1504,7 @@ def home():
         body += cta + f"<p class='muted proof'>{esc(proof)}</p>"
         # then who is in: a seal per business, so being in and accepted looks like something
         body += _seals(node, kids)
-        body += commonsmap.map_section(node["id"])
+        body += commonsmap.map_section(node["id"], con)
         # then the funding proposals, every one, most backed first; a tap opens the proposal, the thumb leads into registering
         props = []
         if rnd and rnd["status"] == "proposals":
@@ -1552,7 +1552,7 @@ def home():
                  f"<a href='/twin'>the digital twin of Goa's panchayats</a> · <a href='/privacy'>privacy</a></p>")
         body += cta
         html = page(node["name"], body).body.decode()
-        return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=60><title>", 1))
+        return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1))   # no auto-refresh: a reload mid-read jumps the page; the live board keeps its own
     pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
     body = ("<p>A treasury a community runs together. Say what you need, spread 100 points across the proposals, approve the "
             "plan, and watch every rupee on a public board. Nothing moves without the group's approval.</p>")
