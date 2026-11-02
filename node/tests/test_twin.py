@@ -90,7 +90,51 @@ assert t["members"][ggsy["id"]] == {"eligible": 2, "unlikely": 1}, t["members"][
 assert t["summary"]["unlikely"] == 0, "the state as a whole fails no territorial condition"
 assert P.summary_of("mandrem")["eligible"] > 0 and P.summary_of("nowhere") is None
 assert P.rollups("district") and [r["name"] for r in P.rollups("district")] == ["North Goa", "South Goa"]
+
+# the card: the three schemes worth a place's attention first, impact × ease; already-running and unlikely never rank
+top = P.top_schemes(mandrem, 3)
+assert len(top) == 3 and top[0]["score"] >= top[1]["score"] >= top[2]["score"] > 0
+assert all(t["status"] in ("eligible", "plausible") for t in top)
+pm, pmap = P.profile(mandrem), P.profile(mapusa)
+assert P.score(ggsy, P.verdict(mandrem, ggsy), pm)[2] == 1.0 and P.score(ggsy, P.verdict(mapusa, ggsy), pmap)[0] == 0
+assert P.score(nrega, P.verdict(mandrem, nrega), pm)[0] == 0, "a scheme already running here is not an opportunity"
+soc_v = P.verdict(mandrem, soc)
+assert 0 < P.score(soc, soc_v, pm)[2] < 1, "plausible with a step: eased down"
+assert P.reach(ggsy, pm) == 1.0 and P.reach(asra, P.profile(netravali)) > P.reach(asra, pm), "an ST scheme reaches more of a tribal village"
+assert P.rarity()[fish["id"]] > P.rarity()[ggsy["id"]], "a fish-market grant is eligible in fewer bodies than a panchayat infrastructure grant"
+c = P.card(mandrem)
+assert c["name"] == "Mandrem" and c["facts"]["coastal"] is True and c["url"] == "/twin/mandrem" and c["up"] == "taluka-pernem" and len(c["top"]) == 3
+assert P.card(P.get("taluka-pernem"))["up"] == "district-north-goa" and P.card(P.get("district-north-goa"))["up"] == "goa"
 assert P.section(ggsy) == "body" and P.section(nrega) == "people" and P.section(find("registered-fishermen-societies")) == "groups"
+
+# the real build: every body on the LGD list, census attached, coast and fishing from the published tables
+P.set_divisions(None)
+real = P.divisions()
+assert len(real) == 205 and sum(1 for d in real if d["kind"] == "village_panchayat") == 191
+md = P.get("mandrem")
+assert md and md["census"]["population"] == 8336 and md["flags"]["coastal"] is True and md["programmes"]["fisher_households"] > 0
+assert P.get("cotigao")["flags"]["coastal"] is None and P.get("neturlim")["flags"]["coastal"] is False, "inland talukas are not coastal; coastal talukas without a fishing village are unknown"
+assert P.get("taleigao")["census"]["population"] and P.get("taleigao")["census"]["confidence"] == "directorate"
+assert {r["name"] for r in P.rollups("district")} == {"North Goa", "South Goa", "Kushavati"}
+fixes = {(P._norm("Harmal"), P._norm("Pernem")): "arambol"}
+assert P.match_body("Harmal", "Pernem", real, fixes)[1] == "fix"
+assert P.match_body("Querim", "Pernem", real, {})[0]["id"] == "keri-terecol", "a village name inside the taluka"
+assert P.match_body("Allorna", "Pernem", real, {})[0]["id"] == "alorna", "a close spelling inside the taluka"
+assert P.match_body("Nagoa", "Mormugao", real, {})[1].startswith("ambiguous"), "two bodies elsewhere share the word: no guess"
+assert P.match_body("Nuvem", "Canacona", real, {}, cross=False)[0] is None, "a hamlet never matches another taluka's body"
+# the registration form's place: typed names, labels, villages and aliases resolve to a body; the typeahead lists them
+assert P.resolve("Mandrem")["id"] == "mandrem" and P.resolve("Mandrem · Pernem")["id"] == "mandrem" and P.resolve("mandrem (Pernem)")["id"] == "mandrem"
+assert P.resolve("Harmal")["id"] == "arambol", "a hand-kept fix becomes an alias the form understands"
+assert P.resolve("Querim · Sattari")["id"] != P.resolve("Querim · Pernem")["id"], "the taluka tells the two Querims apart"
+assert P.resolve("taluka-pernem") is None and P.resolve("") is None and P.resolve("Nowhere at all") is None
+ch = P.choices()
+assert any(c["label"] == "Mandrem · Pernem" for c in ch) and len(ch) > 300 and len({c["label"] for c in ch}) == len(ch)
+from publicbank import twinmap  # noqa: E402
+if twinmap.available():
+    assert P.locate(15.65, 73.72)["id"] == "mandrem", P.locate(15.65, 73.72)   # Mandrem village; 73.71 is already in the sea
+    assert P.locate(15.495, 73.83)["id"] == "city-corporation-panaji", P.locate(15.495, 73.83)
+    assert P.locate(15.0, 74.9) is None, "outside Goa"
+P.set_divisions(V)
 
 # the pages
 from fastapi.testclient import TestClient  # noqa: E402
@@ -112,6 +156,20 @@ assert r.status_code == 200
 r = c.get("/twin/mandrem.json")
 assert r.status_code == 200 and r.json()["summary"]["schemes"] == len(cat["schemes"]) and r.json()["profile"]["coastal"] is True
 assert c.get("/twin/nowhere").status_code == 404
+r = c.get("/twin/mandrem/card.json")
+assert r.status_code == 200 and r.json()["top"] and r.json()["summary"]["schemes"] == len(cat["schemes"])
+assert c.get("/twin/nowhere/card.json").status_code == 404
+if twinmap.available():
+    m = c.get("/twin/map.json").json()
+    assert {f["level"] for f in m["features"]} == {"district", "taluka", "body"} and all(f["rings"] and f["c"] for f in m["features"])
+    assert "id=tmap" in c.get("/twin").text
+    P.set_divisions(None)
+    r = c.get("/twin/locate?lat=15.65&lon=73.72")
+    assert r.status_code == 200 and r.json()["id"] == "mandrem" and r.json()["label"] == "Mandrem · Pernem"
+    assert c.get("/twin/locate?lat=10&lon=70").status_code == 404
+    P.set_divisions(V)
+r = c.get("/twin/businesses.json")
+assert r.status_code == 200 and "businesses" in r.json()
 assert "/twin" in c.get("/").text
 P.set_divisions(None)
 print("TWIN OK")

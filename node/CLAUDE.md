@@ -75,6 +75,38 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   after every charter acceptance (web and WhatsApp) and every recorded need, and from the "Draft proposals from needs"
   button on `/c/<pool>`. The onboarding page itself asks `POST /start/<node>/draft` while its need is open: Cloud Run
   gives a background thread no CPU after the response, so the request is where drafting actually happens on prod.
+- `publicbank/schemes.py` + `publicbank/places.py` — the digital twin of Goa's local bodies (added 2 Nov). `schemes.py` imports
+  the "Goa schemes — first pass" workbook (`../../NOTES/digital-twin/Goa_schemes_first_pass.xlsx`, outside git; machine-read
+  from goa.gov.in PDFs + the GIPARD handbook + the 2026-27 Demands for Grants, unverified by any department) into
+  `data/goa_schemes.json` (`python -m publicbank.schemes --import <xlsx>`): one entry per scheme, amendments hung off the
+  scheme they change (`core_name`/`parent_of`), `REQUIREMENTS` = regexes that tag what a scheme asks of a place (`needs`:
+  st, sc, tribal_area, fishers, brackish, farmers, livestock, rural/urban, bpl, shg, coop, fra, ngo …; `bodies` = which local
+  body applies; `people` = applicant classes; `scope`). `places.py` builds `data/goa_divisions.json` from `data/sources/`
+  (`--build`): Census 2011 PCA village rows summed per village panchayat through the LGD village→local-body mapping (189
+  panchayats, 14 towns; six split villages halved), plus optional `goa_place_names.csv`, `goa_place_flags.csv` (coastal,
+  estuarine) and `goa_programmes.csv` (mgnrega_job_cards, shgs, fisher_households, dairy_societies, pmayg_houses,
+  weaker_panchayat) merged by LGD code or id. Talukas, districts and the state are roll-ups computed on request.
+  `verdict(place, scheme)` → eligible | plausible | unlikely (+ `drawing` when programme data shows it running), with the
+  reasons and the step for plausible; `judge(key, profile)` is the one place a rule meets a figure. Group requirements
+  (shg/coop/ngo/fra) only constrain when nobody can apply alone (`INDIVIDUAL_CLASSES`); a body scheme's scope is which body
+  applies, not its text. Pages: `/twin?level=` index, `/twin/<id>` (facts card, counts, sections body/groups/people, unlikely
+  folded, budget lines), `/twin/<id>.json`. `tests/test_twin.py`. Data is static for the process (`summary_of` cache).
+  `publicbank/twinmap.py` — the tappable map on the front page and `/twin`: `data/goa_map.json` (DataMeet census village
+  polygons, ODbL, dissolved per body/taluka/district by `places --build-map`, shapely at build time only; three bodies have
+  no shape) served at `/twin/map.json`; plain SVG + JS, three scales on one control, tap a district or taluka → card + "See
+  its …" zooms in with a breadcrumb back out; state in the URL hash (`#place=…&level=…&focus=…`) so the front page's 60 s
+  refresh and shared links land on the same place. The card (`/twin/<id>/card.json`, `places.card`) shows four figures, the
+  counts and the three schemes worth attention first: `places.score` = impact (money on a log scale × who can act × reach
+  here × how much more here than the typical body, `across_goa` rarity/avg_reach cached per process) × ease (eligible 1,
+  plausible 0.55 − 0.1/step, unlikely or already running 0); `top_schemes` dedupes near-identical titles.
+  Since 2 Nov the registration form asks where the shop is: `applications.address` (as typed; stays on `/c/<pool>` and in its
+  CSV, never public) and `applications.place_id` → `nodes.place_id` (the local body, `places.resolve`: a typed name, "Name ·
+  Taluka", a village or an alias; else the server reads a place name off the address). The form offers a typeahead over
+  `places.choices()` (539 labels: bodies, census villages, aliases, inline as a datalist), a "Looks like X — use it" suggestion
+  from the address, and "Use my location" → `GET /twin/locate?lat&lon` (`places.locate`, ray casting over the map polygons; the
+  point is not stored). `GET /twin/businesses.json` lists the home pool's VERIFIED businesses with their place (`core.verified_
+  businesses`); the map draws a count marker per place (`c`, each feature's representative point) and the card lists the names.
+  WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:
@@ -88,8 +120,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all eight before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all nine before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
   to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)

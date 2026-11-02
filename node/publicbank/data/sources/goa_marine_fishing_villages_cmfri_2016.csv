@@ -1,0 +1,42 @@
+district,taluk,sl_no,village,fishermen_families,traditional_fishermen_families,bpl_families,fisherfolk_population,actual_fishing_full_time_male,actual_fishing_full_time_female,actual_fishing_part_time_male,actual_fishing_part_time_female,fish_seed_collection_full_time,fish_seed_collection_part_time,active_fisherfolk_total,families_hinduism,families_islam,families_christianity,families_total,families_sc_st,members_fisheries_cooperatives,members_other_cooperatives,members_cooperatives_total,craft_owned_mechanized,craft_owned_inboard,craft_owned_outboard,craft_owned_non_motorized,craft_owned_total
+South Goa,Canacona,1,Agonda,114,114,35,441,88,11,1,1,0,0,101,111,0,3,114,0,0,0,0,0,0,34,28,62
+South Goa,Canacona,2,Galgibag,68,68,26,270,18,28,0,0,0,0,46,68,0,0,68,0,2,0,2,1,0,7,13,21
+South Goa,Canacona,3,Kindlebag,141,141,34,588,16,30,0,0,1,1,48,141,0,0,141,0,2,223,225,0,0,21,4,25
+South Goa,Canacona,4,Mangan,59,59,37,207,0,17,0,0,0,0,17,59,0,0,59,0,30,83,113,0,0,1,15,16
+South Goa,Canacona,5,Matvem,15,15,5,61,11,0,0,0,0,0,11,15,0,0,15,0,0,0,0,0,0,7,6,13
+South Goa,Canacona,6,Nuvem,56,55,34,213,23,7,6,0,0,0,36,56,0,0,56,0,0,0,0,0,1,9,6,16
+South Goa,Canacona,7,Palolem,129,129,64,507,52,16,0,0,0,0,68,129,0,0,129,0,8,0,8,1,0,30,7,38
+South Goa,Canacona,8,Patnem & Colomb,186,183,16,611,67,69,8,0,0,0,144,186,0,0,186,0,145,0,145,0,4,53,56,113
+South Goa,Canacona,9,Pollem,14,10,0,61,13,0,0,0,0,0,13,14,0,0,14,0,0,0,0,0,0,7,3,10
+South Goa,Canacona,10,Saleri,120,120,96,548,112,8,2,2,0,0,124,120,0,0,120,0,0,0,0,0,0,38,13,51
+South Goa,Canacona,11,Talpona,107,107,61,408,82,18,0,0,0,2,102,107,0,0,107,0,153,0,153,4,2,16,41,63
+South Goa,Marmagoa,12,Baina,80,80,0,438,121,12,0,0,0,0,133,33,25,22,80,3,92,0,92,9,0,119,4,132
+South Goa,Marmagoa,13,Bogmolo,28,28,0,132,27,24,0,0,0,0,51,1,0,27,28,0,24,0,24,0,0,27,10,37
+South Goa,Marmagoa,14,Vasco-Da-Gama,42,40,0,202,42,13,0,0,0,0,55,1,3,38,42,0,41,2,43,14,0,71,5,90
+South Goa,Salcete,15,Ambelim,131,128,79,551,60,43,0,0,0,0,103,0,0,131,131,0,127,0,127,15,0,10,58,83
+South Goa,Salcete,16,Assolna,139,139,45,542,39,66,0,0,0,0,105,0,0,139,139,1,139,0,139,0,0,15,148,163
+South Goa,Salcete,17,Benaulim,135,135,0,592,58,23,0,0,0,0,81,0,0,135,135,0,63,0,63,3,9,21,69,102
+South Goa,Salcete,18,Betul,45,45,3,184,29,0,0,0,0,0,29,45,0,0,45,0,10,19,29,7,0,6,24,37
+South Goa,Salcete,19,Betul (Bapsora),122,122,8,517,57,26,1,0,0,0,84,122,0,0,122,0,29,86,115,30,0,14,68,112
+South Goa,Salcete,20,Cavelossim,15,15,0,86,6,5,0,0,0,0,11,0,0,15,15,0,7,0,7,2,0,1,7,10
+South Goa,Salcete,21,Colva,47,47,0,232,20,12,0,0,1,0,33,0,0,47,47,0,27,0,27,11,3,9,9,32
+South Goa,Salcete,22,Cotbona,63,63,36,260,26,21,0,0,0,2,49,0,0,63,63,0,62,0,62,4,0,6,24,34
+South Goa,Salcete,23,Varca,15,15,0,74,5,10,0,0,0,0,15,0,0,15,15,0,2,0,2,1,0,0,2,3
+South Goa,Salcete,24,Velsao,95,93,0,396,85,54,0,0,0,0,139,8,1,86,95,0,121,0,121,0,0,143,47,190
+North Goa,Bardez,1,Baga (Santawada),37,37,6,195,50,10,0,0,0,0,60,1,0,36,37,0,37,0,37,0,0,65,6,71
+North Goa,Bardez,2,Calangute,56,56,0,255,26,29,0,0,0,0,55,0,0,56,56,0,26,0,26,0,0,27,1,28
+North Goa,Bardez,3,Candolim,45,45,0,187,20,20,0,0,0,0,40,2,0,43,45,0,17,0,17,3,0,28,13,44
+North Goa,Bardez,4,Chapora,182,178,9,702,56,107,0,4,2,0,169,182,0,0,182,0,19,5,24,11,3,10,41,65
+North Goa,Bardez,5,Nerul,126,126,3,569,92,41,0,0,0,0,133,68,0,58,126,0,77,1,78,13,0,78,16,107
+North Goa,Bardez,6,Shivolim,68,68,30,283,61,12,0,0,0,0,73,68,0,0,68,0,51,0,51,1,0,8,28,37
+North Goa,Pernem,7,Chopdem,39,38,5,180,6,23,0,0,0,0,29,39,0,0,39,0,5,12,17,0,0,1,14,15
+North Goa,Pernem,8,Harmal,137,137,5,597,94,71,4,5,2,2,178,55,0,82,137,0,30,49,79,0,0,47,1,48
+North Goa,Pernem,9,Mandrem,11,11,1,56,16,3,0,0,0,0,19,3,0,8,11,0,11,0,11,0,0,10,0,10
+North Goa,Pernem,10,Morjim,79,49,6,433,53,38,0,0,0,0,91,68,0,11,79,0,31,20,51,3,0,29,7,39
+North Goa,Pernem,11,Querim,66,66,2,233,28,34,0,0,0,0,62,63,0,3,66,0,1,0,1,0,0,7,17,24
+North Goa,Tiswadi,12,Agassaim,30,30,1,140,22,8,0,0,0,0,30,1,0,29,30,0,34,0,34,9,0,11,16,36
+North Goa,Tiswadi,13,Cacra,26,25,0,109,26,8,0,0,0,0,34,25,0,1,26,0,19,0,19,0,0,22,7,29
+North Goa,Tiswadi,14,Caranzalem,34,34,3,162,48,9,0,0,0,0,57,6,0,28,34,0,31,0,31,2,0,32,22,56
+North Goa,Tiswadi,15,Nauxi,22,22,0,119,33,3,0,0,0,0,36,22,0,0,22,0,22,0,22,0,0,23,11,34
+North Goa,Tiswadi,16,Odxel,32,32,0,162,48,0,0,0,0,0,48,32,0,0,32,0,32,0,32,0,0,52,2,54
+North Goa,Tiswadi,17,Siridona,30,17,0,148,42,4,0,0,0,0,46,13,0,17,30,0,30,0,30,9,0,46,7,62

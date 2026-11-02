@@ -818,10 +818,13 @@ def slugify(s: str) -> str:
 
 
 def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone: str, dial: str = "", about: str = "", challenge: str = "",
-          team_size: int | None = None, need: str = "", share: str = "", contribute: str = "", consent: bool = False, token_ttl: int = 30 * 86400) -> dict:
+          team_size: int | None = None, need: str = "", share: str = "", contribute: str = "", consent: bool = False, address: str = "", place_id: str | None = None,
+          token_ttl: int = 30 * 86400) -> dict:
     """Register a business under a pool from the public form. Makes the business node and an owner's card
     (a `join_coord` token). The same phone applying again updates its application instead of making a second
-    node. Nobody is a member yet: the applicant becomes the coordinator when they open the card."""
+    node. Nobody is a member yet: the applicant becomes the coordinator when they open the card. `address` is
+    the shop's address as typed (kept with the application); `place_id` the local body it sits in, which the node
+    carries too so the map can show the business once it is verified."""
     pool = get_node(con, pool_id)
     business = " ".join(business.split())[:80]
     applicant = " ".join(applicant.split())[:80]
@@ -831,14 +834,16 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     if role not in ("owner", "manager", "staff"):
         role = "staff"
     ts = max(1, min(int(team_size or 1), 500))
+    address = " ".join(address.split())[:200]
+    place_id = (place_id or "").strip()[:80] or None
     fields = (about.strip()[:200], challenge.strip()[:500], ts, need.strip()[:500], share.strip()[:300], contribute if contribute in ("yes", "maybe", "no") else "",
               1 if consent else 0)
     cur = row(con.execute("SELECT * FROM applications WHERE pool_id=? AND phone=?", (pool_id, ph)).fetchone())
     if cur and cur["status"] == "new":
         with tx(con):
-            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,updated_at=? WHERE id=?",
-                        (business, applicant, role, *fields, now(), cur["id"]))
-            con.execute("UPDATE nodes SET name=? WHERE id=?", (business, cur["node_id"]))
+            con.execute("UPDATE applications SET business=?,applicant=?,role=?,about=?,challenge=?,team_size=?,need=?,share=?,contribute=?,consent=?,address=?,place_id=?,updated_at=? WHERE id=?",
+                        (business, applicant, role, *fields, address, place_id, now(), cur["id"]))
+            con.execute("UPDATE nodes SET name=?, place_id=? WHERE id=?", (business, place_id, cur["node_id"]))
         return row(con.execute("SELECT * FROM applications WHERE id=?", (cur["id"],)).fetchone())
     if cur:   # already joined: a second form from the same phone is a new need at most, not a new business
         if need.strip():
@@ -851,9 +856,18 @@ def apply(con, pool_id: str, *, business: str, applicant: str, role: str, phone:
     tok = mint_token(con, "join_coord", node_id=nid, ttl=token_ttl)
     aid = new_id("a_")
     with tx(con):
-        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, tok, "new", now(), now()))
+        con.execute("INSERT INTO applications (id,pool_id,node_id,business,applicant,role,phone,about,challenge,team_size,need,share,contribute,consent,address,place_id,token,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (aid, pool["id"], nid, business, applicant, role, ph, *fields, address, place_id, tok, "new", now(), now()))
+        if place_id:
+            con.execute("UPDATE nodes SET place_id=? WHERE id=?", (place_id, nid))
     return row(con.execute("SELECT * FROM applications WHERE id=?", (aid,)).fetchone())
+
+
+def verified_businesses(con, pool_id: str) -> list[dict]:
+    """The businesses the treasurer has verified, with the local body each sits in: what the map may show.
+    Names and places only; nothing else from the application leaves the coordinator's page."""
+    return rows(con.execute("""SELECT a.node_id, n.name, COALESCE(n.place_id, a.place_id) AS place_id FROM applications a JOIN nodes n ON n.id=a.node_id
+                               WHERE a.pool_id=? AND a.status='verified' ORDER BY n.name""", (pool_id,)).fetchall())
 
 
 def applications_of(con, pool_id: str, status: str | None = None) -> list[dict]:

@@ -1,0 +1,205 @@
+district,taluka,panchayat_or_municipality,st_population,total_population,st_pct,st_population_source,n_villages_listed,pdf_page
+North Goa,Pernem,Agarwada-Chopdem,0,2452,0.00,inferred_from_0.00_pct,2,1
+North Goa,Pernem,Allorna,4,2651,0.15,sum_of_villages,1,1
+North Goa,Pernem,Arambol,0,5322,0.00,ocr,1,1
+North Goa,Pernem,Casarvarnem,0,1382,0.00,ocr,1,1
+North Goa,Pernem,Khajnem-Amerem-Porscadem,0,1335,0.00,inferred_from_0.00_pct,2,1
+North Goa,Pernem,Chandel-Hasapur,0,1152,0.00,inferred_from_0.00_pct,1,1
+North Goa,Pernem,Dhargalim,2,5696,0.04,ocr,1,1
+North Goa,Pernem,Ibrampur-Hankhane,10,2429,0.41,ocr,1,1
+North Goa,Pernem,Corgao,0,6639,0.00,ocr,1,1
+North Goa,Pernem,Mandrem,3,8336,0.04,ocr,1,1
+North Goa,Pernem,Morjim,12,6760,0.18,ocr,1,1
+North Goa,Pernem,Ozarim,0,1669,0.00,ocr,1,1
+North Goa,Pernem,Paliem,0,2776,0.00,inferred_from_0.00_pct,1,1
+North Goa,Pernem,Parcem,11,4627,0.24,sum_of_villages,1,1
+North Goa,Pernem,Querim-Terekhol,0,3243,0.00,inferred_from_0.00_pct,2,1
+North Goa,Pernem,Tamboxem-Mopa-Ugavem,0,2806,0.00,ocr,3,1
+North Goa,Pernem,Torxem,0,2405,0.00,inferred_from_0.00_pct,1,1
+North Goa,Pernem,Tuem,4,2751,0.15,ocr,0,1
+North Goa,Pernem,Warkhand-Nagzar,0,2208,0.00,pdf_text_layer,0,1
+North Goa,Pernem,Virnoda,0,4087,0.00,ocr,1,2
+North Goa,Pernem,Pernem (MCI),0,5021,0.00,ocr,10,2
+North Goa,Bardez,Aldona,274,9518,2.88,ocr,4,2
+North Goa,Bardez,Anjuna-Caisua,40,9636,0.42,ocr,1,2
+North Goa,Bardez,Arpora-Nagoa,62,4710,1.32,ocr,2,2
+North Goa,Bardez,Assagao,22,4367,0.50,ocr,1,2
+North Goa,Bardez,Assonora,8,4730,0.17,ocr,2,2
+North Goa,Bardez,Bastora,33,3943,0.84,ocr,1,2
+North Goa,Bardez,Calangute,82,13810,0.59,ocr,1,2
+North Goa,Bardez,Camurlim,7,3015,0.23,ocr,1,2
+North Goa,Bardez,Candolim,8,8500,0.09,ocr,1,2
+North Goa,Bardez,Colvale,0,4818,0.00,ocr,1,2
+North Goa,Bardez,Guirim,4,5036,0.08,pdf_text_layer,1,2
+North Goa,Bardez,Moira,204,4299,4.75,ocr,1,2
+North Goa,Bardez,Nachinola,0,2725,0.00,ocr,1,3
+North Goa,Bardez,Nadora,0,1257,0.00,ocr,1,3
+North Goa,Bardez,Nerul,9,5042,0.18,ocr,1,3
+North Goa,Bardez,Oxel,1,2794,0.04,ocr,1,3
+North Goa,Bardez,Parra,4,4449,0.09,ocr,1,3
+North Goa,Bardez,Penha-de-France,143,15342,0.93,ocr,1,3
+North Goa,Bardez,Pilerne-Marra,74,7815,0.95,ocr,2,3
+North Goa,Bardez,Pirna,0,2568,0.00,ocr,1,3
+North Goa,Bardez,Pomburpa-Olaulim,12,3754,0.32,ocr,2,3
+North Goa,Bardez,Reis-Magos,86,8053,1.07,ocr,1,3
+North Goa,Bardez,Revora,8,2630,0.30,ocr,1,3
+North Goa,Bardez,Salvador-do-Mundo,150,6373,2.35,ocr,1,3
+North Goa,Bardez,Saligao,80,6280,1.27,ocr,1,3
+North Goa,Bardez,Sangolda,12,4429,0.27,ocr,1,3
+North Goa,Bardez,Siolim-Marna,3,1234,0.24,sum_of_villages,1,3
+North Goa,Bardez,Siolim-Sodiem,25,10936,0.23,ocr,1,3
+North Goa,Bardez,Sirsaim,0,2850,0.00,ocr,1,3
+North Goa,Bardez,Socorro,27,12908,0.21,ocr,1,3
+North Goa,Bardez,Tivim,24,9076,0.26,ocr,1,3
+North Goa,Bardez,Ucassaim-Paliem-Punola,85,3318,2.56,ocr,3,3
+North Goa,Bardez,Verla-Canca,13,7236,0.18,ocr,2,3
+North Goa,Bardez,Mapusa (MCI),154,39989,0.39,ocr,6,3
+North Goa,Tiswadi,Azossim Mandur,547,4255,12.86,ocr,11,4
+North Goa,Tiswadi,Batim,21,2008,1.05,ocr,2,4
+North Goa,Tiswadi,Carambolim,2299,5179,44.39,ocr,0,4
+North Goa,Tiswadi,Chimbel,2592,16812,15.42,ocr,2,4
+North Goa,Tiswadi,Chodan Madel,444,5563,7.98,ocr,0,4
+North Goa,Tiswadi,Corlim,1207,6568,18.38,ocr,0,4
+North Goa,Tiswadi,Cumbharjua,686,5218,,ocr,0,4
+North Goa,Tiswadi,Curca-Bambolim-Talaulim,1641,10816,,ocr,8,4
+North Goa,Tiswadi,Goltim-Navelim,557,2767,,ocr,0,4
+North Goa,Tiswadi,Merces,320,8948,3.58,ocr,3,4
+North Goa,Tiswadi,Neura,109,2003,5.44,ocr,1,4
+North Goa,Tiswadi,Sao-Matias,108,2252,4.80,ocr,0,4
+North Goa,Tiswadi,xiii .Se-Old Goa,741,7853,9.44,ocr,5,5
+North Goa,Tiswadi,Siridao-Palem,1265,2417,52.34,ocr,1,5
+North Goa,Tiswadi,St-Andre (Goa Velha),116,4322,2.68,ocr,1,5
+North Goa,Tiswadi,St-Cruz,1212,15306,7.92,ocr,2,5
+North Goa,Tiswadi,St-Estevam,84,4134,2.03,ocr,1,5
+North Goa,Tiswadi,St-Lawrence (Agassaim),602,4970,12.11,ocr,2,5
+North Goa,Tiswadi,Taleigao,2894,25811,11.21,ocr,2,5
+North Goa,Tiswadi,Panaji (M. Corp + OG),1340,40017,3.35,ocr,9,5
+North Goa,Bicholim,Advalpal,0,1412,0.00,inferred_from_0.00_pct,5,7
+North Goa,Bicholim,Amona,0,2963,0.00,inferred_from_0.00_pct,0,7
+North Goa,Bicholim,Karapur-Sarvan,371,9086,4.08,ocr,2,7
+North Goa,Bicholim,Cudnem,31,3308,0.94,sum_of_villages,1,7
+North Goa,Bicholim,Latambarcem,10,6722,0.15,ocr,1,7
+North Goa,Bicholim,Mayem-Vaiguinim,1,8717,0.01,ocr,3,7
+North Goa,Bicholim,Mencurem-Dhumashe,0,1677,0.00,ocr,2,7
+North Goa,Bicholim,Mulgao,0,3892,0.00,inferred_from_0.00_pct,0,7
+North Goa,Bicholim,Naroa,174,1897,9.17,ocr,2,7
+North Goa,Bicholim,Navelim,397,2703,14.69,ocr,1,7
+North Goa,Bicholim,Ona-Maulinguem-Curchirem,1,4185,0.02,ocr,3,7
+North Goa,Bicholim,Pale-Cottombi,1016,6634,15.32,ocr,2,7
+North Goa,Bicholim,Piligao,1009,2643,38.18,ocr,1,7
+North Goa,Bicholim,Salem,0,3427,0.00,inferred_from_0.00_pct,0,7
+North Goa,Bicholim,Sirigao,0,1617,0.00,inferred_from_0.00_pct,1,7
+North Goa,Bicholim,Surla,1255,3818,32.87,ocr,1,7
+North Goa,Bicholim,Velguem,53,2617,,ocr,0,7
+North Goa,Bicholim,Harvalem,,,,ocr,0,8
+North Goa,Bicholim,Bicholim (MCI),83,16986,0.49,ocr,10,8
+North Goa,Bicholim,Sanquelim (MCI),91,13651,0.67,ocr,10,8
+North Goa,Sattari,Birondem,1376,3492,39.40,ocr,0,9
+North Goa,Sattari,Cottorem,69,4102,1.68,ocr,14,9
+North Goa,Sattari,Dongurli-Thane,0,5488,0.00,inferred_from_0.00_pct,0,9
+North Goa,Sattari,Guleli,513,4125,,pdf_text_layer,11,9
+North Goa,Sattari,Honda,635,7611,,ocr,0,9
+North Goa,Sattari,Mauxi,3,4080,,ocr,2,9
+North Goa,Sattari,Morlem,0,3290,0.00,inferred_from_0.00_pct,3,10
+North Goa,Sattari,Nagargao,9,4652,0.19,pdf_text_layer,14,10
+North Goa,Sattari,Pissurlem,1125,3896,28.88,ocr,5,10
+North Goa,Sattari,Poriem,0,5156,0.00,inferred_from_0.00_pct,2,10
+North Goa,Sattari,Querim,272,6110,4.45,ocr,0,10
+North Goa,Sattari,Sanvordem,0,3283,0.00,inferred_from_0.00_pct,7,10
+North Goa,Sattari,Vailpoi (MCI),28,8532,0.33,ocr,11,11
+North Goa,Ponda,Bandora,1819,12722,14.30,ocr,0,11
+North Goa,Ponda,Betoda-Nirankal-Conxem-Codar,1582,8824,17.93,ocr,4,11
+North Goa,Ponda,Betqui-Candola,1504,7061,21.30,ocr,1,11
+North Goa,Ponda,Bhoma-Adcolna,1167,4495,25.96,ocr,3,11
+North Goa,Ponda,Borim,1529,8257,18.52,ocr,0,11
+North Goa,Ponda,Curti-Khandepar,2300,20153,11.41,ocr,2,11
+North Goa,Ponda,Cundaim,904,3859,23.43,ocr,1,11
+North Goa,Ponda,Durbhat,425,3443,12.34,ocr,1,11
+North Goa,Ponda,Marcaim,2252,6215,36.23,ocr,1,11
+North Goa,Ponda,Panchawadi,882,4295,,ocr,0,11
+North Goa,Ponda,Querim,2030,3474,,ocr,0,11
+North Goa,Ponda,Queula,385,6852,5.62,ocr,1,12
+North Goa,Ponda,Shiroda,2895,14041,20.62,ocr,0,12
+North Goa,Ponda,Tivrem-Orgao,701,6480,10.82,ocr,2,12
+North Goa,Ponda,Usgao-Ganjem,2110,12909,16.35,ocr,2,12
+North Goa,Ponda,Veling-Priol-Cuncoliem,4538,11470,39.56,ocr,2,12
+North Goa,Ponda,Verem-Vaghurme,0,527,0.00,ocr,2,12
+North Goa,Ponda,Volvoi,249,5029,4.95,ocr,1,12
+North Goa,Ponda,Wadi-Talaulim,214,3060,6.99,ocr,2,12
+North Goa,Ponda,Ponda (MCI),113,22664,0.50,ocr,14,12
+South Goa,Mormugao,Cansaulim-Arossim-Cuelim,903,5717,,ocr,0,12
+South Goa,Mormugao,Chicalim,541,13155,4.11,ocr,5,13
+South Goa,Mormugao,Chicolna-Bogmalo,376,2680,14.03,ocr,1,13
+South Goa,Mormugao,Cortalim-Quelossim,3892,12342,31.53,ocr,2,13
+South Goa,Mormugao,Majorda-Utorda-Calata,30,6570,0.46,ocr,3,13
+South Goa,Mormugao,Nagoa,774,3873,19.98,ocr,1,13
+South Goa,Mormugao,Sancoale,597,21923,2.72,ocr,1,13
+South Goa,Mormugao,Velsao-Pale,81,4351,1.86,ocr,3,13
+South Goa,Mormugao,Verna,2516,6632,37.94,ocr,1,13
+South Goa,Mormugao,Marmugao (MCI),480,94393,0.51,ocr,8,13
+South Goa,Salcete,Ambelim,670,2853,23.48,ocr,13,14
+South Goa,Salcete,Aquem Baixo,779,6511,11.96,ocr,1,14
+South Goa,Salcete,Assolna,95,3410,2.79,ocr,1,14
+South Goa,Salcete,Betalbatim,10,3773,0.27,ocr,2,14
+South Goa,Salcete,Camurlim,110,2247,4.90,ocr,1,14
+South Goa,Salcete,Cana-Banaulim,31,12627,0.25,ocr,2,14
+South Goa,Salcete,Carmona,28,3864,,ocr,0,14
+South Goa,Salcete,Cavelossim,10,1955,0.51,ocr,1,15
+South Goa,Salcete,Chandor-Cavorim,59,2935,2.01,ocr,2,15
+South Goa,Salcete,Chinchinim-Deusaua,1067,8387,12.72,ocr,2,15
+South Goa,Salcete,Colva,34,6987,0.49,ocr,4,15
+South Goa,Salcete,Curtorim,1628,12886,12.63,ocr,1,15
+South Goa,Salcete,Davorlim-Dicarpale,2187,18407,11.88,ocr,1,15
+South Goa,Salcete,Dramapur-Sirlim,130,4286,3.03,ocr,2,15
+South Goa,Salcete,Guirdolim,317,3622,8.75,ocr,0,15
+South Goa,Salcete,Loutolim,2193,6121,35.83,ocr,1,15
+South Goa,Salcete,Macazana,0,1972,0.00,ocr,1,15
+South Goa,Salcete,Navelim,756,12323,6.13,ocr,1,15
+South Goa,Salcete,Nuvem,3634,9288,39.13,ocr,1,15
+South Goa,Salcete,Orlim,28,2049,1.37,ocr,1,15
+South Goa,Salcete,Paroda,1073,3419,31.38,ocr,2,15
+South Goa,Salcete,Rachol,1209,1686,71.71,ocr,1,15
+South Goa,Salcete,Raia,2968,10706,27.72,ocr,1,15
+South Goa,Salcete,Rumdamol-Davorlim,1627,15350,10.60,ocr,1,15
+South Goa,Salcete,Sao Jose De Areal,2321,10229,22.69,ocr,1,15
+South Goa,Salcete,Sarzora,267,2270,11.76,ocr,1,15
+South Goa,Salcete,Seraulim,8,3998,0.20,ocr,1,15
+South Goa,Salcete,Telaulim,0,2911,0.00,inferred_from_0.00_pct,1,15
+South Goa,Salcete,Varca,14,5439,0.26,ocr,1,15
+South Goa,Salcete,Velim,2021,5955,33.94,ocr,0,15
+South Goa,Salcete,Margao (MCI),4857,87650,5.54,ocr,3,15
+South Goa,Salcete,Cuncolim (MCI),738,16623,4.44,ocr,27,16
+South Goa,Quepem,Ambaulim,2579,2987,86.34,ocr,1,16
+South Goa,Quepem,Assolda,565,3676,15.37,ocr,4,16
+South Goa,Quepem,Avedem,1241,2898,42.82,ocr,2,16
+South Goa,Quepem,Balli-Adnem,3896,7415,52.54,ocr,5,17
+South Goa,Quepem,Barcem-Quedem,3977,4437,89.63,ocr,5,17
+South Goa,Quepem,Cavrem-Pirla,1753,3508,49.97,ocr,7,17
+South Goa,Quepem,Fatorpa-Quitol,985,3949,24.94,ocr,2,17
+South Goa,Quepem,Molcornem,1411,2887,48.87,ocr,5,17
+South Goa,Quepem,Morpirla,2752,2857,96.32,ocr,0,17
+South Goa,Quepem,Naqueri-Betul,162,491,32.99,ocr,1,17
+South Goa,Quepem,Xeldem,946,7434,12.73,ocr,0,17
+South Goa,Quepem,Quepem (MCI),3661,15924,22.99,ocr,4,17
+South Goa,Quepem,Curchorem-Cacora (MCI),1362,22730,5.99,ocr,28,18
+South Goa,Sanguem,Bhati,1294,3374,38.35,ocr,11,19
+South Goa,Sanguem,Curdi,1659,4617,35.93,ocr,5,19
+South Goa,Sanguem,Kalay,939,4364,21.52,ocr,0,19
+South Goa,Sanguem,Netorlim,2171,3552,,ocr,7,19
+South Goa,Sanguem,Rivona,1858,5452,34.08,ocr,0,19
+South Goa,Sanguem,Sanvordem,87,7804,1.11,ocr,8,19
+South Goa,Sanguem,Uguem,874,3266,,ocr,0,19
+South Goa,Sanguem,Sanguem (MCI),379,6444,5.88,ocr,10,20
+South Goa,Canacona,Agonda,371,3801,9.76,ocr,1,20
+South Goa,Canacona,Cotigao,2418,2640,91.59,ocr,1,20
+South Goa,Canacona,Gaondongrem,4321,4946,87.36,ocr,1,20
+South Goa,Canacona,Cola,2977,5382,55.31,ocr,1,20
+South Goa,Canacona,Loliem-Polem,154,4797,3.21,ocr,1,20
+South Goa,Canacona,Poinguinim,1197,6625,18.07,ocr,1,20
+South Goa,Canacona,Shristhal,2013,4547,44.27,ocr,1,20
+South Goa,Canacona,Canacona (MCI),206,12434,1.66,ocr,10,20
+South Goa,Dharbandora,Collem,300,6006,5.00,ocr,0,21
+South Goa,Dharbandora,Dharbandora,2135,7049,30.29,ocr,4,21
+South Goa,Dharbandora,Kirlapal-Dabal,2012,6307,31.90,ocr,5,21
+South Goa,Dharbandora,Mollem,179,2798,6.40,ocr,0,21
+South Goa,Dharbandora,Sancordem,403,4114,9.80,ocr,3,21

@@ -37,7 +37,8 @@ web.ALIASES["g"] = "commons"
 assert anon.get("/apply/g").status_code == 200 and "action='/apply/g'" in anon.get("/apply/g").text and anon.get("/b/g").status_code == 200
 
 form = dict(business="Mandrem Tailors", applicant="Rekha Naik", role="owner", phone="98765 43210", about="Tailoring, Mandrem market road", challenge=["marketing", "finance"], challenge_other="Finding customers in the off season",
-            team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings")
+            team_size="3", need="A scooter for deliveries, customers keep asking", share=["equipment"], share_other="Sewing machine evenings",
+            address="Shop 3, market road, Mandrem", place="")   # no place picked: the server reads it off the address
 # registering signs the applicant in as the business's coordinator, sends them to step 2, and tells the treasurer on Telegram
 os.environ["TELEGRAM_BOT_TOKEN"] = "t"
 tg_sent = []
@@ -92,6 +93,12 @@ r = T.get("/c/commons"); assert r.status_code == 200 and "Registered businesses"
 assert client().get("/c/commons").status_code == 401
 assert T.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 303
 assert core.applications_of(con, "commons", status="verified")[0]["id"] == a["id"] and "verified" in T.get("/c/commons").text
+# the address stays with the application; the place it resolved to travels to the node and, once verified, to the map
+assert a["address"] == "Shop 3, market road, Mandrem" and a["place_id"] == "mandrem", (a["address"], a["place_id"])
+assert core.get_node(con, a["node_id"])["place_id"] == "mandrem"
+assert [(b["name"], b["place_id"]) for b in core.verified_businesses(con, "commons")] == [("Mandrem Tailors", "mandrem")]
+assert "Mandrem" in T.get("/c/commons").text and "address" in T.get("/c/commons/applications.csv").text
+assert "name=address" in anon.get("/apply/commons").text and "Mandrem · Pernem" in anon.get("/apply/commons").text and "Use my location" in anon.get("/apply/commons").text
 assert R.post("/c/commons/verify", data={"application_id": a["id"]}).status_code == 403   # a business can't verify itself
 # only verified businesses count: the second business is registered and chartered but unverified, so it cannot cast the pool's ballot
 S3 = client(); S3.post("/apply/commons", data=dict(form, business="Lane Cafe", phone="+91 90000 11111", applicant="Joao"))
@@ -148,7 +155,7 @@ assert "9876543210" not in client().get("/b/commons").text
 print("APPLY OK · landing · form → node + card · same phone updates · honeypot · bad number · treasurer sees businesses + Send card · card on web → coordinator, need kept, charter · team link · card on WhatsApp → need kept, not asked twice · export clean")
 
 # the CSV is the treasurer's, and only theirs
-r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone,about,challenge" in r.text and "off season" in r.text and "919876543210" in r.text
+r = T.get("/c/commons/applications.csv"); assert r.status_code == 200 and "business,applicant,role,phone,about,address,place_id,challenge" in r.text and "off season" in r.text and "919876543210" in r.text
 assert client().get("/c/commons/applications.csv").status_code == 401 and O.get("/c/commons/applications.csv").status_code == 403
 print("APPLY OK · csv")
 

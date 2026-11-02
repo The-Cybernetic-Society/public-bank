@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS nodes (
   match_pct     BIGINT NOT NULL DEFAULT 0,  -- >0: this node's pot matches children's contributions by this % (500 = 5x), capped at the pot
   cosign_min    BIGINT NOT NULL DEFAULT 0,
   pool_ratify   TEXT NOT NULL DEFAULT 'every', -- every: each child must pass | majority: more than half of the children that voted pass  -- child nodes that must co-sign a proposal in this node's round before it is eligible
+  place_id      TEXT,                        -- the local body (places.py id) this node sits in, for the map; set from the application
   created_at    BIGINT NOT NULL
 );
 
@@ -210,6 +211,8 @@ CREATE TABLE IF NOT EXISTS applications (
   share         TEXT,
   contribute    TEXT,                           -- yes | maybe | no: would put in a small amount
   consent       BIGINT NOT NULL DEFAULT 0,      -- anonymised research
+  address       TEXT,                           -- where the shop is, as typed; never exported, never shown publicly
+  place_id      TEXT,                           -- the local body it resolves to (places.py id); copied to the node, shown on the map once verified
   token         TEXT,                           -- the join_coord token minted for the owner
   status        TEXT NOT NULL DEFAULT 'new',    -- new | joined (the owner tapped the card)
   created_at    BIGINT NOT NULL,
@@ -273,6 +276,9 @@ MIGRATIONS = [
     "ALTER TABLE nodes ADD COLUMN pool_ratify TEXT NOT NULL DEFAULT 'every'",
     "ALTER TABLE proposals ADD COLUMN payee_upi TEXT",
     "ALTER TABLE proposals ADD COLUMN payee_name TEXT",
+    "ALTER TABLE applications ADD COLUMN address TEXT",
+    "ALTER TABLE applications ADD COLUMN place_id TEXT",
+    "ALTER TABLE nodes ADD COLUMN place_id TEXT",
 ]
 
 
