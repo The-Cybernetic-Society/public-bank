@@ -193,7 +193,7 @@ it that way and add no AI-attribution trailers. Prior commits use a fixed timest
 
 ## Deploy (GCP, project `cybernetic-society`, region `asia-southeast1`)
 
-Live at https://bank.cyberneticsutra.com (Cloud Run `publicbank`, Cloud SQL Postgres `publicbank`,
+Live at https://goa.cyberneticsutra.com since 2 Nov 2026 (bank.cyberneticsutra.com forwards there through `PB_OLD_HOSTS`; both are Cloud Run domain mappings) (Cloud Run `publicbank`, Cloud SQL Postgres `publicbank`,
 secrets in Secret Manager: `DATABASE_URL`, `PB_SECRET`, `PB_APP_TOKEN`, `TELEGRAM_BOT_TOKEN`).
 Bot: `@cybernetic_society_bot`. Treasurer Telegram id is in the seed command history.
 
@@ -202,7 +202,7 @@ Bot: `@cybernetic_society_bot`. Treasurer Telegram id is in the seed command his
 CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
 gcloud run deploy publicbank --source . --region=asia-southeast1 --allow-unauthenticated \
   --add-cloudsql-instances="$CONN" --min-instances=1 --max-instances=3 --memory=512Mi \
-  --set-env-vars="PB_BASE_URL=https://bank.cyberneticsutra.com,PB_BOT_USERNAME=cybernetic_society_bot,EDGEOS_API_BASE=https://api.edgeos.world" \
+  --set-env-vars="PB_BASE_URL=https://goa.cyberneticsutra.com,PB_OLD_HOSTS=bank.cyberneticsutra.com,PB_BOT_USERNAME=cybernetic_society_bot,EDGEOS_API_BASE=https://api.edgeos.world" \
   --set-secrets="DATABASE_URL=DATABASE_URL:latest,PB_SECRET=PB_SECRET:latest,PB_APP_TOKEN=PB_APP_TOKEN:latest,TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN:latest"
 
 # one-off commands against prod (seed, wipes): the job runs the same image with DATABASE_URL
@@ -215,9 +215,9 @@ Deployed 2 Nov 2026: revision publicbank-00032 (federation + WhatsApp adapter + 
 the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off, onboarding flow, trade-off sliders, majority ratification, verified-only voting, vendor payees,
 the front page as the Commons: fund bar and button, Who's in as seals, the Commons map on the most-backed proposal, the board (what businesses put forward or lead, plus one unled AI-twin draft) opening on a tap, "What is an AI digital twin?" with the two sliders as a demo, "AI twin" pills; registration coarse to fine (place, pin, lane); `places --set-place`; the place twin at /twin (warmed at startup); the business portals in the catalogue, the business twin on the owner's pages, co-funding schemes on new proposals; the shop's address/place on registration; `PB_WA_*` and `ANTHROPIC_API_KEY` not yet set on the service). The four proposals already on prod predate co-funding: `python -m publicbank.schemes --attach-cofunding` through the seed job would backfill them. The `publicbank-seed` job currently runs
 `python -m publicbank.demo --stage paid --pool goa-biz-demo --treasurer-telegram <id>`; the demo pool is live
-at https://bank.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers;
+at https://goa.cyberneticsutra.com/b/goa-biz-demo. The real pool `goa-business-commons` (Goa Business Commons, no match: the pot is the pot, one business one vote, two co-signers;
 `pool_ratify='majority'` set on prod 30 Oct via the seed job)
-exists on prod since 29 Oct; businesses register at https://bank.cyberneticsutra.com/apply/goa (`PB_ALIASES`, default `goa=goa-business-commons`).
+exists on prod since 29 Oct; businesses register at https://goa.cyberneticsutra.com/apply/goa (`PB_ALIASES`, default `goa=goa-business-commons`).
 Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oct at the proposals stage. It was made with
 `python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`
 (no `--business`: businesses register themselves at `/apply/goa-business-commons`).

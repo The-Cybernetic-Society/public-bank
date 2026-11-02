@@ -3,7 +3,7 @@
 set -euo pipefail
 PROJECT=${PROJECT:?set PROJECT=your-gcp-project-id}
 REGION=${REGION:-asia-southeast1}        # Singapore: custom-domain mapping supported; ~60 ms from Goa
-BASE_URL=${BASE_URL:-https://bank.cyberneticsutra.com}
+BASE_URL=${BASE_URL:-https://goa.cyberneticsutra.com}
 DBPASS=$(openssl rand -hex 16)
 
 gcloud config set project "$PROJECT"
