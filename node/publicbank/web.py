@@ -1414,9 +1414,9 @@ def home():
         if rnd and rnd["status"] == "proposals":
             props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
             props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
-            # the leaderboard: everything a business has put forward or backed, then one draft the twin wrote that
-            # nobody has picked up yet, at the bottom, so the board shows what the twin does without crowding people out
-            backed = [p for p in props if p["source"] != "twin" or db.j(p["cosign_nodes"], []) or p.get("lead_id")]
+            # the leaderboard: what businesses put forward, plus twin drafts a business has taken the lead on; then ONE
+            # twin draft nobody leads yet (the most backed), at the bottom, so the twin is seen without crowding people out
+            backed = [p for p in props if p["source"] != "twin" or p.get("lead_id")]
             spare = [p for p in props if p not in backed]
             props = backed + spare[:1]
         body += "<h2 class=first>Funding proposals</h2>"
@@ -1439,7 +1439,7 @@ def home():
             body += ("<ol class=board>" + rows_html + "</ol>"
                      "<script>(function(){document.querySelectorAll('.board .row-main').forEach(function(d){function go(){var li=d.closest('li'),o=li.classList.toggle('open');d.setAttribute('aria-expanded',o?'true':'false')}"
                      "d.addEventListener('click',function(e){if(e.target.closest('a'))return;go()});d.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})})()</script>")
-            note = (f"{len(backed)} proposal{'s' if len(backed) != 1 else ''} businesses have put forward or backed, most backed first" + (", and one the twin drafted from their needs that nobody has picked up yet" if spare else "")
+            note = (f"{len(backed)} proposal{'s' if len(backed) != 1 else ''} businesses have put forward or lead, most backed first" + (f", and one of the {len(spare)} the AI twin drafted from their needs that nobody leads yet" if spare else "")
                     + ". Tap one to read it; the number is how many businesses back it, and tapping that adds yours.")
         else:
             body += "<ol class='board sample'>" + "".join(f"<li><span class=n>{i}</span><div><b>{t}</b><span class=muted>about {r}</span></div></li>" for i, (t, r) in enumerate(
