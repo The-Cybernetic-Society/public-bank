@@ -47,6 +47,14 @@ with TestClient(main.app) as c:
     r = c.post(f"/tg/{main.HOOK_SECRET}", json=update, headers={"X-Telegram-Bot-Api-Secret-Token": main.HOOK_SECRET})
     assert r.status_code == 200, r.text
     assert c.get("/health").json() == {"ok": True}
+    # an old hostname forwards to the base URL, path and query kept; webhooks and health answer wherever they arrive
+    main.OLD_HOSTS.add("old.example")
+    r = c.get("/apply/goa?for=p_1", headers={"host": "old.example"}, follow_redirects=False)
+    assert r.status_code == 301 and r.headers["location"] == main.BASE_URL + "/apply/goa?for=p_1", (r.status_code, r.headers)
+    assert c.get("/health", headers={"host": "old.example"}).status_code == 200
+    assert c.post("/tg/wrong", json=update, headers={"host": "old.example"}).status_code == 404
+    main.OLD_HOSTS.discard("old.example")
+    assert c.get("/apply/goa", headers={"host": "old.example"}, follow_redirects=False).status_code != 301, "no old hosts configured: nothing forwards"
 
 assert replies and replies[0][0] == 42 and "asked to join" in replies[0][1], replies
 m = bot.db.row(bot.con.execute("SELECT * FROM members WHERE telegram_id=42").fetchone())

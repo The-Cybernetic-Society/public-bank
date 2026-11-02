@@ -107,6 +107,27 @@ async def _dispatch(scope, receive, send):
         await web_app(scope, receive, send)
 
 
-app = Starlette(routes=[Route("/tg/{secret}", telegram_hook, methods=["POST"]),
-                        Route("/wa", wa_verify, methods=["GET"]), Route("/wa", wa_hook, methods=["POST"]),
-                        Mount("/", app=_dispatch)], lifespan=lifespan)
+_inner = Starlette(routes=[Route("/tg/{secret}", telegram_hook, methods=["POST"]),
+                           Route("/wa", wa_verify, methods=["GET"]), Route("/wa", wa_hook, methods=["POST"]),
+                           Mount("/", app=_dispatch)], lifespan=lifespan)
+
+# Old hostnames (PB_OLD_HOSTS, comma-separated, e.g. bank.cyberneticsutra.com) forward to PB_BASE_URL with the same
+# path and query, so cards, posters and links already out in the world keep landing. Webhooks and the health check
+# are answered wherever they arrive: Telegram and Meta post to the URL they were given, and Cloud Run probes the
+# service's own address.
+OLD_HOSTS = {h.strip().lower() for h in os.environ.get("PB_OLD_HOSTS", "").split(",") if h.strip()}
+KEEP_PATHS = ("/health", "/tg/", "/wa")
+
+
+async def app(scope, receive, send):
+    if scope["type"] == "http" and OLD_HOSTS and not scope["path"].startswith(KEEP_PATHS):
+        host = next((v.decode().split(":")[0].lower() for k, v in scope.get("headers", []) if k == b"host"), "")
+        if host in OLD_HOSTS:
+            from starlette.responses import RedirectResponse
+            q = scope.get("query_string", b"").decode()
+            await RedirectResponse(BASE_URL + scope["path"] + (f"?{q}" if q else ""), status_code=301)(scope, receive, send)
+            return
+    await _inner(scope, receive, send)
+
+
+app.router = _inner.router   # TestClient and uvicorn look here for the lifespan
