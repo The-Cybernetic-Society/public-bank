@@ -1187,7 +1187,15 @@ HOME_CSS = """<style>body{max-width:760px}.stage{display:inline-block;padding:7p
 .budget{margin:14px 0 6px}.track{display:flex;height:22px;border:2px solid var(--ink);border-radius:4px;background:var(--paper);overflow:hidden}
 .seg{display:block;height:100%}.seg+.seg{border-left:2px solid var(--card)}.paid{background:var(--ink)}.approved{background:var(--gold)}.asked{background:repeating-linear-gradient(135deg,var(--gold) 0 4px,transparent 4px 9px)}.left{background:var(--paper);border:1px solid var(--line)}
 .legend{font:400 13px/1.6 "IBM Plex Mono",monospace;color:var(--muted);margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
-table{font:400 15px/1.4 "IBM Plex Mono",monospace}</style>"""
+table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin-top:8px}
+.strip{list-style:none;padding:0;margin:8px 0 4px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:560px){.strip{grid-template-columns:repeat(2,1fr)}}
+.strip li{position:relative;border:2px solid var(--line);border-radius:4px;background:var(--card);padding:12px 10px 10px;font:400 14px/1.3 Newsreader,Georgia,serif;color:var(--muted)}
+.strip svg{display:block;width:30px;height:30px;stroke:var(--muted);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
+.strip li.done{border-color:var(--ink);color:var(--ink)}.strip li.done svg{stroke:var(--ink)}
+.strip li.now{border-color:var(--ink);background:var(--gold);color:var(--ink);box-shadow:3px 3px 0 var(--shadow)}.strip li.now svg{stroke:var(--ink)}
+.strip em{position:absolute;top:8px;right:8px;font:400 9px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;font-style:normal;color:var(--ink)}
+.items{display:grid;gap:10px}.item{display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:4px;background:var(--card);padding:12px 14px;box-shadow:3px 3px 0 var(--shadow)}.item b{display:block;font-weight:500}.item .muted{font-size:14px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:10px;background:var(--gold);color:var(--ink);padding:8px 12px;text-decoration:none;font:500 15px 'IBM Plex Mono',monospace;box-shadow:2px 2px 0 var(--shadow)}.thumb svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:active{transform:translate(2px,2px);box-shadow:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
 NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
 
@@ -1203,9 +1211,32 @@ def note(slug: str):
     return HTMLResponse(html.replace("</style>", "body{max-width:760px}h2{margin-top:34px}h3{font:500 20px/1.2 Newsreader,Georgia,serif;margin:24px 0 6px;color:var(--ink)}p.lead{font-size:21px;line-height:1.5;color:var(--ink)}ul{padding-left:22px}li{margin:8px 0}table{margin:12px 0}.chart{margin:18px 0 26px}.chart svg{width:100%;height:auto;display:block}.chart figcaption,.shot figcaption{font:500 15px/1.4 Newsreader,Georgia,serif;color:var(--ink);margin-bottom:8px}.chart .val{font:500 13px 'IBM Plex Mono',monospace;fill:var(--ink)}.chart .cat{font:400 13px 'IBM Plex Mono',monospace;fill:var(--muted)}.chart .axis{stroke:var(--line);stroke-width:1}.legend{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:0 0 6px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}.shot{margin:18px 0 26px}.shot .card{margin:10px 0}.btnlike{display:inline-block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border:2px solid var(--ink);border-radius:10px;padding:8px 12px;margin:0 8px 0 0;background:var(--card);box-shadow:3px 3px 0 var(--shadow)}</style>", 1))
 
 
+STEPS = [   # the round as a drawn sequence; which step is lit comes from the live round
+    ("register", "Register", "M4 3h16v18H4z M8 8h8 M8 12h8 M8 16h5"),
+    ("need", "Say what you need", "M4 5h16v10H9l-4 4v-4H4z"),
+    ("drafts", "Drafts appear", "M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"),
+    ("back", "Back or lead one", "M5 12l4 4 10-10"),
+    ("points", "Split 100 points", "M6 8h2 M11 8h7 M6 12h5 M14 12h4 M6 16h8 M17 16h1"),
+    ("approve", "Approve the plan", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M8 12l3 3 5-6"),
+    ("paid", "Fund pays the vendor", "M7 4h10 M7 8h10 M9 4c5 0 7 2 7 4s-2 4-7 4h-2l7 8"),
+    ("record", "On the public record", "M3 20h18 M6 17V9 M11 17V5 M16 17v-7 M21 17v-4"),
+]
+STAGE_STEP = {"proposals": 3, "ballots": 4, "plans": 4, "ratifying": 5, "ratified": 6, "failed": 5, "paid": 7, "closed": 7}
+
+
+def _steps_strip(stage: str | None, anyone_in: bool) -> str:
+    now = STAGE_STEP.get(stage or "", 0) if anyone_in else 0
+    out = ["<ol class=strip aria-label='How a round works'>"]
+    for i, (k, label, path) in enumerate(STEPS):
+        cls = "done" if i < now else "now" if i == now else ""
+        out.append(f"<li class='{cls}'><svg viewBox='0 0 24 24' aria-hidden=true><path d='{path}'/></svg><span>{label}</span>" + ("<em>now</em>" if i == now else "") + "</li>")
+    return "".join(out) + "</ol>"
+
+
 @app.get("/")
 def home():
-    """The front page is the home pool itself: what it is, where the pot stands, a way in, and the live record."""
+    """The front page is the home pool itself, for a shop owner on a phone first: one sentence, proof it is real, a way
+    in, the round drawn as steps with the live stage lit, what gets funded, who is in, where the money stands, the record."""
     home_id = _resolve(HOME_POOL)
     try:
         node = core.get_node(con, home_id)
@@ -1214,14 +1245,33 @@ def home():
     if node:
         rnd = core.current_round(con, node["id"])
         b = _budget(node, rnd)
-        kids = core.children(con, node["id"])
-        body = (f"<p class=lead>{esc(APPLY_INTRO)}</p>"
-                f"<div class=card><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
-                f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}"
-                f"<p class=muted>{len(kids)} business{'es' if len(kids) != 1 else ''} in · one vote each · the fund pays vendors directly · every rupee is on this page.</p>"
-                f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form></div>")
-        body += _board_body(node, with_pot=False)
-        body += "<h2>Notes</h2>" + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items())
+        kids = sorted(core.children(con, node["id"]), key=lambda k: -k["created_at"])
+        first = min((k["created_at"] for k in kids), default=None)
+        proof = (f"{len(kids)} business{'es' if len(kids) != 1 else ''} in since {core._ist(first)[:10]}" if kids else "Opening now") + (f" · {STAGE_WORDS.get(b['stage'], b['stage'])}" if b["stage"] else "")
+        body = ("<p class=lead>A ₹5 lakh fund that Goan businesses spend together. You say what your shop needs; the businesses vote; the fund pays the vendor.</p>"
+                f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form><p class='muted proof'>{esc(proof)}</p>")
+        body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
+        # what gets funded: the drafts on the table as items, not records
+        props = []
+        if rnd and rnd["status"] == "proposals":
+            props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
+            props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
+            props = props[:6]
+        body += "<h2>What gets funded</h2>"
+        if props:
+            body += "<div class=items>" + "".join(
+                f"<div class=item><div><b>{esc(p['title'])}</b><span class=muted>about {_rupees(p['ideal_paise'])}</span></div>"
+                f"<a class=thumb href='/apply/{esc(HOME_POOL)}?for={esc(p['id'])}' title='Back this: register your business'><svg viewBox='0 0 24 24' aria-hidden=true><path d='M7 11v9H4v-9z M7 11l4-7c2 0 3 1 3 3v3h5c1 0 2 1 2 2l-1.5 7c0 1-1 1-2 1H7'/></svg><span>{len(db.j(p['cosign_nodes'], []))}</span></a></div>"
+                for p in props) + "</div>"
+            body += "<p class=muted>Proposals on the table now, written from what businesses said they need, most backed first. The thumb is how many businesses back one; tap it to register and add yours.</p>"
+        else:
+            body += "<div class=items><div class=item><div><b>A delivery scooter shared along a lane</b><span class=muted>about ₹50,000</span></div></div><div class=item><div><b>One billing licence for several shops</b><span class=muted>about ₹15,000</span></div></div><div class=item><div><b>A two-day trainer for counter staff</b><span class=muted>about ₹20,000</span></div></div></div><p class=muted>The kind of thing the fund buys: things several businesses use together.</p>"
+        body += "<h2>Who's in</h2>" + ("<p class=chips>" + "".join(f"<span class=chip>{esc(k['name'])}</span>" for k in kids) + "</p>" if kids else "<p class=muted>Be the first.</p>")
+        body += (f"<h2>Where the money stands</h2><div class=card><div class=row style='justify-content:space-between;flex-wrap:wrap;gap:8px'><span class=stage>{esc(STAGE_WORDS.get(b['stage'], b['stage'] or 'no round open'))}</span>"
+                 f"<span class=big>{_rupees(b['pot'])}</span></div>{_budget_bar(b)}<p class=muted>The fund pays vendors directly. Nothing moves until most of the businesses that vote approve the plan.</p></div>")
+        body += (f"<h2>For the record</h2><p><a href='/b/{esc(HOME_POOL)}'>The live board</a> · <a href='/export/{esc(node['id'])}'>the export</a> · <a href='/privacy'>privacy</a></p>"
+                 + "".join(f"<p><a href='/notes/{esc(k)}'>{esc(v)}</a></p>" for k, v in NOTES.items()))
+        body += f"<form method=get action='/apply/{esc(HOME_POOL)}'><button>Register your business</button></form>"
         html = page(node["name"], body).body.decode()
         return HTMLResponse(html.replace(CSS, CSS + HOME_CSS, 1).replace("<title>", "<meta http-equiv=refresh content=60><title>", 1))
     pools = db.rows(con.execute("SELECT * FROM nodes WHERE parent_id IS NULL ORDER BY created_at DESC").fetchall())
