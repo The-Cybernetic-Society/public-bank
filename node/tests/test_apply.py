@@ -279,6 +279,7 @@ print("APPLY OK · login link two-step · treasurer told · /me folded")
 # the notes
 r = anon.get("/notes/simulating-a-thousand-businesses"); assert r.status_code == 200 and "Method of Equal Shares" in r.text and "equalshares.net" in r.text
 assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thousand-businesses" in anon.get("/").text
+r = anon.get("/notes/what-is-a-digital-twin"); assert r.status_code == 200 and "Porto Alegre" in r.text and "Varanasi" in r.text and "World Development" in r.text and "href='/twin'" in r.text
 print("APPLY OK · notes")
 
 # removing one business from the pool leaves the rest, strips its backing, anonymises its owner
@@ -297,7 +298,7 @@ r = anon.get("/"); assert r.status_code == 200
 assert "Register your business" in r.text and "action='/apply/commons'" in r.text and "class=track" in r.text and "remaining ₹" in r.text and "asked for ₹" in r.text, r.text[:500]
 assert "How it works" in r.text and r.text.count("<li class=") == 11 and r.text.count("<li class='now'>") == 2 and "Funding proposals" in r.text and "class='seal" in r.text and "/notes/simulating-a-thousand-businesses" in r.text
 assert r.text.index("class='card hero'") < r.text.index("class=track") < r.text.index("Register your business") < r.text.index("Who's in") < r.text.index("Funding proposals") < r.text.index("How it works") < r.text.index("Timeline") < r.text.index("For the record")
-assert "<ol class=timeline" in r.text and "First round closes" in r.text and "Final report" in r.text and "id=ctwin" not in r.text and "What is an AI digital twin?" in r.text
+assert "/notes/what-is-a-digital-twin'>Learn more</a>" in r.text and "<ol class=timeline" in r.text and "First round closes" in r.text and "Final report" in r.text and "id=ctwin" not in r.text and "What is an AI digital twin?" in r.text
 assert web._timeline(web.LAUNCH).count("<li class='now'>") == 1 and web._timeline(web.LAUNCH + web._timedelta(days=400)).count("class='done'") == 3
 assert "class=primary" in r.text
 assert "class=thumb" in r.text and "href='/apply/commons?for=" in r.text   # the thumb count on each proposal leads into registering

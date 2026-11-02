@@ -186,4 +186,4 @@ def twin_section() -> str:
             "<p>An <b>AI drafts proposals</b> from the needs: when two shops say they need a fridge for the season, it writes one proposal for a shared cold store, "
             "prices it for Goa, and notes the scheme that could carry part of it. It never decides anything. A draft reaches the ballot only when a business leads "
             "it and others back it, and every proposal on this page says whether a person or the twin wrote it. "
-            "<a href='/notes/simulating-a-thousand-businesses'>Learn more</a></p>")
+            "<a href='/notes/what-is-a-digital-twin'>Learn more</a></p>")

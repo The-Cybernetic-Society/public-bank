@@ -1445,8 +1445,10 @@ h2 .sum{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);letter-spacin
 .seal.v .ring{stroke:var(--gold);stroke-width:3.5}.seal.v{box-shadow:2px 2px 0 var(--gold)}.seal i{font-style:normal;color:var(--gold);font-weight:500;margin-left:2px}
 @media(prefers-reduced-motion:reduce){.seal{animation:none}}</style>"""
 NOTES_DIR = os.path.join(os.path.dirname(__file__), "notes")
-NOTES = {"simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
-NOTE_META = {"simulating-a-thousand-businesses": ("30 October 2026", "Before the first real business registered, we put a thousand simulated ones through the real software and ran whole funding rounds. What we did, what broke, and the one thing no rule can fix.")}
+NOTES = {"what-is-a-digital-twin": "What is a digital twin, and why pair it with a shared budget?",
+         "simulating-a-thousand-businesses": "Simulating a thousand businesses before the first real one"}
+NOTE_META = {"what-is-a-digital-twin": ("2 November 2026", "Digital twins in Singapore, Helsinki, Hamburg and Varanasi; shared budgets from Porto Alegre to Kerala, Pune and Paris; what the studies found; and what the Commons takes from each."),
+             "simulating-a-thousand-businesses": ("30 October 2026", "Before the first real business registered, we put a thousand simulated ones through the real software and ran whole funding rounds. What we did, what broke, and the one thing no rule can fix.")}
 
 
 @app.get("/notes/{slug}")
@@ -1457,7 +1459,7 @@ def note(slug: str):
     with open(os.path.join(NOTES_DIR, slug + ".html"), encoding="utf-8") as f:
         body = f.read()
     html = page(NOTES[slug], body).body.decode()
-    return HTMLResponse(html.replace("</style>", "body{max-width:760px}h2{margin-top:34px}h3{font:500 20px/1.2 Newsreader,Georgia,serif;margin:24px 0 6px;color:var(--ink)}p.lead{font-size:21px;line-height:1.5;color:var(--ink)}ul{padding-left:22px}li{margin:8px 0}table{margin:12px 0}.chart{margin:18px 0 26px}.chart svg{width:100%;height:auto;display:block}.chart figcaption,.shot figcaption{font:500 15px/1.4 Newsreader,Georgia,serif;color:var(--ink);margin-bottom:8px}.chart .val{font:500 13px 'IBM Plex Mono',monospace;fill:var(--ink)}.chart .cat{font:400 13px 'IBM Plex Mono',monospace;fill:var(--muted)}.chart .axis{stroke:var(--line);stroke-width:1}.legend{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:0 0 6px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}.shot{margin:18px 0 26px}.shot .card{margin:10px 0}.btnlike{display:inline-block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border:2px solid var(--ink);border-radius:10px;padding:8px 12px;margin:0 8px 0 0;background:var(--card);box-shadow:3px 3px 0 var(--shadow)}</style>", 1))
+    return HTMLResponse(html.replace("</style>", "body{max-width:760px}h2{margin-top:34px}h3{font:500 20px/1.2 Newsreader,Georgia,serif;margin:24px 0 6px;color:var(--ink)}ul.sources li{font-size:15px;margin:5px 0;color:var(--muted)}p.lead{font-size:21px;line-height:1.5;color:var(--ink)}ul{padding-left:22px}li{margin:8px 0}table{margin:12px 0}.chart{margin:18px 0 26px}.chart svg{width:100%;height:auto;display:block}.chart figcaption,.shot figcaption{font:500 15px/1.4 Newsreader,Georgia,serif;color:var(--ink);margin-bottom:8px}.chart .val{font:500 13px 'IBM Plex Mono',monospace;fill:var(--ink)}.chart .cat{font:400 13px 'IBM Plex Mono',monospace;fill:var(--muted)}.chart .axis{stroke:var(--line);stroke-width:1}.legend{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:0 0 6px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}.shot{margin:18px 0 26px}.shot .card{margin:10px 0}.btnlike{display:inline-block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border:2px solid var(--ink);border-radius:10px;padding:8px 12px;margin:0 8px 0 0;background:var(--card);box-shadow:3px 3px 0 var(--shadow)}</style>", 1))
 
 
 STEPS = [   # the round as a drawn sequence; which step is lit comes from the live round

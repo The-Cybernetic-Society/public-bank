@@ -116,7 +116,10 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
   Front page order (2 Nov): intro, fund bar + Register, Who's in as seals (`_seals`), `commonsmap.map_section` (dots and the
   most-backed proposal's connections, no controls; the map script ships with it), Funding proposals, `commonsmap.twin_section`
-  (two paragraphs: the twin, and the AI drafting from it; the slider demo and the simulation paragraph were cut on 2 Nov),
+  (two paragraphs: the twin, and the AI drafting from it, ending in a Learn more link to /notes/what-is-a-digital-twin, a
+  2 Nov post for an official reader: real city twins (Singapore, Helsinki, Herrenberg, Hamburg, Varanasi, Ahmedabad),
+  participatory budgets (Porto Alegre, Kerala, Pune, Paris, NYC, Scotland), the outcome studies (Gonçalves 2014,
+  Touchton & Wampler 2014, Johnson et al. 2023) with sources; the slider demo and the simulation paragraph were cut),
   How it works, Timeline, blog, record. The Timeline (`LAUNCH`, `TIMELINE`, `_timeline`) counts from launch day, 2 Nov 2026:
   first round closes at 30 days (2 Dec 2026), second round at 60 days if money remains (1 Jan 2027), final report at six
   months (3 May 2027); drawn as one vertical rail with a mark per date (dark once passed, gold with a "next" pill for the next, hollow after), not as boxes. The JS still reads the hash's
