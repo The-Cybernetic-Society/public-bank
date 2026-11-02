@@ -222,7 +222,11 @@ Its first round (r_03402c8a498f, pot ₹5,00,000, closes early Dec) opened 29 Oc
 `python -m publicbank.setup_businesses --pool goa-business-commons --name "Goa Business Commons" --treasurer-telegram <id>`
 (no `--business`: businesses register themselves at `/apply/goa-business-commons`).
 
-Gotchas met: pass `--source` as the ABSOLUTE path to `node/` (a `cd node && gcloud run deploy --source .` once
+Gotchas met: the `publicbank-seed` job keeps whatever image it was last given, NOT the service's: after a deploy, point it at the
+service's image (`gcloud run jobs update publicbank-seed --region=asia-southeast1 --image "$(gcloud run services describe publicbank
+--region=asia-southeast1 --format='value(spec.template.spec.containers[0].image)')"`) before running new commands through it, or
+"No module named …" follows; `--args` splits on commas, so a command with commas needs the `^|^` delimiter (`--args='^|^-c|<cmd>'`);
+executing the job re-runs its LAST command, so update first. Pass `--source` as the ABSOLUTE path to `node/` (a `cd node && gcloud run deploy --source .` once
 uploaded the repo root, found no Dockerfile, and Buildpacks failed); `gcloud --args` rejects repeated items (hence `sh -c`); `<` in a placeholder breaks `sh`;
 Cloud SQL needs `--edition=ENTERPRISE` for `db-f1-micro`; the compute service account needs
 `secretmanager.secretAccessor` + `cloudsql.client`; domain mapping needs the apex verified in Search Console.
