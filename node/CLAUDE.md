@@ -98,7 +98,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   refresh and shared links land on the same place. The card (`/twin/<id>/card.json`, `places.card`) shows four figures, the
   counts and the three schemes worth attention first: `places.score` = impact (money on a log scale × who can act × reach
   here × how much more here than the typical body, `across_goa` rarity/avg_reach cached per process) × ease (eligible 1,
-  plausible 0.55 − 0.1/step, unlikely or already running 0); `top_schemes` dedupes near-identical titles.
+  plausible 0.55 − 0.1/step, unlikely or already running 0); `top_schemes` dedupes near-identical titles, and the card shows
+  `top_by_audience`: one scheme per slot (the body itself, groups and societies, households and people), so a place reads as a
+  portrait rather than the same big-money body grant everywhere.
   Since 2 Nov the registration form asks where the shop is: `applications.address` (as typed; stays on `/c/<pool>` and in its
   CSV, never public) and `applications.place_id` → `nodes.place_id` (the local body, `places.resolve`: a typed name, "Name ·
   Taluka", a village or an alias; else the server reads a place name off the address). The form offers a typeahead over
@@ -107,6 +109,11 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   point is not stored). `GET /twin/businesses.json` lists the home pool's VERIFIED businesses with their place (`core.verified_
   businesses`); the map draws a count marker per place (`c`, each feature's representative point) and the card lists the names.
   WhatsApp self-registration (`JOIN` with no code) and the seeds do not set a place yet.
+  Startup: `main.py`'s lifespan calls `places.warm()` (every body's and roll-up's `statuses_of`, the `across_goa` table, the map
+  file; under a second) so the first visitor never pays the compute; `PB_TWIN_WARM=0` skips it. The map section preloads
+  `/twin/map.json?v=` and `/twin/businesses.json` from where it sits in the page, draws the coarse state `outline` (in the
+  map file, built with the map) with a stroke animation and a wandering gold dot until the data lands, then the real shapes
+  fade in; the card counts up the scheme total while its JSON loads. Both stop under prefers-reduced-motion.
 - `publicbank/demo.py` — a six-business rehearsal walked to `--stage`; wipes and rebuilds its pool id.
 - `publicbank/bot.py` — Telegram: `/start j_<token>` join, `/start l_<token>` link, `/me`, `/status`,
   `/payouts` (treasurer: upi:// button + "Mark paid" → reference), and the round as conversations:

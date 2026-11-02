@@ -29,12 +29,18 @@ CSS = """<style>
 .tmap .hint{font:400 14px 'IBM Plex Mono',monospace;color:var(--muted);margin:8px 0 0;min-height:20px}
 .tmap g.marks circle{fill:var(--ink);stroke:var(--card);stroke-width:2px;vector-effect:non-scaling-stroke;pointer-events:none}.tmap g.marks text{font:500 11px 'IBM Plex Mono',monospace;fill:var(--card);text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .tmap .legend{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:6px 0 0}.tmap .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink);vertical-align:-1px;margin-right:6px}
+.tmap g.sketch path{fill:none;stroke:var(--ink);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:4000;stroke-dashoffset:4000;animation:tdraw 1.8s ease-out forwards,tbreathe 1.6s 1.8s ease-in-out infinite;pointer-events:none}
+.tmap g.sketch circle{fill:var(--gold);stroke:var(--ink);stroke-width:1.5px;vector-effect:non-scaling-stroke;animation:twander 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes tdraw{to{stroke-dashoffset:0}}@keyframes tbreathe{50%{opacity:.35}}@keyframes twander{0%,100%{transform:translate(0,0)}25%{transform:translate(40px,120px)}50%{transform:translate(120px,420px)}75%{transform:translate(60px,760px)}}
+.tmap g.shapes.rise path{animation:tfade .5s ease-out both}@keyframes tfade{from{opacity:0}to{opacity:1}}
+.tcard p.loading{color:var(--muted);margin:0}.tcard p.loading b{font:500 18px 'IBM Plex Mono',monospace;color:var(--ink)}
+@media(prefers-reduced-motion:reduce){.tmap g.sketch path{animation:none;stroke-dashoffset:0}.tmap g.sketch circle{animation:none}.tmap g.shapes.rise path{animation:none}}
 .tcard .biz{margin:12px 0 0;font-size:15px}.tcard .biz .chip{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:3px 8px;margin:4px 6px 0 0;font:400 13px 'IBM Plex Mono',monospace;color:var(--ink)}
 .tcard{margin-top:16px}.tcard h3{font:500 26px/1.1 Newsreader,Georgia,serif;letter-spacing:-.015em;color:var(--ink);margin:0 0 2px}.tcard .kind{color:var(--muted);font-size:15px;margin:0 0 12px}
 .tcard .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tcard .facts div{font:400 12px 'IBM Plex Mono',monospace;color:var(--muted)}.tcard .facts b{display:block;font:500 20px 'IBM Plex Mono',monospace;color:var(--ink)}
 .tcard .counts{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:12px 0 4px}.tcard .counts .tag{margin-right:2px}
 .tcard ol.top{list-style:none;padding:0;margin:8px 0 0}.tcard ol.top li{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.tcard ol.top .n{font:400 11px Silkscreen,'IBM Plex Mono',monospace;color:var(--ink);background:var(--gold);border-radius:8px;padding:5px 7px;height:fit-content;flex:0 0 auto}
-.tcard ol.top b{font-weight:500;color:var(--ink)}.tcard ol.top .m{display:block;color:var(--muted);font-size:14px;line-height:1.4}.tcard ol.top .s{display:block;color:var(--ink);font-size:14px}.tcard ol.top .s:before{content:'→ '}
+.tcard ol.top .slot{display:block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--muted);margin:2px 0 5px}.tcard ol.top b{font-weight:500;color:var(--ink)}.tcard ol.top .m{display:block;color:var(--muted);font-size:14px;line-height:1.4}.tcard ol.top .s{display:block;color:var(--ink);font-size:14px}.tcard ol.top .s:before{content:'→ '}
 .tcard .score{font:400 12px 'IBM Plex Mono',monospace;color:var(--muted);margin-left:auto;flex:0 0 auto;align-self:flex-start}
 .tcard a.btn{margin-top:14px}.tcard a.btn.quiet{box-shadow:none;margin-top:8px;border-color:var(--line)}.tcard .empty{color:var(--muted)}
 @media(max-width:480px){.tcard .facts{grid-template-columns:repeat(2,1fr)}}
@@ -43,7 +49,9 @@ CSS = """<style>
 JS = r"""<script>
 (function(){
 var root=document.getElementById('tmap');if(!root)return;
-var svg=root.querySelector('svg'),g=svg.querySelector('g.shapes'),ctx=svg.querySelector('g.ctx'),marks=svg.querySelector('g.marks'),crumb=root.querySelector('.crumb'),hint=root.querySelector('.hint'),legend=root.querySelector('.legend'),card=document.getElementById('tcard');
+var svg=root.querySelector('svg'),g=svg.querySelector('g.shapes'),ctx=svg.querySelector('g.ctx'),marks=svg.querySelector('g.marks'),sketch=svg.querySelector('g.sketch'),crumb=root.querySelector('.crumb'),hint=root.querySelector('.hint'),legend=root.querySelector('.legend'),card=document.getElementById('tcard');
+var N_SCHEMES=+root.dataset.schemes||0,calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,firstDraw=true;
+function ticker(el,target,ms){if(calm||!target){el.textContent=target;return function(){}}var t0=null,stop=false;function step(t){if(stop)return;if(!t0)t0=t;var k=Math.min(1,(t-t0)/ms);el.textContent=Math.round(target*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);else{t0=null;requestAnimationFrame(step)}}requestAnimationFrame(step);return function(){stop=true}}
 var DATA=null,level='district',focus=null,selected=root.dataset.selected||null,BIZ=[];
 function bizIn(f){if(!BIZ.length)return [];if(f.level==='body')return BIZ.filter(function(b){return b.place_id===f.id});var key=f.level==='taluka'?'taluka':'district';var ids={};DATA.features.forEach(function(x){if(x.level==='body'&&x[key]===f.name)ids[x.id]=1});return BIZ.filter(function(b){return ids[b.place_id]})}
 function drawMarks(){marks.innerHTML='';if(!BIZ.length||!DATA)return;var vb=svg.viewBox.baseVal,r=vb.width/60;features().filter(inFocus).forEach(function(f){var n=bizIn(f).length;if(!n||!f.c)return;
@@ -63,6 +71,7 @@ function bbox(fs){var b=[1e9,1e9,-1e9,-1e9];fs.forEach(function(f){f.rings.forEa
 function draw(){
   var fs=features(),shown=fs.filter(inFocus),box=bbox(shown.length?shown:fs),pad=Math.max(box[2]-box[0],box[3]-box[1])*0.04;
   svg.setAttribute('viewBox',[box[0]-pad,box[1]-pad,box[2]-box[0]+2*pad,box[3]-box[1]+2*pad].join(' '));
+  if(sketch){sketch.remove();sketch=null}g.setAttribute('class','shapes'+(firstDraw?' rise':''));firstDraw=false;
   g.innerHTML='';ctx.innerHTML='';
   fs.forEach(function(f){var p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',path(f.rings));p.dataset.id=f.id;
     var vis=inFocus(f);p.setAttribute('class',(f.id===selected?'sel ':'')+(vis?'':'dim'));
@@ -82,14 +91,17 @@ function remember(){try{var h='place='+encodeURIComponent(selected||'')+'&level=
 function recall(){var m=/place=([^&]*)/.exec(location.hash),l=/level=(district|taluka|body)/.exec(location.hash),f=/focus=([^&]*)/.exec(location.hash);
   if(m&&m[1])selected=decodeURIComponent(m[1]);if(l)level=l[1];if(f&&f[1])focus=decodeURIComponent(f[1])}
 function select(id){selected=id;draw();load(id);remember()}
-function load(id){card.innerHTML='<p class=empty>…</p>';fetch('/twin/'+encodeURIComponent(id)+'/card.json').then(function(r){return r.ok?r.json():null}).then(function(c){if(!c){card.innerHTML='<p class=empty>Nothing known about this place yet.</p>';return}render(c)}).catch(function(){card.innerHTML='<p class=empty>Could not load this place.</p>'})}
+var stopTick=null;
+function load(id){var f=byId(id),nm=f?f.name:id;if(stopTick)stopTick();
+  card.innerHTML='<p class=loading><span class=dot></span>Reading <b>0</b> of '+N_SCHEMES+' schemes for '+esc(nm)+'…</p>';stopTick=ticker(card.querySelector('b'),N_SCHEMES,1400);
+  fetch('/twin/'+encodeURIComponent(id)+'/card.json').then(function(r){return r.ok?r.json():null}).then(function(c){if(stopTick)stopTick();if(!c){card.innerHTML='<p class=empty>Nothing known about this place yet.</p>';return}render(c)}).catch(function(){if(stopTick)stopTick();card.innerHTML='<p class=empty>Could not load this place.</p>'})}
 function render(c){var f=c.facts,coast=f.coastal===true?'yes':f.coastal===false?'no':'?';
   var where=[c.kind_word,c.taluka&&c.kind!=='taluka'?c.taluka:null,c.district&&c.kind!=='district'&&c.kind!=='taluka'?c.district:(c.kind==='taluka'?c.district:null),c.wards?c.wards+' wards':null,c.members?c.members+' local bodies':null].filter(Boolean).join(' · ');
   var h='<h3>'+esc(c.name)+'</h3><p class=kind>'+esc(where)+'</p>';
   h+='<div class=facts><div>Households<b>'+num(f.households)+'</b></div><div>People<b>'+num(f.population)+'</b></div><div>Scheduled Tribes<b>'+pct(f.st_share)+'</b></div><div>Coast<b>'+coast+'</b></div></div>';
   var s=c.summary;h+='<p class=counts><span class="tag ok">eligible</span> '+s.eligible+' &nbsp; <span class="tag maybe">plausible</span> '+s.plausible+' &nbsp; <span class="tag no">unlikely</span> '+s.unlikely+' &nbsp;· of '+s.schemes+' schemes</p>';
-  if(c.top.length){h+='<p class=muted style="margin:10px 0 0">Worth looking at first, by impact × ease:</p><ol class=top>'+c.top.map(function(t,i){var cls=t.status==='eligible'?'ok':'maybe';
-    return '<li><span class=n>'+(i+1)+'</span><div><b>'+(t.source_url?'<a href="'+esc(t.source_url)+'">'+esc(t.name)+'</a>':esc(t.name))+'</b> <span class="tag '+cls+'">'+t.status+'</span><span class=m>'+esc(t.department)+(t.max_rupees?' · up to '+rupees(t.max_rupees):'')+(t.why?' · '+esc(t.why):'')+'</span>'+(t.steps||[]).map(function(x){return '<span class=s>'+esc(x)+'</span>'}).join('')+'</div><span class=score title="impact '+t.impact+' × ease '+t.ease+'">'+t.score.toFixed(2)+'</span></li>'}).join('')+'</ol>'}
+  if(c.top.length){h+='<p class=muted style="margin:10px 0 0">Worth looking at first, one for each audience, by impact × ease:</p><ol class=top>'+c.top.map(function(t,i){var cls=t.status==='eligible'?'ok':'maybe';
+    return '<li><span class=n>'+(i+1)+'</span><div><span class=slot>'+esc(t.slot_label||'')+'</span><b>'+(t.source_url?'<a href="'+esc(t.source_url)+'">'+esc(t.name)+'</a>':esc(t.name))+'</b> <span class="tag '+cls+'">'+t.status+'</span><span class=m>'+esc(t.department)+(t.max_rupees?' · up to '+rupees(t.max_rupees):'')+(t.why?' · '+esc(t.why):'')+'</span>'+(t.steps||[]).map(function(x){return '<span class=s>'+esc(x)+'</span>'}).join('')+'</div><span class=score title="impact '+t.impact+' × ease '+t.ease+'">'+t.score.toFixed(2)+'</span></li>'}).join('')+'</ol>'}
   var f0=byId(c.id),here=f0?bizIn(f0):[];
   if(here.length){h+='<p class=biz><b>'+here.length+' verified business'+(here.length>1?'es':'')+' in the Commons here:</b><br>'+here.map(function(b){return '<span class=chip>'+esc(b.name)+'</span>'}).join('')+'</p>'}
   h+='<a class=btn href="'+esc(c.url)+'">All '+s.schemes+' schemes for '+esc(c.name)+'</a>';if(f0&&f0.level!=='body'){h+='<a class="btn quiet" href="#" id=tzoom>See its '+WORDS[f0.level==='district'?'taluka':'body']+'</a>'}
@@ -193,9 +205,13 @@ def build_map(tolerance: float = 0.0004) -> dict:
                              "taluka": name if level == "taluka" else None, "district": d.get("district") if level == "taluka" else name,
                              "c": list(project(c.x, c.y)), "rings": rings_of(u.simplify(tolerance * 2, preserve_topology=True))})
     missing = [d["id"] for d in divs if d["id"] not in body_geom]
+    # the state's outline, coarse: what the page draws while the real map is still on its way
+    state = unary_union(list(body_geom.values())).buffer(0).simplify(tolerance * 15, preserve_topology=True)
+    outline = rings_of(state)
+    xs = [p[0] for r in outline for p in r]; ys = [p[1] for r in outline for p in r]
     return {"built": "2026-11-02", "units": "x east of 73.6°E and y south of 15.9°N, in thousandths of a degree (about 111 m)",
             "source": "DataMeet Indian Village Boundaries, Goa (ODbL 1.0), villages dissolved per local body through the LGD mapping",
-            "features": features, "no_shape": missing, "unplaced_polygons": unplaced}
+            "features": features, "outline": outline, "bbox": [min(xs), min(ys), max(xs), max(ys)], "no_shape": missing, "unplaced_polygons": unplaced}
 
 
 def save_map(data: dict) -> None:
@@ -226,14 +242,31 @@ def load() -> dict:
     return _load(version())
 
 
+def _sketch() -> tuple[str, str]:
+    """The coarse state outline as an SVG path, and a viewBox that frames it: drawn while the real map loads."""
+    m = load()
+    outline, box = m.get("outline") or [], m.get("bbox")
+    if not outline or not box:
+        return "", "0 0 100 100"
+    d = "".join("M" + "L".join(f"{p[0]:.0f} {p[1]:.0f}" for p in ring) + "Z" for ring in outline)
+    pad = max(box[2] - box[0], box[3] - box[1]) * 0.04
+    vb = f"{box[0] - pad:.0f} {box[1] - pad:.0f} {box[2] - box[0] + 2 * pad:.0f} {box[3] - box[1] + 2 * pad:.0f}"
+    return f"<g class=sketch><path d='{d}'/><circle cx='{box[0] + (box[2] - box[0]) * 0.45:.0f}' cy='{box[1] + 30:.0f}' r='{(box[2] - box[0]) / 40:.0f}'/></g>", vb
+
+
 def section(selected: str | None = None, heading: str = "Your village, and what it could draw on") -> str:
-    """The HTML for the home page (and the twin index): heading, level control, map, hint, card."""
+    """The HTML for the home page (and the twin index): heading, level control, map, hint, card. The map data
+    is asked for from the top of the page (preload), and the outline of Goa is drawn while it arrives."""
     if not available():
         return ""
     sel = f" data-selected=\"{selected}\"" if selected else ""
-    return (f"<h2>{heading}</h2><p class=muted>Tap a place. The twin says what it is eligible for now, what it could plausibly become eligible for, and the step that gets it there.</p>"
-            f"<div class=tmap id=tmap{sel} data-v={version()}><div class=lvl role=group aria-label='Map scale'>"
+    sketch, vb = _sketch()
+    v = version()
+    n = len(S.schemes())
+    return (f"<link rel=preload as=fetch crossorigin href='/twin/map.json?v={v}'><link rel=preload as=fetch crossorigin href='/twin/businesses.json'>"
+            f"<h2>{heading}</h2><p class=muted>Tap a place. The twin says what it is eligible for now, what it could plausibly become eligible for, and the step that gets it there.</p>"
+            f"<div class=tmap id=tmap{sel} data-v={v} data-schemes={n}><div class=lvl role=group aria-label='Map scale'>"
             "<button type=button data-level=district aria-pressed=true>Districts</button><button type=button data-level=taluka aria-pressed=false>Talukas</button>"
             "<button type=button data-level=body aria-pressed=false>Panchayats</button></div><p class=crumb></p>"
-            "<svg viewBox='0 0 100 100' role=img aria-label='Map of Goa'><g class=shapes></g><g class=ctx></g><g class=marks></g></svg><p class=hint>Loading the map…</p><p class=legend></p></div>"
+            f"<svg viewBox='{vb}' role=img aria-label='Map of Goa'>{sketch}<g class=shapes></g><g class=ctx></g><g class=marks></g></svg><p class=hint>Drawing Goa…</p><p class=legend></p></div>"
             "<div class='card tcard' id=tcard><p class=empty>Tap a district to begin, or switch to talukas or panchayats.</p></div>" + CSS + JS)

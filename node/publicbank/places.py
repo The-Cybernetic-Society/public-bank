@@ -60,7 +60,7 @@ def set_divisions(divs: list[dict] | None) -> None:
     global _override
     _override = divs
     load.cache_clear()
-    summary_of.cache_clear()
+    statuses_of.cache_clear()
     across_goa.cache_clear()
 
 
@@ -296,13 +296,21 @@ def summarize(vs: list[dict]) -> dict:
 
 
 @lru_cache(maxsize=None)
-def summary_of(div_id: str) -> dict | None:
-    """The counts for one place, cached: the data is static for the life of the process."""
+def statuses_of(div_id: str) -> list[tuple[str, bool]] | None:
+    """(status, drawing) per scheme for one place, in catalogue order, cached: the data is static for the life of
+    the process, and this is what the counts, the index table and the across-Goa table all need."""
     d = get(div_id)
     if not d:
         return None
     p = profile(d)
-    return summarize([verdict(d, s, p) for s in S.schemes()])
+    return [(v["status"], v["drawing"]) for v in (verdict(d, s, p) for s in S.schemes())]
+
+
+def summary_of(div_id: str) -> dict | None:
+    st = statuses_of(div_id)
+    if st is None:
+        return None
+    return summarize([{"status": a, "drawing": b} for a, b in st])
 
 
 AUDIENCE_WEIGHT = {"body": 1.5, "groups": 1.2, "people": 1.0}   # a scheme the body itself can draw is the one it can act on
@@ -341,13 +349,14 @@ def across_goa() -> dict[str, dict]:
     if not bodies:
         return {}
     miss: Counter = Counter(); rsum: Counter = Counter()
+    ss = S.schemes()
     for d in bodies:
         p = profile(d)
-        for s in S.schemes():
-            if verdict(d, s, p)["status"] != "eligible":
+        for s, (status, _) in zip(ss, statuses_of(d["id"])):
+            if status != "eligible":
                 miss[s["id"]] += 1
             rsum[s["id"]] += reach(s, p)
-    return {s["id"]: {"rarity": miss[s["id"]] / len(bodies), "avg_reach": rsum[s["id"]] / len(bodies)} for s in S.schemes()}
+    return {s["id"]: {"rarity": miss[s["id"]] / len(bodies), "avg_reach": rsum[s["id"]] / len(bodies)} for s in ss}
 
 
 def rarity() -> dict[str, float]:
@@ -398,6 +407,34 @@ def top_schemes(d: dict, n: int = 3, p: dict | None = None) -> list[dict]:
     return out
 
 
+SLOTS = ("body", "groups", "people")
+
+
+def slot_label(slot: str, d: dict) -> str:
+    if slot == "body":
+        return "For the local bodies here" if d["kind"] in ROLLUPS else f"For the {KINDS.get(d['kind'], d['kind']).lower()} itself"
+    return "For groups and societies here" if slot == "groups" else "For households and people here"
+
+
+def top_by_audience(d: dict, p: dict | None = None) -> list[dict]:
+    """One scheme per audience: the best for the body itself, the best for groups and societies here, the best for
+    households and people here, each by impact × ease. A place reads as a portrait, not a league table. A slot with
+    nothing scorable is filled from the next-best of the others, so the card still shows three."""
+    p = p or profile(d)
+    ranked = top_schemes(d, 60, p)
+    out, used = [], set()
+    for slot in SLOTS:
+        pick = next((r for r in ranked if r["section"] == slot and r["id"] not in used), None)
+        if pick:
+            out.append({**pick, "slot": slot, "slot_label": slot_label(slot, d)}); used.add(pick["id"])
+    for r in ranked:
+        if len(out) >= 3:
+            break
+        if r["id"] not in used:
+            out.append({**r, "slot": r["section"], "slot_label": slot_label(r["section"], d)}); used.add(r["id"])
+    return out
+
+
 def card(d: dict, n: int = 3) -> dict:
     """What the map shows when a place is tapped: who it is, four figures, the counts, the top schemes, where to see all."""
     p = profile(d)
@@ -408,7 +445,7 @@ def card(d: dict, n: int = 3) -> dict:
             "wards": d.get("wards"), "members": sum(kids.values()) if kids else None,
             "facts": {"households": p["households"], "population": p["population"], "st_share": p["st_share"], "coastal": p["coastal"],
                       "farmers": p["farmers"], "fisher_households": p["fisher_households"], "dairy_societies": p["dairy_societies"]},
-            "summary": sm, "top": top_schemes(d, n, p), "url": f"/twin/{d['id']}",
+            "summary": sm, "top": top_by_audience(d, p), "url": f"/twin/{d['id']}",
             "up": ("goa" if d["kind"] == "district" else slug("district-" + d["district"]) if d["kind"] == "taluka" and d.get("district") else
                    slug("taluka-" + d["taluka"]) if d.get("taluka") and d["kind"] not in ROLLUPS else None)}
 
@@ -467,11 +504,32 @@ def locate(lat: float, lon: float) -> dict | None:
     return None
 
 
+def warm() -> dict:
+    """Compute everything the twin pages need before the first visitor asks: the per-place counts for every body
+    and roll-up (`summary_of`), the across-Goa rarity table behind the card's ranking, and the map file. Called at
+    startup; about three seconds on one CPU, after which every twin page answers from cache."""
+    import time
+    t0 = time.time()
+    ids = [d["id"] for d in divisions()] + [r["id"] for k in ROLLUPS for r in rollups(k)]
+    for i in ids:
+        summary_of(i)
+    across_goa()
+    try:
+        from . import twinmap
+        if twinmap.available():
+            twinmap.load()
+    except Exception:
+        pass
+    return {"places": len(ids), "seconds": round(time.time() - t0, 2)}
+
+
 def section(s: dict) -> str:
-    """Which part of the twin page a scheme belongs to: the body itself, groups here, or people here."""
-    if s["bodies"] and not (set(s["people"]) & INDIVIDUAL_CLASSES):
-        return "body"
-    if s["people"] and not (set(s["people"]) & INDIVIDUAL_CLASSES):
+    """Which part of the twin page a scheme belongs to: the body itself, groups here, or people here. 'SC/ST' names
+    who a scheme is for, not who applies: a tribal community hall a panchayat builds is still the body's."""
+    alone = set(s["people"]) & INDIVIDUAL_CLASSES
+    if (s["bodies"] or (set(s["people"]) - INDIVIDUAL_CLASSES)) and alone <= {"SC/ST"}:
+        return "body" if s["bodies"] else "groups"
+    if s["people"] and not alone:
         return "groups"
     return "people"
 
@@ -772,7 +830,7 @@ def merge_sources(data: dict) -> dict:
 def save(data: dict) -> None:
     with open(DIVISIONS, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
-    load.cache_clear(); summary_of.cache_clear()
+    load.cache_clear(); statuses_of.cache_clear()
 
 
 def main() -> None:

@@ -53,6 +53,11 @@ async def lifespan(app):
             log.info("telegram bot: webhook %s", url)
     else:
         log.info("TELEGRAM_BOT_TOKEN unset; bot not started")
+    if os.environ.get("PB_TWIN_WARM", "1") != "0":
+        # the digital twin's counts for every place, before the first visitor: a few seconds here, none later
+        from . import places
+        done = await run_in_threadpool(places.warm)
+        log.info("twin warmed: %s", done)
     async with mcp_app.router.lifespan_context(mcp_app):
         try:
             yield

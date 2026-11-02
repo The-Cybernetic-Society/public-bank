@@ -104,6 +104,9 @@ assert P.reach(ggsy, pm) == 1.0 and P.reach(asra, P.profile(netravali)) > P.reac
 assert P.rarity()[fish["id"]] > P.rarity()[ggsy["id"]], "a fish-market grant is eligible in fewer bodies than a panchayat infrastructure grant"
 c = P.card(mandrem)
 assert c["name"] == "Mandrem" and c["facts"]["coastal"] is True and c["url"] == "/twin/mandrem" and c["up"] == "taluka-pernem" and len(c["top"]) == 3
+assert [t["slot"] for t in c["top"]] == ["body", "groups", "people"] and c["top"][0]["slot_label"] == "For the village panchayat itself", c["top"]
+assert all(t["status"] in ("eligible", "plausible") for t in c["top"]) and len({t["id"] for t in c["top"]}) == 3
+assert P.card(P.get("goa"))["top"][0]["slot_label"] == "For the local bodies here"
 assert P.card(P.get("taluka-pernem"))["up"] == "district-north-goa" and P.card(P.get("district-north-goa"))["up"] == "goa"
 assert P.section(ggsy) == "body" and P.section(nrega) == "people" and P.section(find("registered-fishermen-societies")) == "groups"
 
@@ -163,6 +166,13 @@ if twinmap.available():
     m = c.get("/twin/map.json").json()
     assert {f["level"] for f in m["features"]} == {"district", "taluka", "body"} and all(f["rings"] and f["c"] for f in m["features"])
     assert "id=tmap" in c.get("/twin").text
+    assert m["outline"] and len(m["bbox"]) == 4
+    html = c.get("/twin").text
+    assert "rel=preload" in html and "<g class=sketch>" in html and "data-schemes=" in html, "the map is asked for early and Goa's outline is drawn meanwhile"
+    P.set_divisions(None)
+    w = P.warm()
+    assert w["places"] == 205 + 12 + 3 + 1 and P.statuses_of.cache_info().currsize >= 221 and P.across_goa.cache_info().currsize == 1, w
+    P.set_divisions(V)
     P.set_divisions(None)
     r = c.get("/twin/locate?lat=15.65&lon=73.72")
     assert r.status_code == 200 and r.json()["id"] == "mandrem" and r.json()["label"] == "Mandrem · Pernem"
