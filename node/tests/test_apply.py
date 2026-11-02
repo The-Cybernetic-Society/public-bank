@@ -299,6 +299,9 @@ assert "Register your business" in r.text and "action='/apply/commons'" in r.tex
 assert "How it works" in r.text and r.text.count("<li class=") == 11 and r.text.count("<li class='now'>") == 2 and "Funding proposals" in r.text and "class='seal" in r.text and "/notes/simulating-a-thousand-businesses" in r.text
 assert r.text.index("class='card hero'") < r.text.index("class=track") < r.text.index("Register your business") < r.text.index("Who's in") < r.text.index("Funding proposals") < r.text.index("How it works") < r.text.index("Timeline") < r.text.index("For the record")
 assert "/notes/what-is-a-digital-twin'>Learn more</a>" in r.text and "<ol class=timeline" in r.text and "First round closes" in r.text and "Final report" in r.text and "id=ctwin" not in r.text and "What is an AI digital twin?" in r.text
+assert "href='/apply/commons?propose=1'>Propose your own</a>" in r.text and r.text.index("Funding proposals") < r.text.index("Propose your own") < r.text.index("What is an AI digital twin?")
+ra = anon.get("/apply/commons?propose=1"); assert ra.status_code == 200 and "class=came" in ra.text and "proposal form is on the page after" in ra.text
+assert "class=came" not in anon.get("/apply/commons").text
 assert web._timeline(web.LAUNCH).count("<li class='now'>") == 1 and web._timeline(web.LAUNCH + web._timedelta(days=400)).count("class='done'") == 3
 assert "class=primary" in r.text
 assert "class=thumb" in r.text and "href='/apply/commons?for=" in r.text   # the thumb count on each proposal leads into registering

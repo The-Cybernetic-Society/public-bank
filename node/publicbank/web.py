@@ -112,7 +112,7 @@ code{font:400 14px "IBM Plex Mono",monospace;background:var(--card);border:1px s
 table{width:100%;border-collapse:collapse;font:400 14px/1.4 "IBM Plex Mono",monospace;color:var(--ink)}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
 .consent{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:4px 4px 0 var(--shadow);font-weight:300;cursor:pointer}.consent input{width:26px;height:26px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ink)}.consent .hint{margin-top:4px}
 .phone{display:flex;gap:8px}.phone .cc{position:relative;width:38%;flex:0 0 auto;margin:8px 0 0}.phone .cc select{width:100%;margin:0;color:transparent;padding:11px 4px 11px 8px}.phone .cc select option{color:var(--ink)}.phone .ccv{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font:400 17px 'IBM Plex Mono',monospace;color:var(--ink);white-space:nowrap}.phone input{flex:1 1 auto;min-width:0}
-.bad{color:#9b2c1f}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.drafting{color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);margin-right:8px;animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
+.bad{color:#9b2c1f}.came{margin:0 0 14px;padding:12px 14px;border:2px solid var(--ink);border-radius:3px;background:var(--gold);color:var(--ink)}.ok{color:#2f6b3f}.hp{position:absolute;left:-9999px}.rules{padding-left:22px;margin:6px 0 4px;color:var(--ink)}.rules li{margin:6px 0}.drafting{color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);margin-right:8px;animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.confetti i{position:absolute;top:-14px;width:10px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}.tick.big{width:96px;height:96px;margin:10px auto 14px}.tick.big svg{width:96px;height:96px}.lead{font-size:24px;text-align:center;color:var(--ink)}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
 button.small{width:auto;padding:8px 12px;margin:0 8px 0 0;font-size:10px}.prop{border-top:1px solid var(--line);padding:12px 0}.tag{display:inline-block;font:400 9px/1 Silkscreen,monospace;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:5px 7px;border-radius:8px;vertical-align:middle;margin-right:4px}.prop .row{margin-top:8px;flex-wrap:wrap}.prop form{margin:0}.prop.did{animation:flash .9s ease-out}@keyframes flash{0%{background:#d9a33d55}100%{background:transparent}}.tag.vote{background:#2f6b3f;color:#fbf6e9}details summary{cursor:pointer;font-weight:500;color:var(--ink);margin-top:10px}.propose{margin:4px 0 18px}.propose summary{list-style:none;display:inline-block;text-align:center;font:400 12px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:13px 20px;box-shadow:3px 3px 0 var(--shadow);margin-top:0}.propose summary::-webkit-details-marker{display:none}.propose[open] summary{box-shadow:1px 1px 0 var(--shadow);transform:translate(2px,2px)}a.btn{display:block;text-align:center;font:400 12px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin-top:14px}
 .steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 22px;font:400 10px/1 Silkscreen,"IBM Plex Mono",monospace;text-transform:uppercase;color:var(--muted)}.steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}.steps li span{display:none}.steps li.done{border-color:var(--ink);color:var(--ink)}.steps li.now{border-color:var(--gold);color:var(--ink)}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}.slider .lo,.slider .hi{font-size:13px;color:var(--muted);flex:0 0 auto}.slider output{font:500 18px "IBM Plex Mono",monospace;min-width:2ch;text-align:right;color:var(--ink)}
@@ -983,7 +983,7 @@ def _joined(picked: list[str], other: str, options) -> str:
     return ", ".join(out)
 
 
-def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | None = None) -> HTMLResponse:
+def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | None = None, note: str = "") -> HTMLResponse:
     v = v or {}
     path = path or pool["id"]
     g = lambda k: esc(v.get(k, ""))  # noqa: E731
@@ -995,7 +995,7 @@ def _apply_form(pool: dict, v: dict | None = None, error: str = "", path: str | 
         tiles = "".join(f"<label><input type=checkbox name={name} value='{esc(val)}'{' checked' if val in cur else ''}>{lab}</label>" for val, lab in options)
         other = esc(v.get(name + "_other", ""))
         return f"<div class='choice multi'>{tiles}</div><input name={name}_other placeholder='Something else?' maxlength=120 value='{other}'>"
-    body = f"<p>{esc(APPLY_INTRO)}</p>"
+    body = (f"<p class=came><b>{esc(note)}</b></p>" if note else "") + f"<p>{esc(APPLY_INTRO)}</p>"
     if error:
         body += f"<p class=bad>{esc(error)}</p>"
     body += f"""<form method=post action='/apply/{esc(path)}'>
@@ -1077,9 +1077,12 @@ def _pool_or_404(pool_id: str) -> dict:
     return pool
 
 
+PROPOSE_NOTE = "You're here to put a proposal of your own on the table. Register your business first; the proposal form is on the page after this one."
+
+
 @app.get("/apply/{pool_id:path}")
-def apply_get(pool_id: str):
-    return _apply_form(_pool_or_404(pool_id), path=pool_id)
+def apply_get(pool_id: str, request: Request):
+    return _apply_form(_pool_or_404(pool_id), path=pool_id, note=PROPOSE_NOTE if request.query_params.get("propose") else "")
 
 
 @app.post("/apply/{pool_id:path}")
@@ -1434,7 +1437,7 @@ table{font:400 15px/1.4 "IBM Plex Mono",monospace}.proof{margin:14px 0 0;text-al
 .board{list-style:none;margin:0;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--card)}.board li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);margin:0}.board li:first-child{border-top:0}.board .n{flex:0 0 18px;font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;color:var(--muted)}.board li>div{flex:1 1 auto;min-width:0}.board b{display:block;font-size:17px;font-weight:500;line-height:1.25}.board .muted{display:block;font-size:13px;line-height:1.3;margin-top:1px}.board.sample b{color:var(--muted)}
 .board .row-main{cursor:pointer}.board .row-main:focus{outline:3px solid var(--gold);outline-offset:2px;border-radius:3px}.board .row-main u{text-decoration:none}
 .board .more{display:none;margin-top:8px;font-size:15px;line-height:1.45;color:var(--text)}.board .more p{margin:4px 0}.board li.open .more{display:block}.board li.open .row-main u{display:none}
-.board .more a.btn.small{display:inline-block;width:auto;padding:10px 14px;margin-top:8px;font-size:10px}
+a.btn.own{margin-top:18px}.board .more a.btn.small{display:inline-block;width:auto;padding:10px 14px;margin-top:8px;font-size:10px}
 .board li{align-items:flex-start}.board .thumb{margin-top:2px}.thumb{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);padding:6px 11px;text-decoration:none;font:500 14px 'IBM Plex Mono',monospace}.thumb svg{width:18px;height:18px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.thumb:hover{background:var(--gold)}.thumb:active{transform:translateY(1px)}
 .post{display:block;border:2px solid var(--ink);border-radius:3px;background:var(--card);box-shadow:6px 6px 0 #20201dcc;padding:16px 18px;margin:14px 0;text-decoration:none;color:var(--ink)}.post .muted{display:block;font:400 13px 'IBM Plex Mono',monospace;margin-bottom:6px}.post b{display:block;font:500 22px/1.2 Newsreader,Georgia,serif}.post .blurb{display:block;font-size:16px;line-height:1.45;color:var(--muted);margin-top:6px}.post .more{display:inline-block;margin-top:10px;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:3px}.post:hover b{text-decoration:underline;text-decoration-color:var(--gold)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;color:var(--ink);background:var(--card)}
@@ -1564,6 +1567,8 @@ def home():
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
             note = "The kind of thing the fund buys: things several businesses use together."
         body += f"<p class='muted how'>{note}</p>"
+        body += (f"<a class='btn own' href='/apply/{esc(HOME_POOL)}?propose=1'>Propose your own</a>"
+                 "<p class='muted how'>Anything several businesses would use together. Register your business first; the proposal form is on the page after.</p>")
         body += commonsmap.twin_section()
         body += "<h2>How it works</h2>" + _steps_strip(b["stage"], bool(kids))
         body += "<h2>Timeline</h2>" + _timeline()
