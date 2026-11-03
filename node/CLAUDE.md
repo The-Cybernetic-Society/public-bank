@@ -80,7 +80,11 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `social-welfare`: the 3 Nov 2026 meeting with
   Subhash Phal Dessai (Social Welfare, Drinking Water, Disabilities, River Navigation): the Goa AI Policy 2026 (22 Oct,
   hackathon with 100 problem statements from 35 departments, IT-owned), the twin as it stands, Sanguem's card, his 66
-  schemes in the catalogue, three bounded 90-day pilots, and the ask (one problem, one contact, one dataset).
+  schemes in the catalogue, three bounded 90-day pilots, and the ask (one problem, one contact, one dataset). `three-asks`: the same meeting, built around the
+  live North Goa round (₹5 lakh, 7 businesses, 6 proposals, first round 2 Dec) with a gold "For you" line on every slide,
+  the blog post's governments and studies as a table and cards, and three escalating asks: match ₹5 lakh for South Goa
+  (Sanguem), one departmental problem on the twin in 90 days, one per cent of one scheme line voted by its beneficiaries
+  under the AI Policy 2026.
 - `publicbank/schemes.py` + `publicbank/places.py` — the digital twin of Goa's local bodies (added 2 Nov). `schemes.py` imports
   the "Goa schemes — first pass" workbook (`../../NOTES/digital-twin/Goa_schemes_first_pass.xlsx`, outside git; machine-read
   from goa.gov.in PDFs + the GIPARD handbook + the 2026-27 Demands for Grants, unverified by any department) into

@@ -282,6 +282,7 @@ assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thous
 r = anon.get("/notes/what-is-a-digital-twin"); assert r.status_code == 200 and "Porto Alegre" in r.text and "Varanasi" in r.text and "World Development" in r.text and "href='/twin'" in r.text
 # a hosted deck is the file itself: standalone, noindex, no wrapping; unknown or odd slugs 404
 r = anon.get("/deck/social-welfare"); assert r.status_code == 200 and r.text.startswith("<!doctype html>") and "noindex" in r.text and "35 government departments" in r.text and "taluka-sanguem" in r.text and "class=brand" in r.text
+r = anon.get("/deck/three-asks"); assert r.status_code == 200 and r.text.count("class=you") == 8 and "Ask one" in r.text and "Porto Alegre" in r.text
 assert anon.get("/deck/nope").status_code == 404 and anon.get("/deck/..%2Fnotes%2Fwhat-is-a-digital-twin").status_code == 404
 print("APPLY OK · notes")
 
