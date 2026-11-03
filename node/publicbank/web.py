@@ -780,6 +780,68 @@ def _notify_treasurers(pool_id: str, text: str) -> None:
             pass
 
 
+# "Write to us" on cyberneticsociety.com: a small form in a modal posts here and the message lands on Telegram, with
+# the people listed in PB_CONTACT_TELEGRAM (numeric chat ids, comma-separated) or, when that is unset, the treasurers of
+# the default pool. Cross-origin by design (the front page is a static site elsewhere), so the route answers the
+# preflight and allows any origin: nothing is read back but {"ok": true}. A honeypot field, a minimum time on the form
+# and a per-address limit keep the bots out; a failed Telegram send still answers ok, the text is in the log.
+_CONTACT_SEEN: dict[str, list[float]] = {}
+_CONTACT_CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS",
+                 "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400"}
+CONTACT_WANTS = {"round": "run one round in one place", "twin": "ask the twin one question", "line": "one rupee in a hundred",
+                 "other": "something else"}
+
+
+def _contact_targets() -> list[int]:
+    ids = os.environ.get("PB_CONTACT_TELEGRAM", "")
+    if ids.strip():
+        return [int(x) for x in ids.split(",") if x.strip().lstrip("-").isdigit()]
+    pool = ALIASES.get("goa")
+    if not pool:
+        return []
+    return [r["telegram_id"] for r in db.rows(con.execute("SELECT m.telegram_id FROM members m JOIN memberships ms ON ms.member_id=m.id WHERE ms.node_id=? AND ms.role='treasurer' AND ms.status='active' AND m.telegram_id IS NOT NULL", (pool,)).fetchall())]
+
+
+@app.options("/contact")
+def contact_preflight():
+    return JSONResponse({}, headers=_CONTACT_CORS)
+
+
+@app.post("/contact")
+async def contact(request: Request):
+    import logging, time
+    log = logging.getLogger("publicbank")
+    ct = request.headers.get("content-type", "")
+    data = await request.json() if "json" in ct else dict(await request.form())
+    f = {k: str(data.get(k, "")).strip()[:1500] for k in ("name", "org", "place", "want", "contact", "message", "website", "t")}
+    ip = (request.headers.get("x-forwarded-for", "") or (request.client.host if request.client else "")).split(",")[0].strip()
+    now = time.time()
+    seen = _CONTACT_SEEN.setdefault(ip, [])
+    seen[:] = [x for x in seen if now - x < 3600]
+    if f["website"] or (f["t"].isdigit() and int(f["t"]) < 3000):
+        return JSONResponse({"ok": True}, headers=_CONTACT_CORS)      # a bot: say yes, send nothing
+    if len(seen) >= 5:
+        return JSONResponse({"ok": False, "error": "too many messages from this address this hour"}, status_code=429, headers=_CONTACT_CORS)
+    if len(f["name"]) < 2 or len(f["contact"]) < 5 or len(f["message"]) < 10:
+        return JSONResponse({"ok": False, "error": "name, a way to reach you, and a few words are needed"}, status_code=400, headers=_CONTACT_CORS)
+    seen.append(now)
+    want = CONTACT_WANTS.get(f["want"], f["want"] or "unsaid")
+    text = (f"Write to us, cyberneticsociety.com\n\nFrom: {f['name']}" + (f", {f['org']}" if f["org"] else "") +
+            (f"\nPlace: {f['place']}" if f["place"] else "") + f"\nWants: {want}\nReach: {f['contact']}\n\n{f['message']}")
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN")
+    targets = _contact_targets()
+    sent = 0
+    for chat_id in targets if tok else []:
+        try:
+            r = httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": chat_id, "text": text}, timeout=8)
+            sent += 1 if r.status_code == 200 else 0
+        except Exception:
+            pass
+    if not sent:
+        log.warning("contact form not delivered (token %s, %d targets): %s", "set" if tok else "unset", len(targets), text.replace("\n", " | "))
+    return JSONResponse({"ok": True}, headers=_CONTACT_CORS)
+
+
 def _send_all(node_id: str, tg_text: str, wa_text: str) -> None:
     tok = os.environ.get("TELEGRAM_BOT_TOKEN")
     if tok:
