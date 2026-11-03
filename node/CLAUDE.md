@@ -228,6 +228,7 @@ gcloud run jobs execute publicbank-seed --region=asia-southeast1 --wait
 gcloud logging read 'resource.type=cloud_run_job AND resource.labels.job_name=publicbank-seed' --limit=30 --format='value(textPayload)' --freshness=10m
 ```
 
+Deployed 3 Nov 2026 (later): revision publicbank-00039 (no caption under the board; the slide 3 screenshot with all six proposals; seed job repointed to the 00039 image).
 Deployed 3 Nov 2026: revision publicbank-00038 (the two decks at /deck/social-welfare and /deck/three-asks with /deck/assets; the Propose your own button into registration; the board showing every proposal in the round, unled AI drafts last; seed job repointed to the 00038 image; 00037 was an intermediate deploy of the same morning).
 Deployed 2 Nov 2026: revision publicbank-00036 (no home auto-refresh and a server-side map viewBox so the page no longer jumps; the twin section cut to two paragraphs with a Learn more to the new /notes/what-is-a-digital-twin post; the Timeline rail in place of Where the money stands; "Local businesses vote"; seed job repointed to the 00036 image; federation + WhatsApp adapter + /pay hand-off + reconnecting shim +
 the /apply front door in the site's look, /privacy, /apply/goa alias, country selector, matching off, onboarding flow, trade-off sliders, majority ratification, verified-only voting, vendor payees,
