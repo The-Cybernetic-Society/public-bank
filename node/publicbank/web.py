@@ -1567,10 +1567,15 @@ def deck_asset(name: str):
         return Response(f.read(), media_type={"png": "image/png", "jpg": "image/jpeg", "svg": "image/svg+xml"}[name.rsplit(".", 1)[1]], headers={"Cache-Control": "public, max-age=3600"})
 
 
+DECK_MOVED = {"three-asks": "goa"}   # old public slugs: the full ministers' deck now lives at an unlisted slug, the public one has no asks slide
+
+
 @app.get("/deck/{slug}")
 def deck(slug: str):
     """A presentation hosted on the site: a standalone page in publicbank/decks/ with its own CSS and keyboard nav
     (arrows, space, scroll-snap), noindex. Nothing is wrapped, so the file is the whole page."""
+    if slug in DECK_MOVED:
+        return RedirectResponse("/deck/" + DECK_MOVED[slug], status_code=302)
     path = os.path.join(DECKS_DIR, slug + ".html")
     if not re.fullmatch(r"[a-z0-9-]+", slug) or not os.path.exists(path):
         raise HTTPException(404)
