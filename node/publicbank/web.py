@@ -782,6 +782,14 @@ def _announce(node_id: str, step: str) -> None:
     threading.Thread(target=_send_all, args=(node_id, tg_text, wa_text), daemon=True).start()
 
 
+def _business_notice(lead: str, pool: dict, a: dict) -> str:
+    """The treasurers' note about one registered business: who, where, what it needs."""
+    pl = places.get(a["place_id"]) if a.get("place_id") else None
+    return (f"{lead} {pool['name']}: {a['business']} — {a['applicant']} ({a['role']}), team of {a['team_size']}, {a['about']}"
+            + (f", at {a['address']}" if a.get("address") else "") + (f" ({pl['name']})" if pl else "") + ".\n"
+            f"Needs help with: {a['challenge']}.\nWould buy or run together: {a['need']}")
+
+
 def _notify_treasurers(pool_id: str, text: str, open_path: str = "", label: str = "Open") -> None:
     """A Telegram message to each treasurer of the pool who has linked Telegram. Sent inside the request (Cloud Run
     gives threads no CPU afterwards) and never allowed to fail the request. `open_path` adds a link to that page on
@@ -1204,10 +1212,7 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
         return _apply_form(pool, v, "Check the business name and your name.", path=pool_id)
     if a["status"] == "new":
         m = core.enter_from_application(con, a["id"])
-        _notify_treasurers(pool["id"], (f"New business on {pool['name']}: {a['business']} — {a['applicant']} ({a['role']}), team of {a['team_size']}, {a['about']}"
-                                        + (f", at {a['address']}" if a.get("address") else "") + (f" ({pl['name']})" if pl else "") + ".\n"
-                                        f"Needs help with: {a['challenge']}.\nWould buy or run together: {a['need']}"),
-                           open_path=f"/c/{pool['id']}", label="Verify")
+        _notify_treasurers(pool["id"], _business_notice("New business on", pool, a), open_path=f"/c/{pool['id']}", label="Verify")
         return _set_session(RedirectResponse(f"/start/{a['node_id']}/values", status_code=303), m["id"])
     # the same number again, after already joining: back into that business's flow if this browser runs it
     m = _member(request)

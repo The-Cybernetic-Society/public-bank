@@ -79,6 +79,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   says to send the bot /me (Telegram) or STATUS (WhatsApp) and open the link, not a JSON blob (3 Nov). The new-business
   Telegram notice to treasurers carries a per-treasurer login link (`_notify_treasurers(..., open_path, label)`, "Verify:
   /l/<tok>?next=/c/<pool>"): Telegram's in-app browser has no cookie, so a bare /c/ link only ever showed the 401.
+  `python -m publicbank.notify --resend-unverified <pool>` re-sends that notice (lead "Not yet verified on") for every
+  business whose application is not `verified`, each with a fresh login link; on prod through the seed job, which must be
+  given TELEGRAM_BOT_TOKEN for the run (the job's own env has only DATABASE_URL and PB_BASE_URL).
 - `publicbank/decks/*.html` — presentations hosted on the site at `/deck/<slug>` (3 Nov): each file is the whole page
   (own CSS in the site's look, scroll-snap slides, arrow/space/Home/End keys, a slide counter, noindex, print one slide per
   page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `/deck/assets/<name>.png|jpg|svg` serves `publicbank/decks/assets/` (board-3nov.png: the live board on 3 Nov). The three-asks deck's world map is an inline SVG built from Natural Earth 110m (public domain) by a throwaway script: equirectangular, lat 85 to −58, countries that voted on a budget in gold, twin countries in grey, dots and labels per place. `social-welfare`: the 3 Nov 2026 meeting with

@@ -55,6 +55,10 @@ ltok = _re.search(r"Verify: http://[^/]+/l/([A-Za-z0-9_-]+)\?next=/c/commons", t
 tc = client(); rl = tc.get(f"/l/{ltok}?next=/c/commons"); assert rl.status_code == 200 and "Continue" in rl.text
 rl = tc.post(f"/l/{ltok}", data={"next": "/c/commons"}); assert rl.status_code == 303 and rl.headers["location"] == "/c/commons" and tc.cookies.get("pb")
 assert tc.get("/c/commons").status_code == 200 and "Mandrem Tailors" in tc.get("/c/commons").text
+# the resend: one fresh notice per business nobody has verified yet, each through a new login link
+from publicbank import notify  # noqa: E402
+n0 = len(tg_sent); names = notify.resend_unverified(con, "commons")
+assert names == ["Mandrem Tailors"] and len(tg_sent) == n0 + 1 and tg_sent[-1][1]["text"].startswith("Not yet verified on") and "/l/" in tg_sent[-1][1]["text"] and "next=/c/commons" in tg_sent[-1][1]["text"], tg_sent[-1]
 # without the cookie, a signed-in page is a sign-in page (HTML, 401), not a JSON blob
 rn = client().get("/c/commons"); assert rn.status_code == 401 and "Sign in first" in rn.text and "<code>/me</code>" in rn.text and rn.headers["content-type"].startswith("text/html"), rn.text[:200]
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
