@@ -75,6 +75,12 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   after every charter acceptance (web and WhatsApp) and every recorded need, and from the "Draft proposals from needs"
   button on `/c/<pool>`. The onboarding page itself asks `POST /start/<node>/draft` while its need is open: Cloud Run
   gives a background thread no CPU after the response, so the request is where drafting actually happens on prod.
+- `publicbank/decks/*.html` — presentations hosted on the site at `/deck/<slug>` (3 Nov): each file is the whole page
+  (own CSS in the site's look, scroll-snap slides, arrow/space/Home/End keys, a slide counter, noindex, print one slide per
+  page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `social-welfare`: the 3 Nov 2026 meeting with
+  Subhash Phal Dessai (Social Welfare, Drinking Water, Disabilities, River Navigation): the Goa AI Policy 2026 (22 Oct,
+  hackathon with 100 problem statements from 35 departments, IT-owned), the twin as it stands, Sanguem's card, his 66
+  schemes in the catalogue, three bounded 90-day pilots, and the ask (one problem, one contact, one dataset).
 - `publicbank/schemes.py` + `publicbank/places.py` — the digital twin of Goa's local bodies (added 2 Nov). `schemes.py` imports
   the "Goa schemes — first pass" workbook (`../../NOTES/digital-twin/Goa_schemes_first_pass.xlsx`, outside git; machine-read
   from goa.gov.in PDFs + the GIPARD handbook + the 2026-27 Demands for Grants, unverified by any department) into

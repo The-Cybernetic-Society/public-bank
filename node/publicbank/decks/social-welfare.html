@@ -1,0 +1,151 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>A digital twin for Social Welfare · The Cybernetic Society</title>
+<meta name=robots content="noindex"><link rel=icon type=image/svg+xml href=/favicon.svg>
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Silkscreen&display=swap">
+<style>
+:root{--paper:#f3e9d6;--card:#fbf6e9;--ink:#20201d;--text:#534e41;--muted:#7a7465;--gold:#d9a33d;--line:#20201d33;--shadow:#20201d59}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--text);font:300 22px/1.5 Newsreader,Georgia,serif}
+section{min-height:100vh;min-height:100svh;box-sizing:border-box;scroll-snap-align:start;padding:56px 7vw 72px;display:flex;flex-direction:column;justify-content:center;max-width:1100px;margin:0 auto;position:relative}
+.brand{font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--ink);margin:0 0 18px}.brand a{text-decoration:none;color:inherit}
+h1{font:400 clamp(40px,6.2vw,76px)/1.02 Newsreader,Georgia,serif;letter-spacing:-.025em;color:var(--ink);margin:0 0 22px}
+h2{font:400 clamp(32px,4.4vw,54px)/1.06 Newsreader,Georgia,serif;letter-spacing:-.02em;color:var(--ink);margin:0 0 22px}
+p{margin:10px 0;max-width:760px}b,strong{font-weight:500;color:var(--ink)}a{color:var(--ink)}
+.lead{font-size:clamp(22px,2.4vw,28px);color:var(--ink)}
+.k{font:400 11px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:7px 10px;border-radius:8px;display:inline-block;align-self:flex-start;margin-bottom:18px}
+.muted{color:var(--muted);font-size:17px}
+ul{padding-left:24px;margin:12px 0;max-width:800px}li{margin:10px 0}li::marker{color:var(--gold)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:20px 0 6px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:3px;box-shadow:6px 6px 0 #20201dcc;padding:18px 20px;font-size:19px}
+.card b{display:block;font-size:22px;margin-bottom:6px}.card p{margin:6px 0;font-size:18px}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 18px;margin:18px 0}
+.facts div{font:400 14px 'IBM Plex Mono',monospace;color:var(--muted)}.facts b{display:block;font:500 30px 'IBM Plex Mono',monospace;color:var(--ink)}
+.big{font:500 clamp(56px,9vw,120px)/1 'IBM Plex Mono',monospace;color:var(--ink);letter-spacing:-.03em;margin:8px 0 2px}
+table{border-collapse:collapse;font:400 16px/1.45 'IBM Plex Mono',monospace;color:var(--ink);margin:14px 0;max-width:860px;width:100%}td,th{padding:10px 8px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{font-weight:500;color:var(--muted)}
+.n{position:absolute;right:7vw;bottom:28px;font:400 12px 'IBM Plex Mono',monospace;color:var(--muted)}
+.hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:8px 12px;border-radius:8px;opacity:.9}
+ol.tl{list-style:none;padding:0;margin:18px 0;max-width:760px}ol.tl li{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:10px 0;border-top:1px solid var(--line)}ol.tl time{font:500 15px 'IBM Plex Mono',monospace;color:var(--ink);padding-top:5px}
+.btn{display:inline-block;font:400 12px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:15px 22px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;margin:14px 12px 0 0}
+@media(max-width:600px){table,tbody,tr,td{display:block}thead{display:none}tr{border-top:1px solid var(--line);padding:10px 0}td{border:0;padding:3px 0;font:300 18px/1.45 Newsreader,Georgia,serif;color:var(--text)}td b{font-size:20px}section{padding:40px 16px 64px}body{font-size:19px}.facts b{font-size:24px}ol.tl li{grid-template-columns:1fr}.hint{display:none}.n{right:16px}}
+@media print{html{scroll-snap-type:none}section{min-height:auto;page-break-after:always;padding:40px}.hint{display:none}}
+</style></head><body>
+
+<section id=s1>
+<p class=brand><a href='/'>The Cybernetic Society</a></p>
+<h1>A digital twin for Goa's social welfare</h1>
+<p class=lead>Something already running in Goa, and one bounded pilot it could do for your department.</p>
+<p class=muted>For Shri Subhash Phal Dessai, Minister for Social Welfare, Drinking Water, Empowerment of Persons with Disabilities and River Navigation · 3 November 2026 · <a href='https://goa.cyberneticsutra.com'>goa.cyberneticsutra.com</a></p>
+<span class=n>1 / 9</span></section>
+
+<section id=s2>
+<span class=k>Where Goa is</span>
+<h2>Goa decided to do this two weeks ago.</h2>
+<ul>
+<li><b>Goa AI Policy 2026</b> was released on 22 October at the Goa AI Tech Conclave by the Chief Minister and the IT Minister. A three-year framework, 2026 to 2029, covering every department, board, corporation and local body.</li>
+<li>With it came the <b>Goa AI Hackathon</b>: <b>100 problem statements from 35 government departments</b>, to be solved in phases with the Department of IT.</li>
+<li>An AI Centre of Excellence with BITS Pilani Goa, and an innovation fund reported at ₹250 crore.</li>
+</ul>
+<p class=lead>The policy belongs to the IT Department. The problems belong to departments like yours.</p>
+<span class=n>2 / 9</span></section>
+
+<section id=s3>
+<span class=k>What already exists</span>
+<h2>A working twin of every local body in Goa. Live, not a proposal.</h2>
+<div class=facts>
+<div><b>203</b>local bodies: 189 village panchayats, 14 towns</div>
+<div><b>770</b>government schemes, read against each one</div>
+<div><b>212</b>Goa Online services tied to those schemes</div>
+<div><b>1</b>shared budget, voted on by local businesses</div>
+</div>
+<p>Each place carries its Census figures, its programmes, and a verdict on every scheme: <b>eligible</b>, <b>plausible</b>, or <b>unlikely</b>, with the reason and the next step. A separate side lets registered businesses put proposals on a public board, vote, and have a shared fund pay the vendor directly, every rupee on a public record.</p>
+<p class=muted>Built and run by The Cybernetic Society. Schemes machine-read from goa.gov.in and the GIPARD handbook; not yet verified by any department.</p>
+<span class=n>3 / 9</span></section>
+
+<section id=s4>
+<span class=k>Your constituency, in the twin today</span>
+<h2>Sanguem</h2>
+<div class=facts>
+<div><b>7 + 1</b>village panchayats, municipal council</div>
+<div><b>9,041</b>households</div>
+<div><b>38,873</b>people</div>
+<div><b>74%</b>literacy</div>
+<div><b>24%</b>Scheduled Tribes</div>
+<div><b>3,741</b>in agriculture</div>
+<div><b>8</b>dairy societies</div>
+<div><b>706</b>of 770 schemes eligible somewhere here</div>
+</div>
+<p>Open any of its eight bodies and the twin lists which schemes the panchayat can apply for, which groups can, and which households can, with the step that opens the most. <a href='/twin/taluka-sanguem'>goa.cyberneticsutra.com/twin/taluka-sanguem</a></p>
+<p class=muted>Figures: Census 2011, village totals mapped to each body. A question mark on the page is a figure we do not hold yet. That gap is the point of the next slides.</p>
+<span class=n>4 / 9</span></section>
+
+<section id=s5>
+<span class=k>Your departments, in the twin today</span>
+<h2>66 of the 770 schemes are yours.</h2>
+<div class=cards>
+<div class=card><b>39 · Social Welfare</b><p>Dayanand Social Security Scheme, Kanya Dhan, Mukhyamantri Sahayata Nidhi, Varishta Nagrik Kalyan, assistance to Self Help Groups, Atal Asra, housing for SC, ST and OBC families, scholarships and coaching.</p></div>
+<div class=card><b>27 · Persons with Disabilities</b><p>Divyang Rath, Divya Niwaas, Divyang Kaushal, Divyang Bandhan, scholarships and stipends, day-care centres, accessible libraries, high-support needs.</p></div>
+<div class=card><b>Drinking Water</b><p>Not in the twin yet. The Census holds household water sources per village; PWD and the Jal Jeevan Mission hold coverage. Putting them in is a week's work with the data.</p></div>
+</div>
+<p class=muted>Every one of these was read by a machine from a PDF. Nobody in your department has yet told us which readings are wrong. That is the cheapest thing a pilot fixes first.</p>
+<span class=n>5 / 9</span></section>
+
+<section id=s6>
+<span class=k>What a twin is for</span>
+<h2>Try the decision on the model before spending on the real thing.</h2>
+<p>A twin is a model of a place that a government can run questions against. Singapore, Helsinki and Varanasi run city twins for exactly this; Kerala, Pune and Porto Alegre pair budgets with public votes. Questions your department could put to a Goa twin:</p>
+<ul>
+<li>Which panchayats have the most households that look eligible for <b>Dayanand Social Security</b> but are not drawing it?</li>
+<li>Where is the nearest <b>day-care centre or physiotherapy centre</b> for persons with disabilities more than an hour away, and what would one more cost?</li>
+<li>Where does <b>drinking-water coverage</b> lag household growth since the last Census?</li>
+</ul>
+<p class=muted>Our write-up of the real twins and participatory budgets, with sources: <a href='/notes/what-is-a-digital-twin'>What is a digital twin, and why pair it with a shared budget?</a></p>
+<span class=n>6 / 9</span></section>
+
+<section id=s7>
+<span class=k>Three bounded pilots</span>
+<h2>One dataset, one contact, ninety days, one measured outcome.</h2>
+<table>
+<thead><tr><th>Pilot</th><th>What the department gives</th><th>What comes back</th></tr></thead>
+<tr><td><b>Coverage gaps</b><br>Social Welfare</td><td>Beneficiary counts per village for two or three schemes, starting with Dayanand Social Security</td><td>A map of where eligible households outnumber beneficiaries, ranked; a camp plan for the top ten</td></tr>
+<tr><td><b>Access map</b><br>Persons with Disabilities</td><td>The list of centres, NGOs and services the department funds, with their locations</td><td>Travel-time coverage per panchayat; where one more centre reaches the most people</td></tr>
+<tr><td><b>Service gaps</b><br>Drinking Water</td><td>Connection or coverage figures per village from PWD or the Jal Jeevan Mission</td><td>Coverage against household growth; the villages to check first</td></tr>
+</table>
+<p class=muted>Each runs on the twin that already exists. Nothing is bought. The outcome is a number the department agrees to in advance.</p>
+<span class=n>7 / 9</span></section>
+
+<section id=s8>
+<span class=k>How it fits the policy</span>
+<h2>Your department brings the problem. The IT Department keeps the policy.</h2>
+<div class=cards>
+<div class=card><b>Social Welfare</b><p>The problem statement, the data, a named contact, and the field staff who know which readings are wrong.</p></div>
+<div class=card><b>Department of IT</b><p>Integration and compliance under the AI Policy 2026; the pilot can be filed as one of the hackathon's problem statements.</p></div>
+<div class=card><b>The Cybernetic Society</b><p>The twin, the modelling, the public record, and the write-up at the end, open for anyone to check.</p></div>
+</div>
+<span class=n>8 / 9</span></section>
+
+<section id=s9>
+<span class=k>What we are asking for today</span>
+<h2>One problem. One contact. One dataset.</h2>
+<ol class=tl>
+<li><time>Today</time><span>Agree which of the three problems hurts most: finding eligible beneficiaries, processing, coordinating field services, or measuring outcomes.</span></li>
+<li><time>This month</time><span>A named officer and the data the department already uses; we show the first map within two weeks of receiving it.</span></li>
+<li><time>90 days</time><span>The pilot's outcome, measured against the number agreed at the start, on a public page.</span></li>
+</ol>
+<p><a class=btn href='/twin'>The twin</a><a class=btn href='/'>The Commons</a><a class=btn href='/notes/what-is-a-digital-twin'>Digital twins, plainly</a></p>
+<p class=muted>The Cybernetic Society · goa.cyberneticsutra.com · rohan@getlief.com</p>
+<span class=n>9 / 9</span></section>
+
+<div class=hint>← → or space to move</div>
+<script>
+(function(){var s=[].slice.call(document.querySelectorAll('section')),cur=0,lock=0;
+function at(){var y=window.scrollY+innerHeight/2;for(var i=s.length-1;i>=0;i--)if(s[i].offsetTop<=y)return i;return 0}
+function go(i){if(i<0||i>=s.length)return;cur=i;lock=Date.now();s[i].scrollIntoView()}
+addEventListener('scroll',function(){if(Date.now()-lock>700)cur=at()},{passive:true});
+addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;
+if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+else if(e.key==='Home'){go(0)}else if(e.key==='End'){go(s.length-1)}});
+})();
+</script>
+</body></html>

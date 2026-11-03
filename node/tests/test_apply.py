@@ -280,6 +280,9 @@ print("APPLY OK · login link two-step · treasurer told · /me folded")
 r = anon.get("/notes/simulating-a-thousand-businesses"); assert r.status_code == 200 and "Method of Equal Shares" in r.text and "equalshares.net" in r.text
 assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thousand-businesses" in anon.get("/").text
 r = anon.get("/notes/what-is-a-digital-twin"); assert r.status_code == 200 and "Porto Alegre" in r.text and "Varanasi" in r.text and "World Development" in r.text and "href='/twin'" in r.text
+# a hosted deck is the file itself: standalone, noindex, no wrapping; unknown or odd slugs 404
+r = anon.get("/deck/social-welfare"); assert r.status_code == 200 and r.text.startswith("<!doctype html>") and "noindex" in r.text and "35 government departments" in r.text and "taluka-sanguem" in r.text and "class=brand" in r.text
+assert anon.get("/deck/nope").status_code == 404 and anon.get("/deck/..%2Fnotes%2Fwhat-is-a-digital-twin").status_code == 404
 print("APPLY OK · notes")
 
 # removing one business from the pool leaves the rest, strips its backing, anonymises its owner

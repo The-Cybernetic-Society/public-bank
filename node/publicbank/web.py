@@ -1465,6 +1465,20 @@ def note(slug: str):
     return HTMLResponse(html.replace("</style>", "body{max-width:760px}h2{margin-top:34px}h3{font:500 20px/1.2 Newsreader,Georgia,serif;margin:24px 0 6px;color:var(--ink)}ul.sources li{font-size:15px;margin:5px 0;color:var(--muted)}p.lead{font-size:21px;line-height:1.5;color:var(--ink)}ul{padding-left:22px}li{margin:8px 0}table{margin:12px 0}.chart{margin:18px 0 26px}.chart svg{width:100%;height:auto;display:block}.chart figcaption,.shot figcaption{font:500 15px/1.4 Newsreader,Georgia,serif;color:var(--ink);margin-bottom:8px}.chart .val{font:500 13px 'IBM Plex Mono',monospace;fill:var(--ink)}.chart .cat{font:400 13px 'IBM Plex Mono',monospace;fill:var(--muted)}.chart .axis{stroke:var(--line);stroke-width:1}.legend{font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin:0 0 6px}.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}.shot{margin:18px 0 26px}.shot .card{margin:10px 0}.btnlike{display:inline-block;font:400 10px/1 Silkscreen,'IBM Plex Mono',monospace;text-transform:uppercase;border:2px solid var(--ink);border-radius:10px;padding:8px 12px;margin:0 8px 0 0;background:var(--card);box-shadow:3px 3px 0 var(--shadow)}</style>", 1))
 
 
+DECKS_DIR = os.path.join(os.path.dirname(__file__), "decks")
+
+
+@app.get("/deck/{slug}")
+def deck(slug: str):
+    """A presentation hosted on the site: a standalone page in publicbank/decks/ with its own CSS and keyboard nav
+    (arrows, space, scroll-snap), noindex. Nothing is wrapped, so the file is the whole page."""
+    path = os.path.join(DECKS_DIR, slug + ".html")
+    if not re.fullmatch(r"[a-z0-9-]+", slug) or not os.path.exists(path):
+        raise HTTPException(404)
+    with open(path, encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+
 STEPS = [   # the round as a drawn sequence; which step is lit comes from the live round
     ("register", "Register", "M4 3h16v18H4z M8 8h8 M8 12h8 M8 16h5"),
     ("need", "Say what you need", "M4 5h16v10H9l-4 4v-4H4z"),
