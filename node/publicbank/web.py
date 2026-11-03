@@ -1565,6 +1565,7 @@ def home():
             backed = [p for p in props if p["source"] != "twin" or p.get("lead_id")]
             spare = [p for p in props if p not in backed]
             props = backed + spare
+        # no caption under the board: the Propose your own button follows the proposals directly (3 Nov)
         body += "<h2 class=first>Funding proposals</h2>"
         if props:
             names = {k["id"]: k["name"] for k in kids}
@@ -1585,13 +1586,9 @@ def home():
             body += ("<ol class=board>" + rows_html + "</ol>"
                      "<script>(function(){document.querySelectorAll('.board .row-main').forEach(function(d){function go(){var li=d.closest('li'),o=li.classList.toggle('open');d.setAttribute('aria-expanded',o?'true':'false')}"
                      "d.addEventListener('click',function(e){if(e.target.closest('a'))return;go()});d.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})})()</script>")
-            note = (f"{len(backed)} proposal{'s' if len(backed) != 1 else ''} businesses have put forward or lead, most backed first" + (f", then {len(spare)} the AI twin drafted from their needs that nobody leads yet" if spare else "")
-                    + ". Tap one to read it; the number is how many businesses back it, and tapping that adds yours.")
         else:
             body += "<ol class='board sample'>" + "".join(f"<li><span class=n>{i}</span><div><b>{t}</b><span class=muted>about {r}</span></div></li>" for i, (t, r) in enumerate(
                 [("A delivery scooter shared along a lane", "₹50,000"), ("One billing licence for several shops", "₹15,000"), ("A two-day trainer for counter staff", "₹20,000")], 1)) + "</ol>"
-            note = "The kind of thing the fund buys: things several businesses use together."
-        body += f"<p class='muted how'>{note}</p>"
         body += (f"<a class='btn own' href='/apply/{esc(HOME_POOL)}?propose=1'>Propose your own</a>"
                  "<p class='muted how'>Anything several businesses would use together. Register your business first; the proposal form is on the page after.</p>")
         body += commonsmap.twin_section()
