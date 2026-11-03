@@ -309,6 +309,11 @@ assert "class=came" not in anon.get("/apply/commons").text
 assert web._timeline(web.LAUNCH).count("<li class='now'>") == 1 and web._timeline(web.LAUNCH + web._timedelta(days=400)).count("class='done'") == 3
 assert "class=primary" in r.text
 assert "class=thumb" in r.text and "href='/apply/commons?for=" in r.text   # the thumb count on each proposal leads into registering
+# every proposal in the round is on the board, unled twin drafts included and last, so the board matches the fund bar's count
+cr = core.current_round(con, "commons")
+d1 = core.add_twin_draft(con, cr["id"], title="Unled draft alpha", text="x", ideal_paise=1000 * 100); d2 = core.add_twin_draft(con, cr["id"], title="Unled draft beta", text="y", ideal_paise=1000 * 100)
+r = anon.get("/"); assert "Unled draft alpha" in r.text and "Unled draft beta" in r.text and re.search(r"then \d+ the AI twin drafted", r.text) and r.text.index("class=thumb") < r.text.index("Unled draft alpha")
+n_board = r.text.count("<li><span class=n>"); n_round = len(db.rows(con.execute("SELECT 1 FROM proposals WHERE round_id=? AND status IN ('eligible','draft')", (cr["id"],)).fetchall())); assert n_board == n_round, (n_board, n_round)
 b = web._budget(core.get_node(con, "commons"), core.current_round(con, "commons"))
 assert b["pot"] == core.spendable_budget(con, core.current_round(con, "commons")) and b["paid"] == 0 and b["approved"] == 0 and b["asked"] > 0 and b["remaining"] == b["pot"] and b["proposals"] >= 3, b
 print("APPLY OK · home page")
