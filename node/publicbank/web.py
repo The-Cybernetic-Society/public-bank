@@ -1468,6 +1468,17 @@ def note(slug: str):
 DECKS_DIR = os.path.join(os.path.dirname(__file__), "decks")
 
 
+@app.get("/deck/assets/{name}")
+def deck_asset(name: str):
+    """An image a deck shows (a screenshot of the board, say), from publicbank/decks/assets/."""
+    from fastapi.responses import Response
+    path = os.path.join(DECKS_DIR, "assets", name)
+    if not re.fullmatch(r"[a-z0-9-]+\.(png|jpg|svg)", name) or not os.path.exists(path):
+        raise HTTPException(404)
+    with open(path, "rb") as f:
+        return Response(f.read(), media_type={"png": "image/png", "jpg": "image/jpeg", "svg": "image/svg+xml"}[name.rsplit(".", 1)[1]], headers={"Cache-Control": "public, max-age=3600"})
+
+
 @app.get("/deck/{slug}")
 def deck(slug: str):
     """A presentation hosted on the site: a standalone page in publicbank/decks/ with its own CSS and keyboard nav

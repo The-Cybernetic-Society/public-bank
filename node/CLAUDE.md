@@ -77,7 +77,7 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   gives a background thread no CPU after the response, so the request is where drafting actually happens on prod.
 - `publicbank/decks/*.html` — presentations hosted on the site at `/deck/<slug>` (3 Nov): each file is the whole page
   (own CSS in the site's look, scroll-snap slides, arrow/space/Home/End keys, a slide counter, noindex, print one slide per
-  page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `social-welfare`: the 3 Nov 2026 meeting with
+  page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `/deck/assets/<name>.png|jpg|svg` serves `publicbank/decks/assets/` (board-3nov.png: the live board on 3 Nov). The three-asks deck's world map is an inline SVG built from Natural Earth 110m (public domain) by a throwaway script: equirectangular, lat 85 to −58, countries that voted on a budget in gold, twin countries in grey, dots and labels per place. `social-welfare`: the 3 Nov 2026 meeting with
   Subhash Phal Dessai (Social Welfare, Drinking Water, Disabilities, River Navigation): the Goa AI Policy 2026 (22 Oct,
   hackathon with 100 problem statements from 35 departments, IT-owned), the twin as it stands, Sanguem's card, his 66
   schemes in the catalogue, three bounded 90-day pilots, and the ask (one problem, one contact, one dataset). `three-asks`: the same meeting, built around the
