@@ -82,7 +82,7 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   hackathon with 100 problem statements from 35 departments, IT-owned), the twin as it stands, Sanguem's card, his 66
   schemes in the catalogue, three bounded 90-day pilots, and the ask (one problem, one contact, one dataset). `three-asks`: the same meeting, built around the
   live North Goa round (₹5 lakh, 7 businesses, 6 proposals, first round 2 Dec) with a gold "For you" line on every slide,
-  the blog post's governments and studies as a table and cards, and three escalating asks: match ₹5 lakh for South Goa
+  the blog post's governments and studies as a table and cards, and the three escalating asks on one closing slide: match ₹5 lakh for South Goa
   (Sanguem), one departmental problem on the twin in 90 days, one per cent of one scheme line voted by its beneficiaries
   under the AI Policy 2026.
 - `publicbank/schemes.py` + `publicbank/places.py` — the digital twin of Goa's local bodies (added 2 Nov). `schemes.py` imports
