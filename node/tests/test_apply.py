@@ -49,6 +49,14 @@ r = R.post("/apply/commons", data=form)
 assert r.status_code == 303 and r.headers["location"] == "/start/commons/mandrem-tailors/values", (r.status_code, r.text[:300])
 owner_id = web.signer.loads(R.cookies.get("pb"))["m"]
 assert len(tg_sent) == 1 and tg_sent[0][1]["chat_id"] == 7 and "Mandrem Tailors" in tg_sent[0][1]["text"] and "/c/commons" in tg_sent[0][1]["text"], tg_sent
+# the notice's Verify link goes through a login link for that treasurer (Telegram's browser has no cookie), and lands on /c/commons
+import re as _re
+ltok = _re.search(r"Verify: http://[^/]+/l/([A-Za-z0-9_-]+)\?next=/c/commons", tg_sent[0][1]["text"]).group(1)
+tc = client(); rl = tc.get(f"/l/{ltok}?next=/c/commons"); assert rl.status_code == 200 and "Continue" in rl.text
+rl = tc.post(f"/l/{ltok}", data={"next": "/c/commons"}); assert rl.status_code == 303 and rl.headers["location"] == "/c/commons" and tc.cookies.get("pb")
+assert tc.get("/c/commons").status_code == 200 and "Mandrem Tailors" in tc.get("/c/commons").text
+# without the cookie, a signed-in page is a sign-in page (HTML, 401), not a JSON blob
+rn = client().get("/c/commons"); assert rn.status_code == 401 and "Sign in first" in rn.text and "<code>/me</code>" in rn.text and rn.headers["content-type"].startswith("text/html"), rn.text[:200]
 apps = core.applications_of(con, "commons"); assert len(apps) == 1
 a = apps[0]
 assert a["challenge"] == "marketing, finance, Finding customers in the off season" and a["share"] == "equipment, Sewing machine evenings" and a["phone"] == "919876543210"

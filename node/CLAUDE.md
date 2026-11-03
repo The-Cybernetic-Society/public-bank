@@ -75,6 +75,10 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   after every charter acceptance (web and WhatsApp) and every recorded need, and from the "Draft proposals from needs"
   button on `/c/<pool>`. The onboarding page itself asks `POST /start/<node>/draft` while its need is open: Cloud Run
   gives a background thread no CPU after the response, so the request is where drafting actually happens on prod.
+- Signed-in pages without the cookie (`_require`) raise `NeedSignIn`, answered as an HTML "Sign in first" page (401) that
+  says to send the bot /me (Telegram) or STATUS (WhatsApp) and open the link, not a JSON blob (3 Nov). The new-business
+  Telegram notice to treasurers carries a per-treasurer login link (`_notify_treasurers(..., open_path, label)`, "Verify:
+  /l/<tok>?next=/c/<pool>"): Telegram's in-app browser has no cookie, so a bare /c/ link only ever showed the 401.
 - `publicbank/decks/*.html` — presentations hosted on the site at `/deck/<slug>` (3 Nov): each file is the whole page
   (own CSS in the site's look, scroll-snap slides, arrow/space/Home/End keys, a slide counter, noindex, print one slide per
   page); the route only checks the slug is `[a-z0-9-]+` and the file exists. `/deck/assets/<name>.png|jpg|svg` serves `publicbank/decks/assets/` (board-3nov.png: the live board on 3 Nov). The three-asks deck's world map is an inline SVG built from Natural Earth 110m (public domain) by a throwaway script: equirectangular, lat 85 to −58, countries that voted on a budget in gold, twin countries in grey, dots and labels per place. `social-welfare`: the 3 Nov 2026 meeting with

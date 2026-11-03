@@ -70,11 +70,26 @@ def _member(request: Request) -> dict | None:
     return db.row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
 
 
+class NeedSignIn(Exception):
+    """A signed-in page reached without the cookie: a phone's in-app browser, a cleared browser, a shared link."""
+
+
 def _require(request: Request) -> dict:
     m = _member(request)
     if not m:
-        raise HTTPException(401, "Sign in first.")
+        raise NeedSignIn()
     return m
+
+
+@app.exception_handler(NeedSignIn)
+def need_sign_in(request: Request, exc: NeedSignIn):
+    """A page, not a JSON blob: say how to get a sign-in link. Still a 401, so scripts and tests see the status."""
+    dest = request.url.path + (f"?{request.url.query}" if request.url.query else "")
+    html = page("Sign in first", "<p>This page is for a signed-in member, and this browser is not signed in yet.</p>"
+                                 "<p>Send the bot <code>/me</code> in Telegram (or <code>STATUS</code> on WhatsApp) and open the link it replies with: "
+                                 "it signs you in here and brings you back.</p>"
+                                 f"<p class=muted>The page you were going to: <code>{esc(dest)}</code></p>", path=dest).body.decode()
+    return HTMLResponse(html, status_code=401)
 
 
 def _back(next: str, default: str) -> str:
@@ -767,15 +782,21 @@ def _announce(node_id: str, step: str) -> None:
     threading.Thread(target=_send_all, args=(node_id, tg_text, wa_text), daemon=True).start()
 
 
-def _notify_treasurers(pool_id: str, text: str) -> None:
+def _notify_treasurers(pool_id: str, text: str, open_path: str = "", label: str = "Open") -> None:
     """A Telegram message to each treasurer of the pool who has linked Telegram. Sent inside the request (Cloud Run
-    gives threads no CPU afterwards) and never allowed to fail the request."""
+    gives threads no CPU afterwards) and never allowed to fail the request. `open_path` adds a link to that page on
+    this site, through a login link minted for that treasurer: Telegram's in-app browser carries no cookie, so a
+    bare link to a signed-in page would only show "Sign in first"."""
     tok = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not tok:
         return
-    for mem in db.rows(con.execute("SELECT m.telegram_id FROM members m JOIN memberships ms ON ms.member_id=m.id WHERE ms.node_id=? AND ms.role='treasurer' AND ms.status='active' AND m.telegram_id IS NOT NULL", (pool_id,)).fetchall()):
+    for mem in db.rows(con.execute("SELECT m.id, m.telegram_id FROM members m JOIN memberships ms ON ms.member_id=m.id WHERE ms.node_id=? AND ms.role='treasurer' AND ms.status='active' AND m.telegram_id IS NOT NULL", (pool_id,)).fetchall()):
+        msg = text
+        if open_path:
+            lt = core.mint_token(con, "login", member_id=mem["id"])
+            msg += f"\n{label}: {BASE_URL}/l/{lt}?next={urllib.parse.quote(open_path, safe='/')}"
         try:
-            httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": mem["telegram_id"], "text": text}, timeout=8)
+            httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": mem["telegram_id"], "text": msg}, timeout=8)
         except Exception:
             pass
 
@@ -1185,8 +1206,8 @@ def apply_post(pool_id: str, request: Request, business: str = Form(""), applica
         m = core.enter_from_application(con, a["id"])
         _notify_treasurers(pool["id"], (f"New business on {pool['name']}: {a['business']} — {a['applicant']} ({a['role']}), team of {a['team_size']}, {a['about']}"
                                         + (f", at {a['address']}" if a.get("address") else "") + (f" ({pl['name']})" if pl else "") + ".\n"
-                                        f"Needs help with: {a['challenge']}.\nWould buy or run together: {a['need']}\n"
-                                        f"Verify: {BASE_URL}/c/{pool['id']}"))
+                                        f"Needs help with: {a['challenge']}.\nWould buy or run together: {a['need']}"),
+                           open_path=f"/c/{pool['id']}", label="Verify")
         return _set_session(RedirectResponse(f"/start/{a['node_id']}/values", status_code=303), m["id"])
     # the same number again, after already joining: back into that business's flow if this browser runs it
     m = _member(request)
