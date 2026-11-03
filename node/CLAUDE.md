@@ -92,6 +92,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   the blog post's governments and studies as a table and cards, and the three escalating asks on one closing slide: match ₹5 lakh for South Goa
   (Sanguem), one departmental problem on the twin in 90 days, one per cent of one scheme line voted by its beneficiaries
   under the AI Policy 2026.
+  Split 3 Nov (evening): the public deck is `goa` (slides 1–6, the closing links and contact line moved onto slide 6; cyberneticsociety.com's
+  "deck for Goa's ministers" button points here); the full seven-slide deck with the asks is at the unlisted slug `three-asks-ut3sjtutsbk3` (noindex, but
+  not protected: anyone with the URL can open it); `/deck/three-asks` 302s to `/deck/goa` (`DECK_MOVED` in web.py).
 - `publicbank/schemes.py` + `publicbank/places.py` — the digital twin of Goa's local bodies (added 2 Nov). `schemes.py` imports
   the "Goa schemes — first pass" workbook (`../../NOTES/digital-twin/Goa_schemes_first_pass.xlsx`, outside git; machine-read
   from goa.gov.in PDFs + the GIPARD handbook + the 2026-27 Demands for Grants, unverified by any department) into

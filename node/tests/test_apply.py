@@ -294,7 +294,9 @@ assert anon.get("/notes/nope").status_code == 404 and "/notes/simulating-a-thous
 r = anon.get("/notes/what-is-a-digital-twin"); assert r.status_code == 200 and "Porto Alegre" in r.text and "Varanasi" in r.text and "World Development" in r.text and "href='/twin'" in r.text
 # a hosted deck is the file itself: standalone, noindex, no wrapping; unknown or odd slugs 404
 r = anon.get("/deck/social-welfare"); assert r.status_code == 200 and r.text.startswith("<!doctype html>") and "noindex" in r.text and "35 government departments" in r.text and "taluka-sanguem" in r.text and "class=brand" in r.text
-r = anon.get("/deck/three-asks"); assert r.status_code == 200 and r.text.count("class=you") == 6 and r.text.count("<section") == 7 and "Three asks" in r.text and "Porto Alegre" in r.text
+r = anon.get("/deck/goa"); assert r.status_code == 200 and r.text.count("class=you") == 5 and r.text.count("<section") == 6 and "Three asks" not in r.text and "6 / 6" in r.text and "Porto Alegre" in r.text
+r = anon.get("/deck/three-asks-ut3sjtutsbk3"); assert r.status_code == 200 and r.text.count("class=you") == 6 and r.text.count("<section") == 7 and "Three asks" in r.text
+r = anon.get("/deck/three-asks", follow_redirects=False); assert r.status_code == 302 and r.headers["location"] == "/deck/goa"
 r = anon.get("/deck/assets/board-3nov.png"); assert r.status_code == 200 and r.headers["content-type"] == "image/png" and r.content[:4] == b"\x89PNG"
 assert anon.get("/deck/assets/nope.png").status_code == 404 and anon.get("/deck/assets/..%2F..%2Fweb.py").status_code == 404
 assert anon.get("/deck/nope").status_code == 404 and anon.get("/deck/..%2Fnotes%2Fwhat-is-a-digital-twin").status_code == 404
