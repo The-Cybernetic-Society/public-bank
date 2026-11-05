@@ -108,6 +108,8 @@ async def wa_start(request: Request):
         return _err(e.code, 429, e.detail)
     via = whatsapp.send_otp(phone, code)
     out = {"ok": True, "to": _masked(phone), "via": via or "none"}
+    if via == "log" and os.environ.get("PB_OTP_DEV"):   # local development only: no Cloud API token, and asked for explicitly
+        out["code"] = code
     if whatsapp.NUMBER:
         out["wa_me"] = f"https://wa.me/{whatsapp.NUMBER}?text=LOGIN"
     return JSONResponse(out)
