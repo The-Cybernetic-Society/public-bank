@@ -83,6 +83,10 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   what a leftover should go to. CORS only for `PB_APP_ORIGINS` (the site, localhost:8031), via a middleware on `/auth/`,`/me/`.
   Names of businesses are public already (the board, the map); who backs what, who leads, your ballot and receipt are only
   here, behind the sign-in. WhatsApp: `LOGIN` replies with a sign-in link. `tests/test_app.py`.
+  Later on 5 Nov: `POST /me/profile {display, business, place}` (the business's name and place only for its coordinator; the place
+  through `places.resolve`, else `unknown_place`), the home carries `choices` (`_choices`: backed, led, proposed, ballot, ranking,
+  verdict, every `twin_answers` row with its proposal's title) and `business.values_after`, and the CORS middleware also lets the
+  site's origins read `/twin/map.json` and `/twin/<id>/card.json` (no `no-store` on those) for the app's tappable map of Goa.
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back

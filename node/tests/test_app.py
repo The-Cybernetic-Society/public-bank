@@ -148,6 +148,25 @@ r = c.post("/me/twin/ask", json={"question": "Which proposal fits my business be
 assert r.status_code == 200 and r.json()["source"] == "plain" and "₹" in r.json()["answer"] and "proposals stage" in r.json()["answer"], r.json()
 assert c.post("/me/twin/ask", json={"question": ""}, headers=H(tok)).status_code == 400
 
+# the profile: her name, the business's name and place; the choices list what she did; the map feeds answer the site's origin
+r = c.post("/me/profile", json={"display": "Rekha N.", "business": "Mandrem Tailors & Co", "place": "Mandrem"}, headers=H(tok))
+assert r.status_code == 200 and r.json()["result"]["place"] == "Mandrem" and r.json()["member"]["display"] == "Rekha N." and r.json()["business"]["name"] == "Mandrem Tailors & Co", r.text
+assert r.json()["business"]["place"] == "Mandrem"
+assert c.post("/me/profile", json={"place": "Atlantis"}, headers=H(tok)).json()["error"] == "unknown_place"
+ch = c.get("/me/home.json", headers=H(tok)).json()["choices"]
+assert [x["title"] for x in ch["led"]] == ["Shared delivery scooter for the market road"] and ch["proposed"][0]["title"] == "Shared delivery scooter for the market road"
+assert len(ch["backed"]) >= 2 and ch["answers"] and ch["answers"][0]["kind"] == "use" and ch["answers"][0]["title"]
+mp = c.get("/twin/map.json", headers=H())
+assert mp.status_code == 200 and mp.headers["access-control-allow-origin"] == ORIGIN and "no-store" not in mp.headers.get("cache-control", "")
+cd_ = c.get("/twin/torxem/card.json", headers=H())
+assert cd_.status_code == 200 and cd_.headers["access-control-allow-origin"] == ORIGIN and cd_.json()["top"]
+# a plain member of a business (not its coordinator) may rename only themselves
+staff = core.upsert_member(con, verified_by="whatsapp", wa_phone="919876599999", display="Sunil")
+core.join_node(con, a1["node_id"], staff["id"], auto_active=True)
+tks = auth.mint(staff["id"])
+assert c.post("/me/profile", json={"display": "Sunil K"}, headers=H(tks)).status_code == 200
+assert c.post("/me/profile", json={"business": "Hijacked"}, headers=H(tks)).status_code == 403
+
 # --- Joao never opened his card: the code seats him as coordinator of his business, with the form's need -----------
 r = c.post("/auth/wa/start", json={"phone": "9876500000"}, headers=H())
 assert r.json()["via"] == "template"
@@ -164,7 +183,7 @@ assert c.post("/auth/wa/verify", json={"phone": "9876500000", "code": code2b}, h
 # Joao backs Rekha's proposal: two backers, and it is on the ballot
 h2 = c.post("/me/cosign", json={"pid": pmine["id"]}, headers=H(tok2)).json()
 pj = next(p for p in h2["proposals"] if p["id"] == pmine["id"])
-assert sorted(pj["backers"]) == ["Mandrem Tailors", "Morjim Bakery"] and pj["status"] == "eligible"
+assert sorted(pj["backers"]) == ["Mandrem Tailors & Co", "Morjim Bakery"] and pj["status"] == "eligible"
 # the same co-sign twice changes nothing
 h2 = c.post("/me/cosign", json={"pid": pmine["id"]}, headers=H(tok2)).json()
 assert len(next(p for p in h2["proposals"] if p["id"] == pmine["id"])["backers"]) == 2
@@ -201,6 +220,7 @@ assert h["round"]["stage"] == "ratifying" and any(pl["winner"] for pl in h["plan
 h = c.post("/me/approve", json={"verdict": "approve"}, headers=H(tok)).json()
 assert h["my_verdict"] == "approve"
 c.post("/me/approve", json={"verdict": "approve"}, headers=H(tok2))
+assert c.post("/me/approve", json={"verdict": "approve"}, headers=H(tks)).status_code == 200   # Sunil, Mandrem's staff, approves for his business too
 core.advance(con, rnd["id"])
 h = c.get("/me/home.json", headers=H(tok)).json()
 assert h["round"]["stage"] == "ratified" and h["decision"]["verdict"] == "ratified" and h["ledger"], h.get("decision")

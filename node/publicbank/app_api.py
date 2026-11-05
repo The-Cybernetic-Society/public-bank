@@ -12,6 +12,7 @@ is readable without it. The static site keeps a bearer token (`auth.mint`) and s
                                                lead), the ballot, plans and receipt, the ledger, the businesses on
                                                the map, the twin's questions, the business's own scheme card
   POST /me/propose, /me/lead, /me/cosign, /me/ballot, /me/rank, /me/approve, /me/need, /me/values, /me/charter
+  POST /me/profile      {display, business, place} → the person's name, the business's name and place (coordinator)
   POST /me/twin/answer  {key, answer}        → an answer to one of the twin's questions
   POST /me/twin/ask     {question, history}  → the twin's answer (the model when a key is set, else plain facts)
 
@@ -34,7 +35,7 @@ from .web import ALIASES, HOME_POOL, LAUNCH, TIMELINE, _budget, _member, _resolv
 
 ORIGINS = {o.strip().rstrip("/") for o in os.environ.get(
     "PB_APP_ORIGINS", "https://cyberneticsociety.com,https://www.cyberneticsociety.com,http://localhost:8031,http://127.0.0.1:8031").split(",") if o.strip()}
-_PREFIXES = ("/auth/", "/me/")
+_PREFIXES = ("/auth/", "/me/", "/twin/")   # /twin/map.json and /twin/<id>/card.json feed the app's map of Goa
 STAGE_WORDS = {"proposals": "Ideas on the table", "ballots": "Voting", "plans": "Ranking the plans", "ratifying": "Approving the plan",
                "ratified": "Approved", "failed": "Not approved", "paid": "Paid out", "closed": "Closed"}
 NEXT_WORDS = {"proposals": "back or lead what your business would use, or add your own", "ballots": "split 100 points across the list",
@@ -64,7 +65,8 @@ async def _app_cors(request: Request, call_next):
     if allowed:
         resp.headers["Access-Control-Allow-Origin"] = origin
         resp.headers["Vary"] = "Origin"
-    resp.headers.setdefault("Cache-Control", "no-store")
+    if not path.startswith("/twin/"):
+        resp.headers.setdefault("Cache-Control", "no-store")
     return resp
 
 
@@ -246,6 +248,8 @@ def _home(m: dict, want: str | None = None) -> dict:
                 out["decision"] = {"verdict": dec["verdict"], "approvals": dec["approvals"], "rejections": dec["rejections"], "eligible": dec["eligible"]}
             out["ledger"] = [{"title": x["title"], "amount": x["amount_paise"] // 100, "status": x["status"], "reference": x["reference"]} for x in db.rows(con.execute(
                 "SELECT p.status, p.amount_paise, p.reference, pr.title FROM payouts p JOIN proposals pr ON pr.id=p.proposal_id WHERE p.round_id=? ORDER BY p.created_at", (rnd["id"],)).fetchall())]
+    out["choices"] = _choices(m, node, out)
+    out["business"]["values_after"] = (core.values_of(con, node["id"], phase="after", include_children=False) or [{"vector": None}])[-1]["vector"]
     out["questions"] = twin.questions_for(con, m, node, pool, rnd)
     try:
         card = businesses.card(con, node["id"])
@@ -253,6 +257,60 @@ def _home(m: dict, want: str | None = None) -> dict:
     except Exception:   # no catalogue on this install: the page simply shows no scheme card
         out["schemes"] = None
     return out
+
+
+def _choices(m: dict, node: dict, out: dict) -> dict:
+    """Everything this person has chosen, listed: what they backed, lead, put forward, their ballot, ranking and verdict,
+    and the answers they gave the twin. Titles come from the current round; earlier rounds show by id."""
+    props = {p["id"]: p for p in out.get("proposals", [])}
+    mine = db.rows(con.execute("SELECT id, title, status, ideal_paise, created_at FROM proposals WHERE created_by=? ORDER BY created_at DESC", (m["id"],)).fetchall())
+    answers = []
+    for r in db.rows(con.execute("SELECT kind, key, answer, created_at FROM twin_answers WHERE member_id=? ORDER BY created_at DESC", (m["id"],)).fetchall()):
+        title = props[r["key"]]["title"] if r["kind"] == "use" and r["key"] in props else None
+        if r["kind"] == "use" and not title:
+            t = db.row(con.execute("SELECT title FROM proposals WHERE id=?", (r["key"],)).fetchone())
+            title = t["title"] if t else None
+        answers.append({"kind": r["kind"], "key": r["key"], "answer": r["answer"], "title": title, "at": core._ist(r["created_at"])})
+    ballot = out.get("ballot")
+    return {"backed": [{"id": p["id"], "title": p["title"], "ideal": p["ideal"]} for p in props.values() if p["backed_by_me"]],
+            "led": [{"id": p["id"], "title": p["title"], "ideal": p["ideal"]} for p in props.values() if p["lead_is_me"]],
+            "proposed": [{"id": p["id"], "title": p["title"], "ideal": p["ideal_paise"] // 100, "status": p["status"]} for p in mine],
+            "ballot": [{"id": k, "title": props[k]["title"] if k in props else ("left unspent" if k == "_unspent" else k), "points": v} for k, v in sorted(ballot["points"].items(), key=lambda kv: -kv[1])] if ballot else [],
+            "ranking": [next((pl["name"] for pl in (out.get("plans") or {}).get("plans", []) if pl["id"] == pid), pid) for pid in ((out.get("plans") or {}).get("my_ranking") or [])],
+            "verdict": out.get("my_verdict"), "answers": answers}
+
+
+@app.post("/me/profile")
+async def me_profile(request: Request):
+    """The person's name, and, for a coordinator, the business's name and where it is (a place name, as on the form)."""
+    def go(m, d, node_id):
+        from . import places
+        node = _pick_node(m, node_id)
+        if not node:
+            raise core.PBError("not_a_member")
+        display = " ".join(str(d.get("display", "")).split())[:80]
+        with db.tx(con):
+            if display:
+                con.execute("UPDATE members SET display=? WHERE id=?", (display, m["id"]))
+        changed = {"display": bool(display)}
+        if "business" in d or "place" in d:
+            if not core.is_role(con, node["id"], m["id"], ("coordinator",)):
+                raise core.PBError("not_coordinator")
+            name = " ".join(str(d.get("business", "")).split())[:80]
+            place_text = " ".join(str(d.get("place", "")).split())[:80]
+            place = places.resolve(place_text) if place_text else None
+            if place_text and not place:
+                raise core.PBError("unknown_place", place_text)
+            with db.tx(con):
+                if name:
+                    con.execute("UPDATE nodes SET name=? WHERE id=?", (name, node["id"]))
+                    con.execute("UPDATE applications SET business=?, updated_at=? WHERE node_id=?", (name, db.now(), node["id"]))
+                if place:
+                    con.execute("UPDATE nodes SET place_id=? WHERE id=?", (place["id"], node["id"]))
+                    con.execute("UPDATE applications SET place_id=?, updated_at=? WHERE node_id=?", (place["id"], db.now(), node["id"]))
+            changed.update({"business": bool(name), "place": place["name"] if place else None})
+        return changed
+    return await _run(request, go)
 
 
 @app.get("/me/home.json")
@@ -285,6 +343,7 @@ def _round_for(m: dict, node_id: str | None) -> tuple[dict, dict, dict]:
 
 
 def _done(m: dict, node_id: str | None, extra: dict | None = None) -> JSONResponse:
+    m = db.row(con.execute("SELECT * FROM members WHERE id=?", (m["id"],)).fetchone()) or m   # the action may have changed the member
     h = _home(m, node_id)
     if extra:
         h["result"] = extra
