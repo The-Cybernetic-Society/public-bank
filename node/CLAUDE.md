@@ -62,6 +62,27 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `wa_state`, buttons and list messages carry what Telegram callbacks would. `sender` is swappable (tests).
   Free replies only inside the 24h window; otherwise the `PB_WA_TEMPLATE` template. Webhook `/wa` in main.py
   (GET handshake, POST signed with `PB_WA_APP_SECRET`), de-duplicated by message id via `idempotency`.
+- `publicbank/auth.py` + `publicbank/app_api.py` — sign-in with a WhatsApp code and the JSON API behind cyberneticsociety.com/app
+  (5 Nov). Who may sign in = the canonical list: `members.wa_phone` and the numbers businesses registered with on the form
+  (`core.phone_registered`, `core.member_for_phone`). `POST /auth/wa/start {phone, cc}` mints a six-digit code (`auth.start`:
+  stored as an HMAC with `PB_SECRET`, ten minutes, three codes per number per hour; an unknown number gets the same quiet
+  `{ok, via:"none"}` so the endpoint never says which numbers are ours) and `whatsapp.send_otp` delivers it: the
+  authentication template `PB_WA_OTP_TEMPLATE` (body + copy-code button), else plain text inside the 24h window, else the
+  `PB_WA_TEMPLATE` text; with no `PB_WA_TOKEN` the code is only logged (`via:"log"`, local dev). `POST /auth/wa/verify` (five
+  guesses) → `core.sign_in_by_phone`: the web member who registered the business gains `wa_phone`; a number whose card was
+  never opened becomes a `whatsapp` member seated as that business's coordinator (`claim_application`). It answers a bearer
+  token (`auth.mint`, itsdangerous, ninety days) that the static site keeps in localStorage and sends as `Authorization:
+  Bearer`; `web._member` reads it before the cookie, so every signed-in page accepts it too. `GET /me/home.json` is the whole
+  picture for one business (member, business with needs/values/verified/charter, pool, round with stage words, fund, timeline,
+  the five axes, the map's businesses, every proposal in `twin.rank_for` order with tags on all five axes, backers and lead BY
+  BUSINESS NAME, my ballot, plans + receipt + my ranking, decision, ledger, the twin's questions, the business twin's scheme
+  slots); `POST /me/{propose,lead,cosign,ballot,rank,approve,need,values,charter,twin/answer}` each make one core call and answer
+  the refreshed home (+`result`); `POST /me/twin/ask` answers a question (`twin.ask`: the model with the home as context when
+  `ANTHROPIC_API_KEY` is set, else `_plain_answer` from the same facts). `twin.questions_for` is the twin asking: charter →
+  sliders → a need → "would you use <best draft>?" (yes co-signs, no is kept in `twin_answers`) → the after-round sliders →
+  what a leftover should go to. CORS only for `PB_APP_ORIGINS` (the site, localhost:8031), via a middleware on `/auth/`,`/me/`.
+  Names of businesses are public already (the board, the map); who backs what, who leads, your ballot and receipt are only
+  here, behind the sign-in. WhatsApp: `LOGIN` replies with a sign-in link. `tests/test_app.py`.
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
@@ -191,8 +212,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all nine before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin,summary,contact,app}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all twelve before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
   to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)

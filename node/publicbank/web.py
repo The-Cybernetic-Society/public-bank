@@ -60,13 +60,21 @@ def _set_session(resp, member_id: str):
 
 
 def _member(request: Request) -> dict | None:
-    c = request.cookies.get("pb")
-    if not c:
-        return None
-    try:
-        mid = signer.loads(c)["m"]
-    except (BadSignature, KeyError):
-        return None
+    """The signed-in member: from the session cookie, or from a bearer token the static site holds (sign-in with a
+    WhatsApp code, `auth.py`). Either names a member id; nothing in the request is trusted beyond the signature."""
+    mid = None
+    bearer = request.headers.get("authorization", "")
+    if bearer.lower().startswith("bearer "):
+        from . import auth
+        mid = auth.parse(bearer[7:].strip())
+    if not mid:
+        c = request.cookies.get("pb")
+        if not c:
+            return None
+        try:
+            mid = signer.loads(c)["m"]
+        except (BadSignature, KeyError):
+            return None
     return db.row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
 
 
@@ -1972,3 +1980,6 @@ def export(node_id: str):
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+from . import app_api  # noqa: E402,F401  (the JSON API cyberneticsociety.com/app signs into: /auth/wa/*, /me/*.json)

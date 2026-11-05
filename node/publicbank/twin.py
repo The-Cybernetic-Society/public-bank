@@ -326,6 +326,103 @@ def rank_for(con, node_id: str, proposals: list[dict], limit: int = 10) -> list[
     for q in out: q.pop("_i")
     return out[:limit]
 
+# ----------------------------------------------------------------------------
+# the twin asks, and answers: what cyberneticsociety.com/app shows a signed-in owner
+# ----------------------------------------------------------------------------
+def questions_for(con, m: dict, node: dict, pool: dict | None, rnd: dict | None, limit: int = 3) -> list[dict]:
+    """The next few things the twin wants to know from this business, in the order they matter: the charter if it
+    is still unsigned, the five trade-offs if never answered, one need if none is recorded, then whether the drafts
+    that fit the business best are something it would use (each asked once), and, once a round has paid out, the same
+    trade-offs again for the outcome baseline. Each question carries a `kind` the page knows how to draw."""
+    out: list[dict] = []
+    answered = core.twin_answers_of(con, m["id"])
+    coord = core.is_role(con, node["id"], m["id"], ("coordinator",))
+    if pool and coord and not node.get("charter_at"):
+        from .convo import CHARTER_LINES
+        out.append({"key": "charter", "kind": "charter", "text": f"{pool['name']} runs on five rules. Do they work for {node['name']}?", "lines": CHARTER_LINES})
+    vv = core.values_of(con, node["id"], include_children=False)
+    if not vv:
+        out.append({"key": "values", "kind": "sliders", "text": "Five trade-offs. Where does your business lean? There is no right answer; it shapes which drafts I write for you.",
+                    "axes": [{"key": k, "left": l, "right": r, "hint": h} for k, l, r, h in core.VALUE_DIMENSIONS]})
+    if not core.has_need(con, node["id"]):
+        out.append({"key": "need", "kind": "text", "text": "What's one thing your business needs right now? One line is enough. Needs that rhyme across businesses become shared drafts.",
+                    "placeholder": "A scooter for deliveries, customers keep asking"})
+    if rnd and rnd["status"] == "proposals":
+        props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('draft','eligible') ORDER BY created_at", (rnd["id"],)).fetchall())
+        for p in rank_for(con, node["id"], props, limit=6):
+            if node["id"] in db.j(p["cosign_nodes"], []) or p.get("lead_id") == m["id"] or f"use:{p['id']}" in answered:
+                continue
+            out.append({"key": f"use:{p['id']}", "kind": "yesno", "pid": p["id"], "title": p["title"], "ideal": p["ideal_paise"] // 100,
+                        "text": (f"\u201c{p['title']}\u201d reads like what you told me you need. " if p.get("suggested") else f"\u201c{p['title']}\u201d is on the table. ")
+                                + "Would your business use it? Yes backs it; no is just as useful to know."})
+            break
+    if rnd and rnd["status"] in ("paid", "closed") and not core.values_of(con, node["id"], phase="after", include_children=False):
+        out.append({"key": "values_after", "kind": "sliders", "phase": "after", "text": "The round has paid out. The same five trade-offs, once more: has anything moved?",
+                    "axes": [{"key": k, "left": l, "right": r, "hint": h} for k, l, r, h in core.VALUE_DIMENSIONS]})
+    if rnd and rnd["status"] in ("ballots", "plans", "ratifying") and f"leftover:{rnd['id']}" not in answered:
+        out.append({"key": f"leftover:{rnd['id']}", "kind": "text", "text": "If money is left in the fund after this round, what should the next one go to?",
+                    "placeholder": "One line is enough"})
+    return out[:limit]
+
+
+ASK_SYSTEM = ("You are the digital twin of a small-business commons in Goa, India: a shared fund the businesses of one place vote on. "
+              "You hold the place, the state's schemes and what each business said it needs; you draft proposals and answer questions. "
+              "You never decide anything and never promise money: people lead, back, vote and approve. Answer the owner in plain, warm "
+              "English in at most 120 words, with figures in rupees where they help. Use only the facts given; if you do not know, say so "
+              "and suggest who would. Do not invent schemes, amounts or businesses.")
+
+
+def ask(con, question: str, context: dict, history: list[dict] | None = None) -> dict:
+    """One answer to an owner's question. With ANTHROPIC_API_KEY the model answers from `context` (the pool, the
+    round, this business, the proposals); otherwise a plain answer built from the same facts, so the page always
+    has something true to show. Returns {answer, source}."""
+    question = " ".join(question.split())[:600]
+    plain = _plain_answer(question, context)
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return {"answer": plain, "source": "plain"}
+    try:
+        import anthropic
+        client = anthropic.Anthropic()
+        msgs = []
+        for h in (history or [])[-6:]:
+            if h.get("role") in ("user", "assistant") and str(h.get("text", "")).strip():
+                msgs.append({"role": h["role"], "content": str(h["text"])[:1500]})
+        if msgs and msgs[0]["role"] != "user":
+            msgs = msgs[1:]
+        msgs.append({"role": "user", "content": question})
+        r = client.beta.messages.create(
+            model=MODEL, max_tokens=1200, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+            output_config={"effort": "low"},
+            system=[{"type": "text", "text": ASK_SYSTEM + "\n\nWhat you know today, as JSON:\n" + json.dumps(context, ensure_ascii=False)}],
+            messages=msgs)
+        if r.stop_reason == "refusal":
+            return {"answer": plain, "source": "plain"}
+        text = "".join(b.text for b in r.content if b.type == "text").strip()
+        return {"answer": text or plain, "source": "model" if text else "plain"}
+    except Exception as e:  # key, network, parse: the plain path is always there
+        log.warning("twin ask: model path failed: %s: %s", type(e).__name__, str(e)[:200])
+        return {"answer": plain, "source": "plain"}
+
+
+def _plain_answer(question: str, c: dict) -> str:
+    """A true answer with no model: the stage, what fits this business best, and what a scheme could carry."""
+    from .convo import rupees
+    q = question.lower()
+    biz, rnd, props = c.get("business", {}), c.get("round") or {}, c.get("proposals", [])
+    bits = []
+    if rnd:
+        bits.append(f"The round is at the {rnd.get('stage', '?')} stage with {rupees(int(rnd.get('pot', 0)) * 100)} in the fund.")
+    fit = [p for p in props if p.get("suggested")][:2] or props[:2]
+    if fit and any(w in q for w in ("fit", "for me", "should", "which", "what", "recommend", "best", "use")):
+        bits.append("Closest to what you told me: " + "; ".join(f"\u201c{p['title']}\u201d ({rupees(int(p['ideal']) * 100)}, {p.get('backers', 0)} backing)" for p in fit) + ".")
+    schemes = [s for s in c.get("schemes", []) if s.get("name")]
+    if schemes and any(w in q for w in ("scheme", "government", "grant", "subsid", "loan", "udyam", "startup")):
+        bits.append("Schemes worth a look for your business: " + "; ".join(f"{s['name']} ({s.get('status', '')})" for s in schemes[:3]) + ".")
+    if not bits or len(bits) == 1 and not rnd:
+        bits.append(f"I can answer from what I hold: {biz.get('name', 'your business')}, the {len(props)} proposals on the table and the schemes that fit. Ask me which proposal fits you, or which scheme could carry part of one.")
+    return " ".join(bits)[:900]
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     main()

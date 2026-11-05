@@ -257,6 +257,25 @@ CREATE TABLE IF NOT EXISTS wa_state (
   updated_at    BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS otp (
+  phone         TEXT PRIMARY KEY,              -- the WhatsApp number a sign-in code went to (E.164 digits)
+  code_hash     TEXT NOT NULL,                 -- sha256(secret, phone, code); the code itself is never stored
+  expires_at    BIGINT NOT NULL,
+  attempts      BIGINT NOT NULL DEFAULT 0,     -- wrong guesses against this code
+  sends         TEXT NOT NULL DEFAULT '[]',    -- JSON list of send times, for the per-phone limit
+  updated_at    BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS twin_answers (
+  id            TEXT PRIMARY KEY,
+  member_id     TEXT NOT NULL REFERENCES members(id),
+  node_id       TEXT REFERENCES nodes(id),
+  kind          TEXT NOT NULL,                 -- the question's kind: use | leftover | ...
+  key           TEXT NOT NULL,                 -- what it was about (a proposal id, a round id)
+  answer        TEXT NOT NULL,
+  created_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS idempotency (
   key           TEXT PRIMARY KEY,
   response      TEXT NOT NULL,

@@ -19,7 +19,12 @@ Outside that window a notification must be an approved template (PB_WA_TEMPLATE,
   CONTRIBUTE N  coordinator: record the business's ₹N co-contribution to the pool's round
   NEXT          coordinator: move a round to its next stage (what the web page's button does)
   PAYOUTS       treasurer: the queue, each item with a "Mark paid" button → reference
+  LOGIN         a one-tap sign-in link to the web pages (the same link STATUS ends with)
   MENU, CANCEL
+
+Sign-in codes for cyberneticsociety.com (`send_otp`) go as the authentication template PB_WA_OTP_TEMPLATE (body
+parameter and copy-code button both carry the code, as Meta's authentication templates require); without one, as
+plain text inside the member's 24-hour window; with no Cloud API token at all, the code is only logged (local dev).
 
 Conversation state is a row in `wa_state` (any instance can continue it). Every step ends in the same core
 call the web page and the Telegram bot make. Inbound messages are de-duplicated by WhatsApp message id.
@@ -51,6 +56,7 @@ VERIFY_TOKEN = os.environ.get("PB_WA_VERIFY_TOKEN", "")  # webhook subscription 
 APP_SECRET = os.environ.get("PB_WA_APP_SECRET", "")     # signs every webhook body (X-Hub-Signature-256)
 POOL = os.environ.get("PB_WA_POOL", "")                  # node id a self-registered business joins under
 TEMPLATE = os.environ.get("PB_WA_TEMPLATE", "")          # approved template name with one {{1}} body parameter
+OTP_TEMPLATE = os.environ.get("PB_WA_OTP_TEMPLATE", "")  # approved AUTHENTICATION template (copy-code button) for sign-in codes
 CHARTER = convo.CHARTER
 WINDOW = 24 * 3600
 STATE_TTL = 24 * 3600
@@ -93,6 +99,13 @@ class GraphSender:
             "name": name, "language": {"code": "en"},
             "components": [{"type": "body", "parameters": [{"type": "text", "text": p[:1024]} for p in params]}]}})
 
+    def otp(self, to: str, name: str, code: str) -> dict:
+        """An authentication template: Meta fixes the wording; the code goes in the body and on the copy-code button."""
+        return self._post({"to": to, "type": "template", "template": {
+            "name": name, "language": {"code": "en"},
+            "components": [{"type": "body", "parameters": [{"type": "text", "text": code}]},
+                           {"type": "button", "sub_type": "url", "index": "0", "parameters": [{"type": "text", "text": code}]}]}})
+
 
 sender = GraphSender()
 
@@ -110,6 +123,31 @@ def send(phone: str, text: str) -> bool:
     except Exception as e:  # outside the window with no template, a bad number, a Graph outage
         log.info("wa send to %s… skipped: %s", phone[:5], type(e).__name__)
         return False
+
+
+def send_otp(phone: str, code: str) -> str:
+    """Deliver a sign-in code. Returns how it went: 'template', 'text' (inside the window), 'log' (no Cloud API
+    configured: the code is in the server log, for local development) or '' when nothing could be sent."""
+    if not TOKEN:
+        log.info("wa not configured; sign-in code for …%s is %s", phone[-4:], code)
+        return "log"
+    try:
+        if OTP_TEMPLATE:
+            sender.otp(phone, OTP_TEMPLATE, code)
+            return "template"
+        m = member_for(phone)
+        inside = bool(m and m.get("wa_last_in_at") and m["wa_last_in_at"] > db.now() - WINDOW)
+        if inside:
+            sender.text(phone, f"Your sign-in code for the Commons is {code}. It works for ten minutes. If you didn't ask for it, ignore this.")
+            return "text"
+        if TEMPLATE:
+            sender.template(phone, TEMPLATE, [f"Your sign-in code for the Commons is {code}. It works for ten minutes."])
+            return "template"
+        sender.text(phone, f"Your sign-in code for the Commons is {code}. It works for ten minutes.")   # may be refused outside the window
+        return "text"
+    except Exception as e:
+        log.info("wa otp to …%s failed: %s", phone[-4:], type(e).__name__)
+        return ""
 
 
 def notify_node(node_id: str, text: str) -> int:
@@ -250,6 +288,8 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
         return menu(phone, m)
     if w == "status":
         return status(phone, m)
+    if w in ("login", "signin", "sign-in"):
+        return login(phone, m)
     if w == "link":
         return staff_link(phone, m)
     if w == "payouts":
@@ -455,6 +495,13 @@ def status(phone: str, m: dict | None) -> None:
         if rec:
             out.append("  your share went: " + rec)
     sender.text(phone, ("\n".join(out) or "Nothing open right now.") + f"\n\nOpen: {login_url(m)}")
+
+
+def login(phone: str, m: dict | None) -> None:
+    """A one-tap sign-in link, and a hint that the site's code also works now that this chat is open."""
+    if not m:
+        return menu(phone, m)
+    sender.text(phone, f"Open this on your phone to sign in: {login_url(m)}\n\nOr go to cyberneticsociety.com/app and ask for a code; it comes here.")
 
 
 def begin(phone: str, m: dict | None, cmd: str, node_id: str | None = None) -> None:
