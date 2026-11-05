@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import math
+from html import escape
 from collections import Counter
 
 from . import core, db, places, twinmap
@@ -93,6 +94,35 @@ def data(con, pool_id: str) -> dict:
         bbox = m.get("bbox") or [0, 0, 100, 100]
     return {"pool": pool_id, "axes": [{"key": k, "left": l, "right": r, "hint": h} for k, l, r, h in core.VALUE_DIMENSIONS if k in AXES],
             "bbox": bbox, "context": ctx, "businesses": biz, "proposals": proposals(con, pool_id, biz)}
+
+
+SVG_STYLE = """<style>
+path{fill:#f3e9d6;fill-rule:evenodd;stroke:rgba(32,32,29,.33);stroke-width:1;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+line{stroke:rgba(32,32,29,.67);stroke-width:2;stroke-dasharray:6 5;stroke-linecap:round;vector-effect:non-scaling-stroke}
+circle.hub{fill:#20201d;stroke:#fbf6e9;stroke-width:2;vector-effect:non-scaling-stroke}
+text{font:500 6px 'IBM Plex Mono',monospace;fill:#fbf6e9;text-anchor:middle;dominant-baseline:central}
+circle.on{fill:#d9a33d;stroke:#20201d;stroke-width:1.5;vector-effect:non-scaling-stroke}
+circle.unv{stroke-dasharray:3 2}
+</style>"""
+
+
+def map_svg(con, pool_id: str) -> str:
+    """The map as a standalone picture: the talukas, every placed business (dashed until verified), all joined to a hub
+    that counts them. Names come from what businesses typed, so everything drawn from them is escaped."""
+    d = data(con, pool_id)
+    x0, y0, x1, y1 = d["bbox"]
+    r = (x1 - x0) / 45
+    placed = [b for b in d["businesses"] if b["placed"]]
+    ctx = "".join("<path d=\"" + "".join("M" + "L".join(f"{q[0]:.1f} {q[1]:.1f}" for q in ring) + "Z" for ring in t["rings"]) + f"\"><title>{escape(t['name'])}</title></path>" for t in d["context"])
+    links = ""
+    if len(placed) > 1:
+        hx = sum(b["x"] for b in placed) / len(placed)
+        hy = sum(b["y"] for b in placed) / len(placed)
+        links = "".join(f'<line x1="{hx:.1f}" y1="{hy:.1f}" x2="{b["x"]:.1f}" y2="{b["y"]:.1f}"/>' for b in placed)
+        links += f'<circle class="hub" cx="{hx:.1f}" cy="{hy:.1f}" r="{r * 0.86:.1f}"/><text x="{hx:.1f}" y="{hy:.1f}">{len(placed)}</text>'
+    dots = "".join(f'<circle class="on{"" if b["verified"] else " unv"}" cx="{b["x"]:.1f}" cy="{b["y"]:.1f}" r="{r:.1f}"><title>{escape(b["name"] + (" · " + b["place"] if b.get("place") else ""))}</title></circle>' for b in placed)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0:.1f} {y0:.1f} {x1 - x0:.1f} {y1 - y0:.1f}" role="img" aria-label="Map of the businesses in the Commons">\n'
+            f"{SVG_STYLE}\n<g>{ctx}</g><g>{links}</g><g>{dots}</g></svg>")
 
 
 CSS = """<style>

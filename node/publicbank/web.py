@@ -27,7 +27,7 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from itsdangerous import BadSignature, URLSafeSerializer
 
 from . import core, db
@@ -1257,6 +1257,15 @@ def _budget(node: dict, rnd: dict | None) -> dict:
     return {"pot": pot, "paid": paid, "approved": approved, "asked": asked, "remaining": max(0, pot - paid - approved), "proposals": len(props), "stage": rnd["status"]}
 
 
+def _board_props(rnd: dict) -> list[dict]:
+    """The leaderboard: every proposal in the round, so the board matches the fund bar's count. What businesses put
+    forward or lead first, most backed first; then the twin drafts nobody leads yet, most backed first."""
+    props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
+    props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
+    backed = [p for p in props if p["source"] != "twin" or p.get("lead_id")]
+    return backed + [p for p in props if p not in backed]
+
+
 def _budget_bar(b: dict) -> str:
     pot = max(1, b["pot"])
     w = lambda v: f"{min(100, 100 * v / pot):.1f}%"  # noqa: E731
@@ -1649,15 +1658,7 @@ def home():
         body += _seals(node, kids)
         body += commonsmap.map_section(node["id"], con)
         # then the funding proposals, every one, most backed first; a tap opens the proposal, the thumb leads into registering
-        props = []
-        if rnd and rnd["status"] == "proposals":
-            props = db.rows(con.execute("SELECT * FROM proposals WHERE round_id=? AND status IN ('eligible','draft') ORDER BY created_at DESC", (rnd["id"],)).fetchall())
-            props.sort(key=lambda p: -len(db.j(p["cosign_nodes"], [])))
-            # the leaderboard: every proposal in the round, so the board matches the fund bar's count. What businesses put
-            # forward or lead first, most backed first; then the twin drafts nobody leads yet, most backed first
-            backed = [p for p in props if p["source"] != "twin" or p.get("lead_id")]
-            spare = [p for p in props if p not in backed]
-            props = backed + spare
+        props = _board_props(rnd) if rnd and rnd["status"] == "proposals" else []
         # no caption under the board: the Propose your own button follows the proposals directly (3 Nov)
         body += "<h2 class=first>Funding proposals</h2>"
         if props:
@@ -1724,6 +1725,42 @@ def commons_map(pool_id: str):
     except core.PBError:
         raise HTTPException(404)
     return JSONResponse(commonsmap.data(con, pool_id))
+
+
+# What cyberneticsociety.com reads as it loads, so its Goa figures need no hand edits. Only what the public board already
+# shows, in a few numbers and titles; any origin may read it, and a minute's cache keeps a busy page off the database.
+_FEED_HEADERS = {"Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=60"}
+_BOARD_STAGES = ("proposals", "ballots", "plans", "ratifying")
+
+
+@app.get("/commons/{pool_id:path}/summary.json")
+def commons_summary(pool_id: str):
+    """The pool at a glance: the fund's position in rupees, how many businesses, and the board in the live board's order."""
+    pool_id = _resolve(pool_id)
+    try:
+        node = core.get_node(con, pool_id)
+    except core.PBError:
+        raise HTTPException(404)
+    rnd = core.current_round(con, pool_id)
+    b = _budget(node, rnd)
+    board = [{"title": p["title"], "ideal": p["ideal_paise"] // 100, "backers": len(db.j(p["cosign_nodes"], [])), "source": p["source"]}
+             for p in _board_props(rnd)] if rnd and rnd["status"] in _BOARD_STAGES else []
+    return JSONResponse({"stage": b["stage"], "as_of": core._ist(core.now()), "pot": b["pot"] // 100, "paid": b["paid"] // 100,
+                         "approved": b["approved"] // 100, "asked": b["asked"] // 100, "remaining": b["remaining"] // 100,
+                         "shops": len(core.children(con, pool_id)), "verified": len(core.verified_businesses(con, pool_id)),
+                         "proposals": len(board), "board": board}, headers=_FEED_HEADERS)
+
+
+@app.get("/commons/{pool_id:path}/map.svg")
+def commons_map_svg(pool_id: str):
+    """The Commons on the map as one picture, for pages elsewhere to show with an img tag."""
+    pool_id = _resolve(pool_id)
+    try:
+        core.get_node(con, pool_id)
+    except core.PBError:
+        raise HTTPException(404)
+    return Response(commonsmap.map_svg(con, pool_id), media_type="image/svg+xml",
+                    headers={"Cache-Control": "public, max-age=300", "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'"})
 
 TWIN_CSS = ("<style>.tag.ok{background:#2f6b3f;color:#fbf6e9}.tag.maybe{background:var(--gold)}.tag.no{background:var(--card);border:1px solid var(--line);color:var(--muted)}"
             ".tag.draw{background:var(--ink);color:#fbf6e9}.lv a{margin-right:14px}.lv b{margin-right:14px}.twin .prop{padding:10px 0}.twin .why{display:block;color:var(--muted);font-size:15px;line-height:1.45;margin-top:3px}"

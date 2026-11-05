@@ -154,6 +154,9 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   lines) with a hub count; tapping a business shows its need and its proposals. `/commons/<pool>/map.json`; state in the
   hash (`#commons=earn=5,risk=5&biz=`). The owners' own slider answers are never sent. The place twin stays at `/twin`,
   linked from "For the record".
+  What cyberneticsociety.com reads as it loads (`assets/site.js` there; a push to that repo's main deploys it): `/commons/<pool>/summary.json`
+  (fund in rupees, counts, the board in the live board's order via `_board_props`; `Access-Control-Allow-Origin: *`, a minute's cache; only what the
+  public board shows) and `/commons/<pool>/map.svg` (`commonsmap.map_svg`, names escaped). If either fails the page keeps its dated snapshot.
   Scheme-backed proposals: `schemes.CO_FUNDING` is a short hand-kept table (pattern → scheme core name → what it pays);
   `schemes.co_funding(title, text)` resolves it against the catalogue and `core.add_proposal`/`add_twin_draft` store the
   result in `proposals.scheme_json`; the front page row, the board, the table card and the map card show "a scheme could
