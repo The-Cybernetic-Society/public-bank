@@ -42,7 +42,7 @@ import urllib.parse
 
 import httpx
 
-from . import convo, core, db, twin
+from . import convo, core, db, templates, twin
 from .convo import (NEXT_STEP, RULE_NAMES, STAGES, advanceable, ballot_prompt, coordinated, cosignable, err_text, parse_points, parse_rupees,
                     plan_lines, proposal_summary, receipt_line, rounds_at, rupees)
 
@@ -99,6 +99,10 @@ class GraphSender:
             "name": name, "language": {"code": "en"},
             "components": [{"type": "body", "parameters": [{"type": "text", "text": p[:1024]} for p in params]}]}})
 
+    def template_full(self, to: str, name: str, components: list[dict]) -> dict:
+        """A template with body values, quick-reply payloads and a URL variable (`templates.send_components`)."""
+        return self._post({"to": to, "type": "template", "template": {"name": name, "language": {"code": "en"}, "components": components}})
+
     def otp(self, to: str, name: str, code: str) -> dict:
         """An authentication template: Meta fixes the wording; the code goes in the body and on the copy-code button."""
         return self._post({"to": to, "type": "template", "template": {
@@ -148,6 +152,26 @@ def send_otp(phone: str, code: str) -> str:
     except Exception as e:
         log.info("wa otp to …%s failed: %s", phone[-4:], type(e).__name__)
         return ""
+
+
+def send_template(phone: str, name: str, params: list[str], payloads: dict[str, str] | None = None, member: dict | None = None) -> bool:
+    """Start a conversation with one of `templates.TEMPLATES`: the values for its placeholders, the payloads its
+    quick-reply buttons send back (`{"use:{pid}:y": "use:p_12:y"}`), and, when the template has a URL button, a fresh
+    one-time sign-in token for that member at the end of the link. False when nothing could be sent."""
+    t = templates.get(name)
+    token = None
+    if any(b["type"] == "url" for b in t.get("buttons", [])):
+        m = member or member_for(phone)
+        token = core.mint_token(con, "login", member_id=m["id"]) if m else ""
+    if not TOKEN:
+        log.info("wa not configured; template %s to …%s: %s", name, phone[-4:], templates.fill(t["body"], params)[:120])
+        return False
+    try:
+        sender.template_full(phone, name, templates.send_components(t, params, payloads, token))
+        return True
+    except Exception as e:
+        log.info("wa template %s to …%s failed: %s", name, phone[-4:], type(e).__name__)
+        return False
 
 
 def notify_node(node_id: str, text: str) -> int:
@@ -212,6 +236,9 @@ def handle_message(phone: str, name: str | None, msg: dict) -> None:
         i = msg.get("interactive") or {}
         r = i.get("button_reply") or i.get("list_reply") or {}
         on_button(phone, name, m, r.get("id") or "")
+    elif t == "button":   # a quick-reply button on a template: the payload we set when sending, else the button's words
+        b = msg.get("button") or {}
+        on_button(phone, name, m, b.get("payload") or b.get("text") or "")
     else:
         menu(phone, m)
 
@@ -282,7 +309,14 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
     w = word.lower().strip()
     if w == "join":
         return do_join(phone, name, m, rest.strip())
-    if w in ("cancel", "stop"):
+    if w == "stop":
+        clear_state(phone)
+        if m:
+            with db.tx(con): con.execute("UPDATE members SET wa_opt_in_at=NULL WHERE id=?", (m["id"],))
+        sender.text(phone, templates.REPLIES["stop"]); return
+    if w == "start" and m and not m.get("wa_opt_in_at"):
+        touch(m); sender.text(phone, "Welcome back. I'll write when something of yours moves."); return
+    if w == "cancel":
         clear_state(phone); sender.text(phone, "Dropped. Nothing was saved."); return
     if w in ("menu", "help", "hi", "hello", "start", "?"):
         return menu(phone, m)
@@ -311,6 +345,16 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
         return finish_self_join(phone, name, m, text)
     if not m:
         return menu(phone, m)
+    if state == "swap_text":
+        clear_state(phone)
+        core.record_twin_answer(con, m["id"], d.get("node_id"), "swap", d.get("node_id") or "-", text)
+        sender.text(phone, templates.REPLIES["swap_noted"]); return
+    if state == "ask_text":
+        clear_state(phone)
+        from . import app_api
+        h = app_api._home(m)
+        a = twin.ask(con, text, app_api._ask_context(h))
+        sender.text(phone, a["answer"]); return
     if state == "n_text":
         clear_state(phone)
         if text.lower() == "skip":
@@ -331,9 +375,18 @@ def on_text(phone: str, name: str | None, m: dict | None, text: str) -> None:
 def on_button(phone: str, name: str | None, m: dict | None, bid: str) -> None:
     key, _, val = bid.partition(":")
     if key == "cmd":
+        if val in ("done", "later", "ask", "swap"):
+            return template_cmd(phone, m, val)
         return on_text(phone, name, m, val)
     if not m:
         return menu(phone, m)
+    if key == "use":
+        pid, _, ans = val.rpartition(":")
+        return use_answer(phone, m, pid, ans)
+    if key == "q":
+        qkey, _, ans = val.rpartition(":")
+        core.record_twin_answer(con, m["id"], None, "q", qkey, "yes" if ans == "y" else "no")
+        sender.text(phone, "Noted, thank you."); return
     if key == "ch":
         node_id, _, ans = val.rpartition(":")
         return charter_answer(phone, m, node_id, ans)
@@ -359,6 +412,40 @@ def on_button(phone: str, name: str | None, m: dict | None, bid: str) -> None:
     if key in ("pl", "pc"): propose_button(phone, m, key, val, d)
     elif key == "bc": ballot_button(phone, m, val, d)
     else: rank_button(phone, m, key, val, d)
+
+
+def use_answer(phone: str, m: dict, pid: str, ans: str) -> None:
+    """The commons_draft and commons_one_short buttons: yes backs the proposal for the member's business, no is kept."""
+    try:
+        p = core.get_proposal(con, pid)
+        rnd = core.get_round(con, p["round_id"])
+        via = core.require_in_tree(con, rnd["node_id"], m["id"])
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    core.record_twin_answer(con, m["id"], via["id"], "use", pid, "yes" if ans == "y" else "no")
+    if ans != "y":
+        sender.text(phone, templates.REPLIES["use_no"]); return
+    try:
+        p = core.cosign_proposal(con, pid, via["id"], m["id"])
+    except core.PBError as e:
+        sender.text(phone, err_text(e)); return
+    n = len(db.j(p["cosign_nodes"], []))
+    need_n = core.get_node(con, rnd["node_id"]).get("cosign_min") or 0
+    rest = ", and it's on the ballot" if p["status"] == "eligible" else (f" of the {need_n} it needs" if need_n else "")
+    sender.text(phone, templates.REPLIES["use_yes"].format(title=p["title"], n=n, rest=rest))
+
+
+def template_cmd(phone: str, m: dict | None, cmd: str) -> None:
+    if not m:
+        return menu(phone, m)
+    if cmd == "swap":
+        node = db.row(con.execute("SELECT n.* FROM nodes n JOIN memberships ms ON ms.node_id=n.id WHERE ms.member_id=? AND ms.status='active' ORDER BY ms.role='coordinator' DESC LIMIT 1", (m["id"],)).fetchone())
+        set_state(phone, "swap_text", {"node_id": node["id"] if node else None})
+        sender.text(phone, templates.REPLIES["swap_ask"].format(business=node["name"] if node else "your business")); return
+    if cmd == "ask":
+        set_state(phone, "ask_text", {})
+        sender.text(phone, "Ask away. What would you like to know?"); return
+    sender.text(phone, templates.REPLIES[cmd])
 
 
 def menu(phone: str, m: dict | None) -> None:

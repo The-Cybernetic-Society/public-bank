@@ -519,6 +519,12 @@ async def me_twin_ask(request: Request):
     if len(q) < 2:
         return _err("bad_text")
     h = _home(m, d.get("node") or None)
+    hist = d.get("history") if isinstance(d.get("history"), list) else []
+    return JSONResponse(twin.ask(con, q, _ask_context(h), hist))
+
+
+def _ask_context(h: dict) -> dict:
+    """What the twin knows when it answers: the home picture, trimmed to what matters and nothing personal."""
     ctx = {"pool": h.get("pool") and {"name": h["pool"]["name"], "shops": h["pool"]["shops"], "verified": h["pool"]["verified"], "rules": h["pool"]["charter"]},
            "round": h.get("round") and {"stage": h["round"]["stage"], "pot": h["round"]["pot"], "what_next": h["round"]["next"], "fund": h["fund"]},
            "business": h.get("business") and {"name": h["business"]["name"], "place": h["business"]["place"], "verified": h["business"]["verified"],
@@ -528,5 +534,4 @@ async def me_twin_ask(request: Request):
                          for p in h.get("proposals", [])[:16]],
            "schemes": [{"name": s["name"], "status": s["status"], "department": s.get("department"), "max_rupees": s.get("max_rupees")} for s in ((h.get("schemes") or {}).get("slots") or [])],
            "timeline": h.get("timeline")}
-    hist = d.get("history") if isinstance(d.get("history"), list) else []
-    return JSONResponse(twin.ask(con, q, ctx, hist))
+    return ctx

@@ -87,6 +87,17 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   through `places.resolve`, else `unknown_place`), the home carries `choices` (`_choices`: backed, led, proposed, ballot, ranking,
   verdict, every `twin_answers` row with its proposal's title) and `business.values_after`, and the CORS middleware also lets the
   site's origins read `/twin/map.json` and `/twin/<id>/card.json` (no `no-store` on those) for the app's tappable map of Goa.
+- `publicbank/templates.py` — the WhatsApp templates (11 Nov): every message the number may START a conversation with, outside a
+  shop's 24-hour window: `TEMPLATES` (name, category, when, body with {{n}}, examples, up to three buttons: `quick` with a payload the
+  webhook gets back, `url` = `/l/{{1}}` with a one-time sign-in token so the page opens signed in, `copy` for the code), `REPLIES`
+  (the free text the twin says after a tap), `check` (Meta's rules of form), `meta_payload` (POST /{WABA}/message_templates),
+  `send_components`, `preview_html` (`/wa/templates` on the service, noindex; also published as an artifact for review).
+  UTILITY only, plus the AUTHENTICATION code; no MARKETING. `whatsapp.send_template(phone, name, params, payloads)` mints the token
+  and sends; a tap arrives as a `button` message whose payload goes through `on_button`: `use:<pid>:y|n` (yes co-signs for the
+  member's business, both are kept in `twin_answers`), `q:<key>:y|n`, `cmd:swap` (opens a free reply kept as a `swap` answer),
+  `cmd:ask` (a question for `twin.ask` with the app's context), `cmd:done|later`; STOP clears `wa_opt_in_at` so `send()` goes
+  quiet, START restores it. `tests/test_templates.py`. Not yet built: the schedule that sends them (draft ready, one short, freeze,
+  ballot, approve, result, paid, weekly) and the Management API call that registers them; both wait on the Meta number.
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
@@ -216,8 +227,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin,summary,contact,app}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all twelve before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin,summary,contact,app,templates}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all thirteen before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
   to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)

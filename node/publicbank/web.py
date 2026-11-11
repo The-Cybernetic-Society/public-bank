@@ -1969,6 +1969,16 @@ def twin_page(div_id: str):
 # ----------------------------------------------------------------------------
 # public export and health
 # ----------------------------------------------------------------------------
+@app.get("/wa/templates")
+def wa_templates():
+    """The WhatsApp templates as they would look on a shop's phone, with the wording Meta sees: for editing before the
+    number is live. Unlisted, nothing private on it."""
+    from . import templates
+    body = f"<style>{templates.PREVIEW_CSS}</style>" + templates.preview_html()
+    html = page("WhatsApp templates", body, path="/wa/templates").body.decode().replace("<meta charset=utf-8>", "<meta charset=utf-8><meta name=robots content=noindex>", 1)
+    return HTMLResponse(html)
+
+
 @app.get("/export/{node_id:path}")
 def export(node_id: str):
     try:
