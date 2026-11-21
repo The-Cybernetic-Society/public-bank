@@ -95,10 +95,15 @@ gcloud artifacts repositories create publicbank --repository-format=docker --loc
 PN=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
 for role in roles/run.admin roles/iam.serviceAccountUser roles/cloudsql.viewer roles/secretmanager.viewer; do
   gcloud projects add-iam-policy-binding $PROJECT --member="serviceAccount:$PN@cloudbuild.gserviceaccount.com" --role=$role; done
-# connect the GitHub repository to Cloud Build (console: Cloud Build → Repositories → Connect, 2nd gen), then the two triggers
-gcloud builds triggers create github --name=publicbank-main --repo-name=public-bank --repo-owner=The-Cybernetic-Society \
+# connect the GitHub repository to Cloud Build: console → Cloud Build → Repositories → the "2nd gen" tab (region asia-southeast1) →
+# Create host connection (installs the "Cloud Build" GitHub app; give it public-bank only) → Link repository → public-bank.
+# Do NOT use the Cloud Run console's "add repository" screen: that is the first-generation integration, a different GitHub app,
+# and it cannot see a second-generation connection. Then the two triggers, against the linked repository's resource name:
+gcloud builds connections list --region=$REGION                    # the connection's name
+REPO=projects/$PROJECT/locations/$REGION/connections/CONNECTION_NAME/repositories/public-bank
+gcloud builds triggers create github --name=publicbank-main --repository=$REPO \
   --branch-pattern='^main$' --build-config=node/cloudbuild.yaml --region=$REGION
-gcloud builds triggers create github --name=publicbank-staging --repo-name=public-bank --repo-owner=The-Cybernetic-Society \
+gcloud builds triggers create github --name=publicbank-staging --repository=$REPO \
   --branch-pattern='^staging$' --build-config=node/cloudbuild.yaml --region=$REGION \
   --substitutions=_SERVICE=publicbank-staging,_DB_SECRET=DATABASE_URL_STAGING,_EXTRA_ENV=PB_OTP_DEV=1,_MIN_INSTANCES=0,_OLD_HOSTS=,_BASE_URL=https://publicbank-staging-PLACEHOLDER.a.run.app
 # staging's own database on the same instance, and its connection string as a secret
