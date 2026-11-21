@@ -87,6 +87,13 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   through `places.resolve`, else `unknown_place`), the home carries `choices` (`_choices`: backed, led, proposed, ballot, ranking,
   verdict, every `twin_answers` row with its proposal's title) and `business.values_after`, and the CORS middleware also lets the
   site's origins read `/twin/map.json` and `/twin/<id>/card.json` (no `no-store` on those) for the app's tappable map of Goa.
+- `publicbank/app/` — the signed-in Commons page (21 Nov: moved here from the cyberneticsociety.com repo so page and data share one
+  origin). `index.html`, `app.js`, `app.css`, and `site.css` (a COPY of the brochure's stylesheet; refresh it when the look there
+  changes). Served by web.py: `/app/` (no-cache), `/app/assets/<name>` (css/js only), `/app` → 301. The script calls this origin
+  (`BASE=''`; `?api=<origin>` still overrides for a split setup). It signs in by bearer token (the code flow) or by the session cookie:
+  on load with no token it asks `/me/home.json` once, so a browser that arrived through a tapped link is already in. `/l/<token>`
+  (kind `login`) now lands on `/app/` by default and its GET page submits itself after 150 ms (a preview crawler runs no script, so
+  the token is not spent by the preview); `POST /me/signout` drops the cookie. The brochure's "Sign in" links point at `/app/` here.
 - `publicbank/templates.py` — the WhatsApp templates (11 Nov): every message the number may START a conversation with, outside a
   shop's 24-hour window: `TEMPLATES` (name, category, when, body with {{n}}, examples, up to three buttons: `quick` with a payload the
   webhook gets back, `url` = `/l/{{1}}` with a one-time sign-in token so the page opens signed in, `copy` for the code), `REPLIES`
@@ -258,6 +265,16 @@ it that way and add no AI-attribution trailers. Prior commits use a fixed timest
 (`GIT_AUTHOR_DATE`/`GIT_COMMITTER_DATE` at 12:00 +05:30 of the day); follow it.
 
 ## Deploy (GCP, project `cybernetic-society`, region `asia-southeast1`)
+
+Since 21 Nov the normal deploy is a MERGE TO MAIN: `.github/workflows/test.yml` runs the thirteen suites on every push, and a Cloud
+Build trigger runs `node/cloudbuild.yaml` on main (service `publicbank`) and on `staging` (service `publicbank-staging`, its own
+database `publicbank_staging` through the secret `DATABASE_URL_STAGING`, `PB_OTP_DEV=1`, min instances 0). The build pushes the
+image to Artifact Registry (`asia-southeast1-docker.pkg.dev/cybernetic-society/publicbank/<service>:<sha>`), deploys with the same
+flags as deploy.sh, mounts ANTHROPIC_API_KEY / PB_WA_TOKEN / PB_WA_APP_SECRET when those secrets exist, and repoints the seed job
+at the same image. The one-time setup (APIs, the registry, Cloud Build's roles, the two triggers, the staging database and secret,
+the developer's roles, the domain mapping) is in README.md under Deploy; it has to be run by a project owner, and as of 21 Nov it
+has NOT been run yet. The address moves to goa.cyberneticsociety.com (PB_BASE_URL); goa.cyberneticsutra.com and bank. forward
+through PB_OLD_HOSTS once the mapping and the DNS CNAME exist. `sh node/deploy.sh` stays as the by-hand fallback.
 
 Live at https://goa.cyberneticsutra.com since 2 Nov 2026 (bank.cyberneticsutra.com forwards there through `PB_OLD_HOSTS`; both are Cloud Run domain mappings) (Cloud Run `publicbank`, Cloud SQL Postgres `publicbank`,
 secrets in Secret Manager: `DATABASE_URL`, `PB_SECRET`, `PB_APP_TOKEN`, `TELEGRAM_BOT_TOKEN`).

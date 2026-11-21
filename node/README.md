@@ -12,6 +12,27 @@ proposals → ballots (100 points each) → plans (Equal Shares + 3 others) → 
 Money moves only after a ratified decision, only as a purchase or a reimbursement against a receipt,
 and only by a person tapping a `upi://` link. The service never holds funds and never calls a bank.
 
+## Start here
+
+The product is this one service: the data, the WhatsApp side, the public board and the signed-in page at `/app/`.
+cyberneticsociety.com is a separate static brochure that only links here.
+
+```bash
+# run it locally (SQLite, no secrets needed)
+cd node && python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+PB_OTP_DEV=1 uvicorn publicbank.main:app --port 8000      # http://localhost:8000  ·  the Commons page: /app/
+python -m publicbank.demo --stage proposals --pool goa-business-commons --treasurer-telegram 1   # a pool with six businesses to play with
+
+# test (every suite, about four minutes; CI runs the same on every push)
+for t in db round web bot webhook whatsapp pool apply twin summary contact app templates; do python tests/test_$t.py; done
+
+# deploy: merge to main. Cloud Build builds the image and rolls it out to Cloud Run; a merge to `staging` does the same to
+# the staging service. Roll back from the Cloud Run console (Revisions → the previous one → Manage traffic). Details below.
+```
+
+`PB_OTP_DEV=1` shows the WhatsApp sign-in code on screen instead of sending it; it is for local and staging only.
+With no `ANTHROPIC_API_KEY` the twin groups needs by word overlap instead of writing drafts; with the key it writes them.
+
 ## Surfaces
 
 | Surface | For | Where |
@@ -51,9 +72,49 @@ there; nothing else changes. The bot runs on a webhook (`/tg/<secret>`, register
 membership and hands off to the bot. The coordinator approves on `/c/<node>`; from then on the
 resident is notified in Telegram when ballots, plans and approval open.
 
-Deploy (GCP): `PROJECT=<id> TELEGRAM_BOT_TOKEN=<token> ./deploy-gcp.sh` creates Cloud SQL Postgres, secrets, the Cloud Run service (one warm instance) and the domain mapping. Updates: `gcloud run deploy publicbank --source . --region asia-southeast1`. Railway also works: `railway.json` is included.
-variables from `.env.example` → add the custom domain and point `PB_BASE_URL` at it. `railway.json`
-has the start command and health check. Seed with `railway run python -m publicbank.setup_village …`.
+## Deploy
+
+**Normal path: merge to main.** A Cloud Build trigger watches the repository; on a push to `main` it runs `node/cloudbuild.yaml`,
+which builds `node/Dockerfile`, pushes the image to Artifact Registry, deploys it to the Cloud Run service `publicbank` with
+the same flags as before, and points the one-off `publicbank-seed` job at the same image. A push to `staging` does the same to
+`publicbank-staging`, which has its own database and the development sign-in flag on, so a change can be seen live before
+it reaches the shops. GitHub Actions runs the thirteen test suites on every push (`.github/workflows/test.yml`); check them
+before merging. Secrets never live in the repo: the service reads them from Secret Manager by name.
+
+Rollback: Cloud Run console → the service → Revisions → pick the previous revision → Manage traffic → 100%. Logs: the same
+console, Logs tab. Nothing needs doing to the database on a deploy; the schema migrates itself when the service starts.
+
+**One-time setup, from an account that owns the project** (done once, kept here for the record):
+
+```bash
+PROJECT=cybernetic-society; REGION=asia-southeast1
+gcloud config set project $PROJECT
+gcloud services enable cloudbuild.googleapis.com artifactregistry.googleapis.com run.googleapis.com
+gcloud artifacts repositories create publicbank --repository-format=docker --location=$REGION
+# let Cloud Build deploy to Cloud Run and act as the runtime service account
+PN=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
+for role in roles/run.admin roles/iam.serviceAccountUser roles/cloudsql.viewer roles/secretmanager.viewer; do
+  gcloud projects add-iam-policy-binding $PROJECT --member="serviceAccount:$PN@cloudbuild.gserviceaccount.com" --role=$role; done
+# connect the GitHub repository to Cloud Build (console: Cloud Build → Repositories → Connect, 2nd gen), then the two triggers
+gcloud builds triggers create github --name=publicbank-main --repo-name=public-bank --repo-owner=The-Cybernetic-Society \
+  --branch-pattern='^main$' --build-config=node/cloudbuild.yaml --region=$REGION
+gcloud builds triggers create github --name=publicbank-staging --repo-name=public-bank --repo-owner=The-Cybernetic-Society \
+  --branch-pattern='^staging$' --build-config=node/cloudbuild.yaml --region=$REGION \
+  --substitutions=_SERVICE=publicbank-staging,_DB_SECRET=DATABASE_URL_STAGING,_EXTRA_ENV=PB_OTP_DEV=1,_MIN_INSTANCES=0,_OLD_HOSTS=,_BASE_URL=https://publicbank-staging-PLACEHOLDER.a.run.app
+# staging's own database on the same instance, and its connection string as a secret
+gcloud sql databases create publicbank_staging --instance=publicbank
+DBPASS=$(gcloud secrets versions access latest --secret=DATABASE_URL | sed 's#.*pb:\([^@]*\)@.*#\1#')
+CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
+printf '%s' "postgresql://pb:${DBPASS}@/publicbank_staging?host=/cloudsql/${CONN}" | gcloud secrets create DATABASE_URL_STAGING --data-file=-
+# after the first staging deploy, put its real URL into the trigger's _BASE_URL (gcloud run services describe publicbank-staging --format='value(status.url)')
+# a developer who deploys by merging needs no cloud role at all; to read logs and roll back from the console:
+gcloud projects add-iam-policy-binding $PROJECT --member="user:DEV_EMAIL" --role=roles/run.developer
+gcloud projects add-iam-policy-binding $PROJECT --member="user:DEV_EMAIL" --role=roles/logging.viewer
+# the address: the service answers at goa.cyberneticsociety.com; the old hosts forward (PB_OLD_HOSTS)
+gcloud beta run domain-mappings create --service=publicbank --domain=goa.cyberneticsociety.com --region=$REGION   # prints the CNAME to add at the DNS host
+```
+
+`sh node/deploy.sh` still deploys by hand from a laptop with `gcloud` signed in, for the day Cloud Build is broken.
 
 ## WhatsApp (businesses, self-help groups, wards)
 

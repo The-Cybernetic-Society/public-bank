@@ -225,6 +225,22 @@ core.advance(con, rnd["id"])
 h = c.get("/me/home.json", headers=H(tok)).json()
 assert h["round"]["stage"] == "ratified" and h["decision"]["verdict"] == "ratified" and h["ledger"], h.get("decision")
 
+# --- the page itself is served by the service; a tapped link signs the browser in with a cookie, no code ----------
+r = c.get("/app/")
+assert r.status_code == 200 and "/app/assets/app.js" in r.text and 'href="/apply/goa"' in r.text
+assert c.get("/app", follow_redirects=False).status_code == 301
+assert c.get("/app/assets/app.js").status_code == 200 and "application/javascript" in c.get("/app/assets/app.js").headers["content-type"]
+assert c.get("/app/assets/site.css").status_code == 200 and c.get("/app/assets/../db.py").status_code in (404, 400)
+ltok = core.mint_token(con, "login", member_id=joao["id"])
+cc = TestClient(web.app, base_url="http://pb.test", follow_redirects=False)
+r = cc.get(f"/l/{ltok}")   # a preview crawler's GET: shows the page, spends nothing
+assert r.status_code == 200 and "submit()" in r.text and core.read_token(con, ltok, "login")["used_at"] is None
+r = cc.post(f"/l/{ltok}", data={"next": "/app/"})
+assert r.status_code == 303 and r.headers["location"] == "/app/" and cc.cookies.get("pb")
+assert cc.get("/me/home.json").json()["business"]["name"] == "Morjim Bakery", "the cookie alone signs the page in"
+assert cc.post("/me/signout").status_code == 200
+assert cc.get("/me/home.json").status_code == 401
+
 # --- the LOGIN keyword on WhatsApp replies with a sign-in link ------------------------------------------------------
 whatsapp.handle_update({"entry": [{"changes": [{"value": {"contacts": [{"wa_id": "919876500000", "profile": {"name": "Joao"}}],
                                                            "messages": [{"from": "919876500000", "id": "wamid.login", "type": "text", "text": {"body": "login"}}]}}]}]})
