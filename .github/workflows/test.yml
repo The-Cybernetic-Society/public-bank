@@ -1,6 +1,6 @@
 name: tests
-# Every push and pull request runs the node's thirteen suites. A merge to main deploys only after this is green
-# (the Cloud Build trigger waits on the GitHub check; see node/cloudbuild.yaml and node/README.md).
+# Every push and pull request runs the node's thirteen suites. The deploy (a Cloud Build trigger on main, node/cloudbuild.yaml)
+# does not wait for this: the gate is GitHub's branch protection on main, which requires this check before a merge.
 on:
   push:
     branches: ["**"]

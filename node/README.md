@@ -78,8 +78,8 @@ resident is notified in Telegram when ballots, plans and approval open.
 which builds `node/Dockerfile`, pushes the image to Artifact Registry, deploys it to the Cloud Run service `publicbank` with
 the same flags as before, and points the one-off `publicbank-seed` job at the same image. A push to `staging` does the same to
 `publicbank-staging`, which has its own database and the development sign-in flag on, so a change can be seen live before
-it reaches the shops. GitHub Actions runs the thirteen test suites on every push (`.github/workflows/test.yml`); check them
-before merging. Secrets never live in the repo: the service reads them from Secret Manager by name.
+it reaches the shops. GitHub Actions runs the thirteen test suites on every push (`.github/workflows/test.yml`). The build does not wait for them, so
+`main` is protected on GitHub: a merge needs a pull request with the `tests` check green. That is the whole safety gate. Secrets never live in the repo: the service reads them from Secret Manager by name.
 
 Rollback: Cloud Run console → the service → Revisions → pick the previous revision → Manage traffic → 100%. Logs: the same
 console, Logs tab. Nothing needs doing to the database on a deploy; the schema migrates itself when the service starts.
