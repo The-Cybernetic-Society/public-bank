@@ -26,25 +26,16 @@ steps:
   - id: deploy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash
-    args:
-      - -c
-      - |
-        set -e
-        CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
-        EXTRA=""
-        if gcloud secrets describe ANTHROPIC_API_KEY >/dev/null 2>&1; then EXTRA=",ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest"; fi
-        for s in PB_WA_TOKEN PB_WA_APP_SECRET; do if gcloud secrets describe $s >/dev/null 2>&1; then EXTRA="$EXTRA,$s=$s:latest"; fi; done
-        ENV="PB_BASE_URL=${_BASE_URL},PB_OLD_HOSTS=${_OLD_HOSTS},PB_BOT_USERNAME=cybernetic_society_bot,EDGEOS_API_BASE=https://api.edgeos.world"
-        if [ -n "${_EXTRA_ENV}" ]; then ENV="$ENV,${_EXTRA_ENV}"; fi
-        gcloud run deploy ${_SERVICE} --image "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA" --region=${_REGION} \
-          --allow-unauthenticated --add-cloudsql-instances="$CONN" --min-instances=${_MIN_INSTANCES} --max-instances=3 --memory=512Mi \
-          --set-env-vars="$ENV" \
-          --set-secrets="DATABASE_URL=${_DB_SECRET}:latest,PB_SECRET=PB_SECRET:latest,PB_APP_TOKEN=PB_APP_TOKEN:latest,TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN:latest$EXTRA" --quiet
-        # the one-off job runs the code just deployed, so "No module named …" never follows a deploy again
-        if [ "${_SERVICE}" = "publicbank" ]; then
-          gcloud run jobs update publicbank-seed --region=${_REGION} --image "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA" --quiet || true
-        fi
-        gcloud run services describe ${_SERVICE} --region=${_REGION} --format='value(status.url)'
+    args: ["node/ci-deploy.sh"]
+    env:
+      - "SERVICE=${_SERVICE}"
+      - "REGION=${_REGION}"
+      - "IMAGE=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA"
+      - "BASE_URL=${_BASE_URL}"
+      - "OLD_HOSTS=${_OLD_HOSTS}"
+      - "DB_SECRET=${_DB_SECRET}"
+      - "EXTRA_ENV=${_EXTRA_ENV}"
+      - "MIN_INSTANCES=${_MIN_INSTANCES}"
 images:
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA"
 timeout: 1200s
