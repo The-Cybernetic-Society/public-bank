@@ -112,6 +112,11 @@ TEMPLATES: list[dict] = [
      "buttons": [quick("Yes", "q:{key}:y"), quick("No", "q:{key}:n"), url("Open my Commons")],
      "example": ["Mandrem Tailors", "If money is left after this round, should the next one go to the same lane again?"]},
 
+    {"name": "commons_notice", "category": "UTILITY", "when": "Any round notice the adapter sends outside a shop's window (ballots opened, a plan to approve, a payment): the general template the WhatsApp adapter uses as PB_WA_TEMPLATE.",
+     "body": "A note from the Commons. {{1}} Reply here any time; the twin is listening.",
+     "buttons": [url("Open my Commons")],
+     "example": ["Ballots are open in Goa Business Commons: split 100 points across 6 ideas by 29 November."]},
+
     {"name": "commons_link", "category": "UTILITY", "when": "A shop replies LOGIN outside its window, or asks for its page.",
      "body": "Here is your one-tap way into the Commons, {{1}}. It works once, on this phone, for the next three days.",
      "buttons": [url("Open my Commons")],
@@ -277,12 +282,57 @@ def preview_html() -> str:
             "The authentication template's wording is Meta's own and cannot be edited. Button titles are capped at 25 characters, bodies at 1,024.</div></div>")
 
 
+GRAPH = os.environ.get("PB_WA_GRAPH", "https://graph.facebook.com/v21.0").rstrip("/")
+
+
+def register(waba_id: str, token: str, names: list[str] | None = None) -> list[dict]:
+    """Submit every template (or the named ones) to Meta for review: POST /{WABA_ID}/message_templates. One that
+    already exists under the same name is reported as such, not duplicated. Returns one line per template."""
+    import httpx
+    out = []
+    with httpx.Client(timeout=30) as c:
+        for t in TEMPLATES:
+            if names and t["name"] not in names:
+                continue
+            r = c.post(f"{GRAPH}/{waba_id}/message_templates", headers={"Authorization": f"Bearer {token}"}, json=meta_payload(t))
+            body = r.json() if r.content else {}
+            if r.status_code < 300:
+                out.append({"name": t["name"], "ok": True, "id": body.get("id"), "status": body.get("status")})
+            else:
+                err = (body.get("error") or {})
+                out.append({"name": t["name"], "ok": False, "error": err.get("error_user_msg") or err.get("message") or r.text[:200]})
+    return out
+
+
+def status(waba_id: str, token: str) -> list[dict]:
+    """What Meta says about each of our templates: APPROVED, PENDING, REJECTED (with the reason), or missing."""
+    import httpx
+    with httpx.Client(timeout=30) as c:
+        r = c.get(f"{GRAPH}/{waba_id}/message_templates", headers={"Authorization": f"Bearer {token}"},
+                  params={"fields": "name,status,category,rejected_reason,quality_score", "limit": 100})
+        r.raise_for_status()
+        theirs = {x["name"]: x for x in r.json().get("data", [])}
+    return [{"name": t["name"], "status": theirs.get(t["name"], {}).get("status", "MISSING"), "category": theirs.get(t["name"], {}).get("category"),
+             "reason": theirs.get(t["name"], {}).get("rejected_reason")} for t in TEMPLATES]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", help="write the preview page to this file")
     ap.add_argument("--json", action="store_true", help="print the registration payloads")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--register", action="store_true", help="submit the templates to Meta (needs PB_WA_WABA_ID and PB_WA_TOKEN)")
+    ap.add_argument("--status", action="store_true", help="Meta's review status of each template (same two variables)")
+    ap.add_argument("--only", nargs="*", help="with --register: only these template names")
     a = ap.parse_args()
+    if a.register or a.status:
+        waba, tok = os.environ.get("PB_WA_WABA_ID", ""), os.environ.get("PB_WA_TOKEN", "")
+        if not waba or not tok:
+            raise SystemExit("set PB_WA_WABA_ID (the WhatsApp Business Account id) and PB_WA_TOKEN (a system-user token)")
+        rows = register(waba, tok, a.only) if a.register else status(waba, tok)
+        for r in rows:
+            print(f"{r['name']:20s} " + (("submitted" if r["ok"] else "FAILED: " + r["error"]) if "ok" in r else f"{r['status']:10s} {r.get('reason') or ''}"))
+        return
     if a.json:
         print(json.dumps([meta_payload(t) for t in TEMPLATES], ensure_ascii=False, indent=1))
     if a.preview:
