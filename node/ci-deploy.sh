@@ -5,10 +5,14 @@
 set -euo pipefail
 CONN=$(gcloud sql instances describe publicbank --format='value(connectionName)')
 EXTRA=""
-for s in ANTHROPIC_API_KEY PB_WA_TOKEN PB_WA_APP_SECRET; do
+for s in ANTHROPIC_API_KEY PB_WA_TOKEN PB_WA_APP_SECRET PB_WA_VERIFY_TOKEN; do
   if gcloud secrets describe "$s" >/dev/null 2>&1; then EXTRA="$EXTRA,$s=$s:latest"; fi
 done
 ENV="PB_BASE_URL=$BASE_URL,PB_OLD_HOSTS=$OLD_HOSTS,PB_BOT_USERNAME=cybernetic_society_bot,EDGEOS_API_BASE=https://api.edgeos.world"
+# the WhatsApp number, once Meta has given one (the trigger's _WA_PHONE_ID / _WA_NUMBER substitutions); the templates by name
+if [ -n "${WA_PHONE_ID:-}" ]; then
+  ENV="$ENV,PB_WA_PHONE_ID=$WA_PHONE_ID,PB_WA_NUMBER=$WA_NUMBER,PB_WA_POOL=${WA_POOL:-goa-business-commons},PB_WA_OTP_TEMPLATE=commons_code,PB_WA_TEMPLATE=commons_notice"
+fi
 if [ -n "${EXTRA_ENV:-}" ]; then ENV="$ENV,$EXTRA_ENV"; fi
 gcloud run deploy "$SERVICE" --image "$IMAGE" --region="$REGION" --allow-unauthenticated \
   --add-cloudsql-instances="$CONN" --min-instances="$MIN_INSTANCES" --max-instances=3 --memory=512Mi \

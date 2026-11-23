@@ -1163,7 +1163,8 @@ if(place.value)match()}})()</script>
 <div class='choice multi'>{''.join(f"<label><input type=checkbox name=registrations value={val}{' checked' if val in (v.get('registrations') or []) else ''}>{lab}</label>" for val, lab in REG_OPTIONS)}</div></label>
 <label>How old is the business? <span class=hint>Optional.</span>{radio('age_band', AGE_OPTIONS)}</label>
 <label>WhatsApp number <span class=hint>We may call you to verify your eligibility.</span>
-<div class=phone><span class=cc><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><span class=ccv aria-hidden=true></span></span><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div></label>
+<div class=phone><span class=cc><select name=cc aria-label=Country>{_country_options(v.get('cc', 'IN'))}</select><span class=ccv aria-hidden=true></span></span><input name=phone type=tel inputmode=tel required placeholder='98765 43210' value='{g('phone')}'></div>
+<span class=hint>The Commons writes to this number on WhatsApp about your business: a draft from your need, the vote, the result. A few messages a month, never more; reply STOP to end them.</span></label>
 <script>(function(){{var s=document.querySelector('select[name=cc]'),v=document.querySelector('.ccv');if(!s||!v)return;function show(){{v.textContent=s.options[s.selectedIndex].dataset.short}}show();s.addEventListener('change',show)}})()</script>
 <button>Register my business</button>
 </form>

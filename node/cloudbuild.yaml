@@ -12,6 +12,9 @@ substitutions:
   _DB_SECRET: DATABASE_URL
   _EXTRA_ENV: ""            # staging: PB_OTP_DEV=1 (the sign-in code is shown on screen; never on production)
   _MIN_INSTANCES: "1"
+  _WA_PHONE_ID: ""           # the Cloud API phone number id, once Meta has given the number; empty = WhatsApp sending off
+  _WA_NUMBER: ""             # that number as digits with the country code, for wa.me links
+  _WA_POOL: goa-business-commons
   _REPO: publicbank         # the Artifact Registry repository, created once: gcloud artifacts repositories create publicbank --repository-format=docker --location=asia-southeast1
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -36,6 +39,9 @@ steps:
       - "DB_SECRET=${_DB_SECRET}"
       - "EXTRA_ENV=${_EXTRA_ENV}"
       - "MIN_INSTANCES=${_MIN_INSTANCES}"
+      - "WA_PHONE_ID=${_WA_PHONE_ID}"
+      - "WA_NUMBER=${_WA_NUMBER}"
+      - "WA_POOL=${_WA_POOL}"
 images:
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA"
 timeout: 1200s

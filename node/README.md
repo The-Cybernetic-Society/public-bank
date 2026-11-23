@@ -120,6 +120,61 @@ gcloud projects add-iam-policy-binding $PROJECT --member="user:DEV_EMAIL" --role
 gcloud beta run domain-mappings create --service=publicbank --domain=goa.cyberneticsociety.com --region=$REGION
 ```
 
+## Going live on WhatsApp
+
+Everything in the code waits on one thing: a phone number on the WhatsApp Business Platform. The steps, in order; all of them
+happen in Meta's consoles except the last two.
+
+1. **A number that is not on WhatsApp.** A fresh SIM, or a landline that can take a voice call for verification. The number
+   becomes the Commons' identity; it cannot also run the personal WhatsApp app.
+2. **Meta Business Suite → business portfolio** for The Cybernetic Society (business.facebook.com). Start business verification
+   there (a registration document, the address); it takes days and lifts the 250-conversations-a-day starting limit later.
+3. **developers.facebook.com → Create app → Business → add the WhatsApp product.** Under WhatsApp → API Setup: add the phone number
+   from step 1, verify it by SMS or call, set the display name "Goa Business Commons". Note the **Phone number ID** and the
+   **WhatsApp Business Account ID** shown there.
+4. **A permanent token.** Business Suite → Settings → Users → System users → add one (admin) → Assign assets: the app and the
+   WhatsApp account → Generate token with `whatsapp_business_messaging` and `whatsapp_business_management`. The temporary token
+   on the API Setup page dies in a day; this one does not.
+5. **The webhook.** App → WhatsApp → Configuration: callback URL `https://goa.cyberneticsutra.com/wa` (the new domain once it
+   exists), verify token = the value you will store as PB_WA_VERIFY_TOKEN (any long random string), then Verify and save, and
+   subscribe to the `messages` field. The app secret is under App settings → Basic.
+6. **Secrets and settings on the service**, from a terminal with gcloud signed in:
+   ```bash
+   P=cybernetic-society
+   printf '%s' "$TOKEN"   | gcloud secrets create PB_WA_TOKEN        --data-file=- --project $P
+   printf '%s' "$SECRET"  | gcloud secrets create PB_WA_APP_SECRET   --data-file=- --project $P   # App settings → Basic → App secret
+   openssl rand -hex 24 | tr -d '\n' | gcloud secrets create PB_WA_VERIFY_TOKEN --data-file=- --project $P   # paste the same value into step 5
+   gcloud builds triggers update publicbank-main --region=asia-southeast1 --update-substitutions=_WA_PHONE_ID=<phone number id>,_WA_NUMBER=91XXXXXXXXXX
+   ```
+   The next merge to main mounts the secrets and sets PB_WA_PHONE_ID, PB_WA_NUMBER, PB_WA_POOL and the two template names
+   (`ci-deploy.sh`). Until then the adapter answers the webhook but sends nothing.
+7. **Submit the templates for review**, then read back the verdicts a day later:
+   ```bash
+   cd node && PB_WA_WABA_ID=<account id> PB_WA_TOKEN=$TOKEN python -m publicbank.templates --register
+   PB_WA_WABA_ID=<account id> PB_WA_TOKEN=$TOKEN python -m publicbank.templates --status
+   ```
+   A REJECTED line carries Meta's reason; fix the wording in `templates.py`, merge, and `--register --only <name>`.
+8. **Try it on one phone.** Register a test business at /apply/goa with your own number, open /app/, ask for a code: it arrives
+   as the `commons_code` template. Reply LOGIN in the chat: a one-tap link comes back.
+
+Opt-in: the registration form says, beside the number, that the Commons writes to it on WhatsApp and that STOP ends it. Meta
+requires that notice before the first template reaches a number; the form has carried it since the go-live branch.
+
+## Moving to goa.cyberneticsociety.com
+
+```bash
+gcloud beta run domain-mappings create --service=publicbank --domain=goa.cyberneticsociety.com --region=asia-southeast1 --project=cybernetic-society
+```
+It answers with a DNS record: a CNAME for `goa` pointing at `ghs.googlehosted.com`. Add it wherever cyberneticsociety.com's DNS
+lives. If it refuses with a verification message, the apex domain has to be verified first at search.google.com/search-console
+(a TXT record, the console says which), then run it again. The certificate issues itself within an hour of the record resolving;
+`gcloud beta run domain-mappings describe --domain=goa.cyberneticsociety.com --region=asia-southeast1` shows when it is ready.
+
+Then, in one pull request: the two address lines at the top of `node/cloudbuild.yaml` (`_BASE_URL` to the new host, `_OLD_HOSTS`
+to `goa.cyberneticsutra.com,bank.cyberneticsutra.com`), and the same two in `deploy.sh`. Merging redeploys; the service registers
+its Telegram webhook on the new host at start, the old hosts forward with a 301, and every card and link already out there keeps
+landing. Update the WhatsApp webhook URL (step 5 above) to the new host too, and the links in the brochure repo.
+
 `sh node/deploy.sh` still deploys by hand from a laptop with `gcloud` signed in, for the day Cloud Build is broken.
 
 ## WhatsApp (businesses, self-help groups, wards)

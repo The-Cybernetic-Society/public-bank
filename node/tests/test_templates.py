@@ -112,4 +112,6 @@ from fastapi.testclient import TestClient  # noqa: E402
 c = TestClient(web.app, base_url="http://pb.test")
 r = c.get("/wa/templates")
 assert r.status_code == 200 and "commons_swap" in r.text and "noindex" in r.text
+# the general notice has one placeholder, as the adapter's PB_WA_TEMPLATE send expects
+assert templates.get("commons_notice")["body"].count("{{") == 1
 print("TEMPLATES OK ·", len(templates.TEMPLATES), "templates")
