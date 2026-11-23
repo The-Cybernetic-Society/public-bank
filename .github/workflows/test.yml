@@ -1,10 +1,11 @@
 name: tests
-# Every push and pull request runs the node's thirteen suites. The deploy (a Cloud Build trigger on main, node/cloudbuild.yaml)
-# does not wait for this: the gate is GitHub's branch protection on main, which requires this check before a merge.
+# Every pull request runs the node's thirteen suites, and so does main itself after a merge. The deploy (a Cloud Build trigger
+# on main, node/cloudbuild.yaml) does not wait for this: the gate is the ruleset on main, which requires the `tests` check to
+# pass on the pull request before a merge.
 on:
-  push:
-    branches: ["**"]
   pull_request:
+  push:
+    branches: [main]
 jobs:
   tests:
     runs-on: ubuntu-latest
