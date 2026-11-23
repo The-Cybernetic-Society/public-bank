@@ -912,6 +912,61 @@ def claim_application(con, node_id: str, member_id: str) -> dict | None:
     return row(con.execute("SELECT * FROM applications WHERE id=?", (a["id"],)).fetchone())
 
 
+def member_for_phone(con, phone: str) -> dict | None:
+    """Who a WhatsApp number belongs to, if anyone: a member who joined on WhatsApp, or the person who registered a
+    business with that number on the form (the coordinator of that business). None when the number is not ours to
+    sign in: the canonical list is the members and applications tables, nothing else."""
+    m = row(con.execute("SELECT * FROM members WHERE wa_phone=?", (phone,)).fetchone())
+    if m:
+        return m
+    a = row(con.execute("SELECT * FROM applications WHERE phone=? AND node_id IS NOT NULL ORDER BY created_at DESC LIMIT 1", (phone,)).fetchone())
+    if not a:
+        return None
+    return row(con.execute("""SELECT m.* FROM members m JOIN memberships ms ON ms.member_id=m.id
+                              WHERE ms.node_id=? AND ms.role='coordinator' AND ms.status='active' ORDER BY ms.joined_at LIMIT 1""", (a["node_id"],)).fetchone())
+
+
+def phone_registered(con, phone: str) -> bool:
+    """Whether a sign-in code may go to this number at all."""
+    if member_for_phone(con, phone):
+        return True
+    return bool(con.execute("SELECT 1 FROM applications WHERE phone=? AND node_id IS NOT NULL", (phone,)).fetchone())
+
+
+def sign_in_by_phone(con, phone: str) -> dict:
+    """The number has just been proven (a code sent to it on WhatsApp came back). Return its member, linking the
+    number to the web member who registered the business when they are the same person, or making the member and
+    seating them as the business's coordinator when nobody has opened its card yet."""
+    m = member_for_phone(con, phone)
+    if m:
+        if not m.get("wa_phone"):
+            with tx(con):
+                con.execute("UPDATE members SET wa_phone=? WHERE id=? AND wa_phone IS NULL", (phone, m["id"]))
+        return row(con.execute("SELECT * FROM members WHERE id=?", (m["id"],)).fetchone())
+    a = row(con.execute("SELECT * FROM applications WHERE phone=? AND node_id IS NOT NULL ORDER BY created_at DESC LIMIT 1", (phone,)).fetchone())
+    if not a:
+        raise PBError("unknown_phone")
+    m = upsert_member(con, verified_by="whatsapp", wa_phone=phone, display=a["applicant"])
+    join_node(con, a["node_id"], m["id"], role="coordinator", auto_active=True)
+    claim_application(con, a["node_id"], m["id"])
+    return m
+
+
+def record_twin_answer(con, member_id: str, node_id: str | None, kind: str, key: str, answer: str) -> dict:
+    """One answer to a question the twin asked; a second answer to the same question replaces the first."""
+    aid = new_id("ta_")
+    with tx(con):
+        con.execute("DELETE FROM twin_answers WHERE member_id=? AND kind=? AND key=?", (member_id, kind, key))
+        con.execute("INSERT INTO twin_answers (id,member_id,node_id,kind,key,answer,created_at) VALUES (?,?,?,?,?,?,?)",
+                    (aid, member_id, node_id, kind, key, " ".join(str(answer).split())[:500], now()))
+    return row(con.execute("SELECT * FROM twin_answers WHERE id=?", (aid,)).fetchone())
+
+
+def twin_answers_of(con, member_id: str) -> dict[str, str]:
+    """{kind:key: answer} for a member."""
+    return {f"{r['kind']}:{r['key']}": r["answer"] for r in rows(con.execute("SELECT kind, key, answer FROM twin_answers WHERE member_id=?", (member_id,)).fetchall())}
+
+
 def has_need(con, node_id: str) -> bool:
     return bool(con.execute("SELECT 1 FROM needs WHERE node_id=? LIMIT 1", (node_id,)).fetchone())
 

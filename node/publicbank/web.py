@@ -60,13 +60,21 @@ def _set_session(resp, member_id: str):
 
 
 def _member(request: Request) -> dict | None:
-    c = request.cookies.get("pb")
-    if not c:
-        return None
-    try:
-        mid = signer.loads(c)["m"]
-    except (BadSignature, KeyError):
-        return None
+    """The signed-in member: from the session cookie, or from a bearer token the static site holds (sign-in with a
+    WhatsApp code, `auth.py`). Either names a member id; nothing in the request is trusted beyond the signature."""
+    mid = None
+    bearer = request.headers.get("authorization", "")
+    if bearer.lower().startswith("bearer "):
+        from . import auth
+        mid = auth.parse(bearer[7:].strip())
+    if not mid:
+        c = request.cookies.get("pb")
+        if not c:
+            return None
+        try:
+            mid = signer.loads(c)["m"]
+        except (BadSignature, KeyError):
+            return None
     return db.row(con.execute("SELECT * FROM members WHERE id=?", (mid,)).fetchone())
 
 
@@ -373,17 +381,19 @@ def accept_charter(node_id: str, request: Request, next: str = ""):
 
 @app.get("/l/{token}")
 def login_link(token: str, next: str = ""):
-    """A login link the bots send. Chat apps fetch every link they show, to build a preview, so a GET must not
-    spend the token: it shows a Continue button, and the POST below signs the person in. `next` is an optional
-    path on this site to land on instead of /me."""
+    """A sign-in link from a chat (a bot message, a WhatsApp template's button). Chat apps fetch every link they show,
+    to build a preview, so a GET must not spend the token: the page carries a Continue button and a line of script
+    that presses it, which a preview crawler never runs. The POST below signs the person in and lands them on the
+    Commons page (`/app/`), or on `next`."""
     try:
         t = core.read_token(con, token, "login")
     except core.PBError:
-        return page("Link expired", "<p>Ask the bot for a fresh link with /me.</p>")
+        return page("Link expired", "<p>Ask for a fresh link: reply LOGIN on WhatsApp, or send the bot /me.</p>")
     m = db.row(con.execute("SELECT display FROM members WHERE id=?", (t["member_id"],)).fetchone())
-    dest = _back(next, "/me")
-    return page("Continue", f"<p>Sign in as <b>{esc((m or {}).get('display') or 'yourself')}</b> on this phone.</p>"
-                            f"<form method=post action='/l/{esc(token)}'><input type=hidden name=next value='{esc(dest)}'><button>Continue</button></form>")
+    dest = _back(next, "/app/")
+    return page("Continue", f"<p>Signing in as <b>{esc((m or {}).get('display') or 'yourself')}</b> on this phone\u2026</p>"
+                            f"<form method=post action='/l/{esc(token)}' id=go><input type=hidden name=next value='{esc(dest)}'><button>Continue</button></form>"
+                            "<script>setTimeout(function(){document.getElementById('go').submit()},150)</script>")
 
 
 @app.post("/l/{token}")
@@ -391,8 +401,39 @@ def login_link_go(token: str, next: str = Form("")):
     try:
         t = core.read_token(con, token, "login", consume=True)
     except core.PBError:
-        return page("Link expired", "<p>Ask the bot for a fresh link with /me.</p>")
-    return _set_session(RedirectResponse(_back(next, "/me"), status_code=303), t["member_id"])
+        return page("Link expired", "<p>Ask for a fresh link: reply LOGIN on WhatsApp, or send the bot /me.</p>")
+    return _set_session(RedirectResponse(_back(next, "/app/"), status_code=303), t["member_id"])
+
+
+# The Commons from the inside: the signed-in page, served by the service itself so the page and the data it draws
+# share one origin (a tapped link's cookie signs it in, no code to type). Its script also takes a bearer token.
+APP_DIR = os.path.join(os.path.dirname(__file__), "app")
+
+
+@app.get("/app")
+def app_redirect():
+    return RedirectResponse("/app/", status_code=301)
+
+
+@app.get("/app/")
+def app_page():
+    with open(os.path.join(APP_DIR, "index.html"), encoding="utf-8") as f:
+        return HTMLResponse(f.read(), headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/app/assets/{name}")
+def app_asset(name: str):
+    if not re.fullmatch(r"[a-z0-9_.-]+\.(css|js)", name) or not os.path.exists(os.path.join(APP_DIR, name)):
+        raise HTTPException(404)
+    with open(os.path.join(APP_DIR, name), encoding="utf-8") as f:
+        return Response(f.read(), media_type="text/css" if name.endswith(".css") else "application/javascript", headers={"Cache-Control": "public, max-age=300"})
+
+
+@app.post("/me/signout")
+def me_signout():
+    resp = JSONResponse({"ok": True})
+    resp.delete_cookie("pb")
+    return resp
 
 
 @app.get("/signin")
@@ -1961,6 +2002,16 @@ def twin_page(div_id: str):
 # ----------------------------------------------------------------------------
 # public export and health
 # ----------------------------------------------------------------------------
+@app.get("/wa/templates")
+def wa_templates():
+    """The WhatsApp templates as they would look on a shop's phone, with the wording Meta sees: for editing before the
+    number is live. Unlisted, nothing private on it."""
+    from . import templates
+    body = f"<style>{templates.PREVIEW_CSS}</style>" + templates.preview_html()
+    html = page("WhatsApp templates", body, path="/wa/templates").body.decode().replace("<meta charset=utf-8>", "<meta charset=utf-8><meta name=robots content=noindex>", 1)
+    return HTMLResponse(html)
+
+
 @app.get("/export/{node_id:path}")
 def export(node_id: str):
     try:
@@ -1972,3 +2023,6 @@ def export(node_id: str):
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+from . import app_api  # noqa: E402,F401  (the JSON API cyberneticsociety.com/app signs into: /auth/wa/*, /me/*.json)

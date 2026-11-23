@@ -62,6 +62,49 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
   `wa_state`, buttons and list messages carry what Telegram callbacks would. `sender` is swappable (tests).
   Free replies only inside the 24h window; otherwise the `PB_WA_TEMPLATE` template. Webhook `/wa` in main.py
   (GET handshake, POST signed with `PB_WA_APP_SECRET`), de-duplicated by message id via `idempotency`.
+- `publicbank/auth.py` + `publicbank/app_api.py` — sign-in with a WhatsApp code and the JSON API behind cyberneticsociety.com/app
+  (5 Nov). Who may sign in = the canonical list: `members.wa_phone` and the numbers businesses registered with on the form
+  (`core.phone_registered`, `core.member_for_phone`). `POST /auth/wa/start {phone, cc}` mints a six-digit code (`auth.start`:
+  stored as an HMAC with `PB_SECRET`, ten minutes, three codes per number per hour; an unknown number gets the same quiet
+  `{ok, via:"none"}` so the endpoint never says which numbers are ours) and `whatsapp.send_otp` delivers it: the
+  authentication template `PB_WA_OTP_TEMPLATE` (body + copy-code button), else plain text inside the 24h window, else the
+  `PB_WA_TEMPLATE` text; with no `PB_WA_TOKEN` the code is only logged (`via:"log"`, local dev). `POST /auth/wa/verify` (five
+  guesses) → `core.sign_in_by_phone`: the web member who registered the business gains `wa_phone`; a number whose card was
+  never opened becomes a `whatsapp` member seated as that business's coordinator (`claim_application`). It answers a bearer
+  token (`auth.mint`, itsdangerous, ninety days) that the static site keeps in localStorage and sends as `Authorization:
+  Bearer`; `web._member` reads it before the cookie, so every signed-in page accepts it too. `GET /me/home.json` is the whole
+  picture for one business (member, business with needs/values/verified/charter, pool, round with stage words, fund, timeline,
+  the five axes, the map's businesses, every proposal in `twin.rank_for` order with tags on all five axes, backers and lead BY
+  BUSINESS NAME, my ballot, plans + receipt + my ranking, decision, ledger, the twin's questions, the business twin's scheme
+  slots); `POST /me/{propose,lead,cosign,ballot,rank,approve,need,values,charter,twin/answer}` each make one core call and answer
+  the refreshed home (+`result`); `POST /me/twin/ask` answers a question (`twin.ask`: the model with the home as context when
+  `ANTHROPIC_API_KEY` is set, else `_plain_answer` from the same facts). `twin.questions_for` is the twin asking: charter →
+  sliders → a need → "would you use <best draft>?" (yes co-signs, no is kept in `twin_answers`) → the after-round sliders →
+  what a leftover should go to. CORS only for `PB_APP_ORIGINS` (the site, localhost:8031), via a middleware on `/auth/`,`/me/`.
+  Names of businesses are public already (the board, the map); who backs what, who leads, your ballot and receipt are only
+  here, behind the sign-in. WhatsApp: `LOGIN` replies with a sign-in link. `tests/test_app.py`.
+  Later on 5 Nov: `POST /me/profile {display, business, place}` (the business's name and place only for its coordinator; the place
+  through `places.resolve`, else `unknown_place`), the home carries `choices` (`_choices`: backed, led, proposed, ballot, ranking,
+  verdict, every `twin_answers` row with its proposal's title) and `business.values_after`, and the CORS middleware also lets the
+  site's origins read `/twin/map.json` and `/twin/<id>/card.json` (no `no-store` on those) for the app's tappable map of Goa.
+- `publicbank/app/` — the signed-in Commons page (21 Nov: moved here from the cyberneticsociety.com repo so page and data share one
+  origin). `index.html`, `app.js`, `app.css`, and `site.css` (a COPY of the brochure's stylesheet; refresh it when the look there
+  changes). Served by web.py: `/app/` (no-cache), `/app/assets/<name>` (css/js only), `/app` → 301. The script calls this origin
+  (`BASE=''`; `?api=<origin>` still overrides for a split setup). It signs in by bearer token (the code flow) or by the session cookie:
+  on load with no token it asks `/me/home.json` once, so a browser that arrived through a tapped link is already in. `/l/<token>`
+  (kind `login`) now lands on `/app/` by default and its GET page submits itself after 150 ms (a preview crawler runs no script, so
+  the token is not spent by the preview); `POST /me/signout` drops the cookie. The brochure's "Sign in" links point at `/app/` here.
+- `publicbank/templates.py` — the WhatsApp templates (11 Nov): every message the number may START a conversation with, outside a
+  shop's 24-hour window: `TEMPLATES` (name, category, when, body with {{n}}, examples, up to three buttons: `quick` with a payload the
+  webhook gets back, `url` = `/l/{{1}}` with a one-time sign-in token so the page opens signed in, `copy` for the code), `REPLIES`
+  (the free text the twin says after a tap), `check` (Meta's rules of form), `meta_payload` (POST /{WABA}/message_templates),
+  `send_components`, `preview_html` (`/wa/templates` on the service, noindex; also published as an artifact for review).
+  UTILITY only, plus the AUTHENTICATION code; no MARKETING. `whatsapp.send_template(phone, name, params, payloads)` mints the token
+  and sends; a tap arrives as a `button` message whose payload goes through `on_button`: `use:<pid>:y|n` (yes co-signs for the
+  member's business, both are kept in `twin_answers`), `q:<key>:y|n`, `cmd:swap` (opens a free reply kept as a `swap` answer),
+  `cmd:ask` (a question for `twin.ask` with the app's context), `cmd:done|later`; STOP clears `wa_opt_in_at` so `send()` goes
+  quiet, START restores it. `tests/test_templates.py`. Not yet built: the schedule that sends them (draft ready, one short, freeze,
+  ballot, approve, result, paid, weekly) and the Management API call that registers them; both wait on the Meta number.
 - `publicbank/setup_businesses.py` — seed a business federation: pool + one node per business + owner cards.
 - `publicbank/twin.py` — needs → draft proposals in the pool's round. Plain stem-overlap grouping by default; with
   `ANTHROPIC_API_KEY` the model (`claude-opus-5-5`, server-side fallback on refusal) groups and prices, falling back
@@ -191,8 +234,8 @@ members (abstention ≠ approval) → payout queue → a human treasurer pays vi
 - `publicbank/setup_village.py` — seed: pool + residencies + rounds + treasurer + join links.
 - `manifest.json`, `skills/publicbank/SKILL.md` — mini-app manifest v2 and the agent skill (sha256 pinned
   in the manifest; re-pin if SKILL.md changes).
-- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
-  Run all nine before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
+- `tests/test_{db,round,web,bot,webhook,whatsapp,pool,apply,twin,summary,contact,app,templates}.py` — plain scripts, `python tests/test_x.py`; each prints `… OK`.
+  Run all thirteen before any deploy. They also run against Postgres with `DATABASE_URL` set (`test_db` stubs psycopg
   to exercise the shim's reconnect).
 
 ## Hard rules (do not relax)
@@ -222,6 +265,16 @@ it that way and add no AI-attribution trailers. Prior commits use a fixed timest
 (`GIT_AUTHOR_DATE`/`GIT_COMMITTER_DATE` at 12:00 +05:30 of the day); follow it.
 
 ## Deploy (GCP, project `cybernetic-society`, region `asia-southeast1`)
+
+Since 21 Nov the normal deploy is a MERGE TO MAIN: `.github/workflows/test.yml` runs the thirteen suites on every push, and a Cloud
+Build trigger runs `node/cloudbuild.yaml` on main (service `publicbank`) and on `staging` (service `publicbank-staging`, its own
+database `publicbank_staging` through the secret `DATABASE_URL_STAGING`, `PB_OTP_DEV=1`, min instances 0). The build pushes the
+image to Artifact Registry (`asia-southeast1-docker.pkg.dev/cybernetic-society/publicbank/<service>:<sha>`), deploys with the same
+flags as deploy.sh, mounts ANTHROPIC_API_KEY / PB_WA_TOKEN / PB_WA_APP_SECRET when those secrets exist, and repoints the seed job
+at the same image. The one-time setup (APIs, the registry, Cloud Build's roles, the two triggers, the staging database and secret,
+the developer's roles, the domain mapping) is in README.md under Deploy; it has to be run by a project owner, and as of 21 Nov it
+has NOT been run yet. The address moves to goa.cyberneticsociety.com (PB_BASE_URL); goa.cyberneticsutra.com and bank. forward
+through PB_OLD_HOSTS once the mapping and the DNS CNAME exist. `sh node/deploy.sh` stays as the by-hand fallback.
 
 Live at https://goa.cyberneticsutra.com since 2 Nov 2026 (bank.cyberneticsutra.com forwards there through `PB_OLD_HOSTS`; both are Cloud Run domain mappings) (Cloud Run `publicbank`, Cloud SQL Postgres `publicbank`,
 secrets in Secret Manager: `DATABASE_URL`, `PB_SECRET`, `PB_APP_TOKEN`, `TELEGRAM_BOT_TOKEN`).

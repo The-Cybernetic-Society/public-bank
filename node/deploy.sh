@@ -1,5 +1,6 @@
 #!/bin/sh
-# Deploy the node to Cloud Run. Run from anywhere: `sh node/deploy.sh`. Needs `gcloud auth login` first.
+# Deploy the node to Cloud Run BY HAND. The normal way is a merge to main (Cloud Build, node/cloudbuild.yaml); this is the
+# fallback when that is broken. Run from anywhere: `sh node/deploy.sh`. Needs `gcloud auth login` first.
 set -e
 HERE=$(cd "$(dirname "$0")" && pwd)
 PROJECT=cybernetic-society

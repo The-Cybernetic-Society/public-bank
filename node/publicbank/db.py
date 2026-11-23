@@ -257,6 +257,25 @@ CREATE TABLE IF NOT EXISTS wa_state (
   updated_at    BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS otp (
+  phone         TEXT PRIMARY KEY,              -- the WhatsApp number a sign-in code went to (E.164 digits)
+  code_hash     TEXT NOT NULL,                 -- sha256(secret, phone, code); the code itself is never stored
+  expires_at    BIGINT NOT NULL,
+  attempts      BIGINT NOT NULL DEFAULT 0,     -- wrong guesses against this code
+  sends         TEXT NOT NULL DEFAULT '[]',    -- JSON list of send times, for the per-phone limit
+  updated_at    BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS twin_answers (
+  id            TEXT PRIMARY KEY,
+  member_id     TEXT NOT NULL REFERENCES members(id),
+  node_id       TEXT REFERENCES nodes(id),
+  kind          TEXT NOT NULL,                 -- the question's kind: use | leftover | ...
+  key           TEXT NOT NULL,                 -- what it was about (a proposal id, a round id)
+  answer        TEXT NOT NULL,
+  created_at    BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS idempotency (
   key           TEXT PRIMARY KEY,
   response      TEXT NOT NULL,
@@ -412,6 +431,36 @@ class _PgCursor:
         return [_Row(self._names, r) for r in self._c.fetchall()]
 
 
+class _LockedConn:
+    """A SQLite connection one thread at a time. Every transport holds one module-level connection, and a few things
+    run beside the request (the round announcements, the twin's drafting); two threads inside sqlite3 at once end in
+    'bad parameter or other API misuse'. The lock is re-entrant so `tx()` can hold it across a whole transaction."""
+
+    def __init__(self, con):
+        import threading
+        self._con = con
+        self.lock = threading.RLock()
+
+    def execute(self, sql, params=()):
+        with self.lock:
+            return self._con.execute(sql, params)
+
+    def executescript(self, script):
+        with self.lock:
+            return self._con.executescript(script)
+
+    def commit(self):
+        with self.lock:
+            return self._con.commit()
+
+    def close(self):
+        with self.lock:
+            return self._con.close()
+
+    def __getattr__(self, name):
+        return getattr(self._con, name)
+
+
 def connect(path: str | None = None):
     """SQLite file (default, tests, local dev) or Postgres when DATABASE_URL is set (production)."""
     url = os.environ.get("DATABASE_URL")
@@ -420,8 +469,9 @@ def connect(path: str | None = None):
         con.executescript(SCHEMA)
         migrate(con)
         return con
-    con = sqlite3.connect(path or DB_PATH, isolation_level=None, check_same_thread=False)
-    con.row_factory = sqlite3.Row
+    raw = sqlite3.connect(path or DB_PATH, isolation_level=None, check_same_thread=False)
+    raw.row_factory = sqlite3.Row
+    con = _LockedConn(raw)
     con.executescript(SCHEMA)
     migrate(con)
     return con
@@ -429,13 +479,20 @@ def connect(path: str | None = None):
 
 @contextmanager
 def tx(con) -> Iterator[Any]:
-    con.execute("BEGIN IMMEDIATE")
+    lock = getattr(con, "lock", None)
+    if lock is not None:
+        lock.acquire()
     try:
-        yield con
-        con.execute("COMMIT")
-    except BaseException:   # SystemExit and KeyboardInterrupt too: never leave a transaction half-written
-        con.execute("ROLLBACK")
-        raise
+        con.execute("BEGIN IMMEDIATE")
+        try:
+            yield con
+            con.execute("COMMIT")
+        except BaseException:   # SystemExit and KeyboardInterrupt too: never leave a transaction half-written
+            con.execute("ROLLBACK")
+            raise
+    finally:
+        if lock is not None:
+            lock.release()
 
 
 def row(r) -> dict[str, Any] | None:

@@ -1,0 +1,30 @@
+name: tests
+# Every push and pull request runs the node's thirteen suites. The deploy (a Cloud Build trigger on main, node/cloudbuild.yaml)
+# does not wait for this: the gate is GitHub's branch protection on main, which requires this check before a merge.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: node/requirements.txt
+      - run: pip install -r requirements.txt
+      - name: run every suite
+        env:
+          PB_TWIN_WARM: "0"
+        run: |
+          for t in db round web bot webhook whatsapp pool apply twin summary contact app templates; do
+            echo "== $t"; python tests/test_$t.py
+          done
+      - name: the WhatsApp templates still pass Meta's rules of form
+        run: python -m publicbank.templates --check | tee /dev/stderr | grep -v " ok$" | grep -q . && exit 1 || true

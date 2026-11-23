@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Commons · The Cybernetic Society</title>
+<meta name="description" content="Sign in with the WhatsApp number your business registered with, and see the Goa Business Commons from the inside: what is on the table, who backs what, your ballot, and the digital twin that drafts from what the shops need.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3e9d6">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap">
+<link rel="stylesheet" href="/app/assets/site.css">
+<link rel="stylesheet" href="/app/assets/app.css">
+</head>
+<body class="app">
+
+<header class="bar">
+  <a class="brand" href="https://cyberneticsociety.com/">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 32 32" fill="none" stroke="#20201d" stroke-width="2" stroke-linecap="round">
+      <circle cx="16" cy="16" r="9.5"/><circle cx="16" cy="16" r="2.6" fill="#20201d" stroke="none"/>
+      <line x1="16" y1="3" x2="16" y2="8"/><line x1="16" y1="24" x2="16" y2="29"/><line x1="3" y1="16" x2="8" y2="16"/><line x1="24" y1="16" x2="29" y2="16"/>
+      <line x1="6.8" y1="6.8" x2="10.3" y2="10.3"/><line x1="21.7" y1="21.7" x2="25.2" y2="25.2"/><line x1="25.2" y1="6.8" x2="21.7" y2="10.3"/><line x1="10.3" y1="21.7" x2="6.8" y2="25.2"/>
+    </svg>
+    THE CYBERNETIC SOCIETY
+  </a>
+  <nav id="nav" hidden>
+    <a href="#ask">The twin</a>
+    <a href="#space">Possibilities</a>
+    <a href="#table">On the table</a>
+    <a href="#chat">Ask</a>
+    <a href="#biz">Your business</a>
+  </nav>
+  <button class="status avatar" id="who" type="button" aria-label="Your profile" hidden><i></i> <span>YOUR COMMONS</span><b id="initials"></b></button>
+  <span class="status" id="who-out"><i></i> <span>YOUR COMMONS</span></span>
+</header>
+
+<main id="main">
+
+  <!-- SIGN IN · the phone -->
+  <section class="gate" id="v-phone">
+    <div class="gate-in">
+      <div class="win">
+        <div class="tb"><i></i><span>SIGN.IN · WHATSAPP</span></div>
+        <form class="pad" id="f-phone" novalidate>
+          <h1>Your Commons.</h1>
+          <p class="lead">The WhatsApp number your business registered with. We send a six-digit code to it; nothing else is asked for.</p>
+          <label for="phone">WhatsApp number</label>
+          <div class="phone">
+            <select name="cc" id="cc" aria-label="Country code">
+              <option value="91" selected>🇮🇳 +91</option>
+              <option value="1">🇺🇸 +1</option>
+              <option value="44">🇬🇧 +44</option>
+              <option value="971">🇦🇪 +971</option>
+              <option value="65">🇸🇬 +65</option>
+              <option value="61">🇦🇺 +61</option>
+              <option value="49">🇩🇪 +49</option>
+              <option value="33">🇫🇷 +33</option>
+              <option value="351">🇵🇹 +351</option>
+            </select>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="98765 43210" required>
+          </div>
+          <div class="err" id="phone-err"></div>
+          <button class="btn primary send" type="submit">Send the code on WhatsApp</button>
+          <p class="fine">Only numbers on the Commons' own list get a code. Not registered yet? <a href="/apply/goa">Register your business</a> first, then come back.</p>
+        </form>
+      </div>
+      <p class="under">Inside, businesses see each other by name: who backs what, who leads. Outside, the public board shows only counts.</p>
+    </div>
+  </section>
+
+  <!-- SIGN IN · the code -->
+  <section class="gate" id="v-code" hidden>
+    <div class="gate-in">
+      <div class="win">
+        <div class="tb"><i></i><span>SIGN.IN · THE CODE</span></div>
+        <form class="pad" id="f-code" novalidate>
+          <h1>Check WhatsApp.</h1>
+          <p class="lead">A six-digit code went to <b id="code-to">your number</b>. It works for ten minutes.</p>
+          <p class="fine devnote" id="code-dev" hidden>This server has no WhatsApp number connected yet, so the code is in its log. (Local development.)</p>
+          <div class="boxes" id="boxes" role="group" aria-label="Six-digit code">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5">
+            <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6">
+          </div>
+          <div class="err" id="code-err"></div>
+          <button class="btn primary send" type="submit">Sign in</button>
+          <p class="fine">Nothing arrived? <a href="#" id="code-again">Send it again</a> · <a href="#" id="code-back">Use another number</a><span id="code-wa"></span></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOME · the Commons from the inside -->
+  <section class="home" id="v-home" hidden>
+    <div class="wrap">
+
+      <div class="hello reveal in" id="hello">
+        <div class="hello-l">
+          <span class="k" id="hello-k">Signed in</span>
+          <h1 id="hello-h">Hello.</h1>
+          <p class="lead" id="hello-p"></p>
+          <div class="stage" id="stage"></div>
+          <div class="fund" id="fund" aria-label="Where the fund stands">
+            <div class="track"><span class="seg paid"></span><span class="seg approved"></span><span class="seg asked"></span></div>
+            <div class="lg" id="fund-lg"></div>
+          </div>
+        </div>
+        <div class="hello-r">
+          <div class="facts" id="facts"></div>
+          <ul class="tl" id="tl"></ul>
+        </div>
+      </div>
+
+      <div class="grid" id="grid">
+        <div class="col">
+          <section class="win ask" id="ask">
+            <div class="tb"><i></i><span>THE.TWIN.ASKS</span></div>
+            <div class="pad" id="ask-in"></div>
+          </section>
+
+          <section class="win space" id="space">
+            <div class="tb"><i></i><span>POSSIBILITY.SPACE</span></div>
+            <div class="pad">
+              <p class="hint">Every idea on the table, placed on two of the five trade-offs. Your business's own lean is the crosshair. Tap a dot.</p>
+              <div class="axes">
+                <label>Across <select id="ax-x"></select></label>
+                <label>Up <select id="ax-y"></select></label>
+              </div>
+              <div class="plot" id="plot"></div>
+              <div class="legend"><span><i class="dot me"></i>backed by you</span><span><i class="dot lead"></i>you lead</span><span><i class="dot ai"></i>AI draft</span><span><i class="dot human"></i>a business put it forward</span></div>
+            </div>
+          </section>
+
+          <section class="win table" id="table">
+            <div class="tb"><i></i><span id="table-title">ON.THE.TABLE</span></div>
+            <div class="pad" id="table-in"></div>
+          </section>
+
+          <section class="win propose" id="propose">
+            <div class="tb"><i></i><span>YOUR.OWN.IDEA</span></div>
+            <form class="pad" id="f-propose" novalidate>
+              <p class="hint">Something the businesses here could buy or run together. Say it in your own words; the microphone types for you.</p>
+              <label>What <span class="mic-wrap"><input name="title" maxlength="120" placeholder="A shared delivery scooter for the market road"><button type="button" class="mic" data-for="title" aria-label="Dictate"></button></span></label>
+              <label>A few lines on how it would be shared <span class="mic-wrap"><textarea name="text" rows="3" maxlength="2000" placeholder="One scooter, three shops, one rider; each shop pays for its own fuel."></textarea><button type="button" class="mic" data-for="text" aria-label="Dictate"></button></span></label>
+              <div class="row">
+                <label>About how much, in rupees <input name="ideal" type="number" inputmode="numeric" min="1" placeholder="55000"></label>
+                <label>The vendor's UPI id, if you have a quote <input name="upi" maxlength="80" placeholder="shop@okaxis"></label>
+              </div>
+              <label class="check"><input type="checkbox" name="lead" checked> I'll lead it: I organise it and deal with the vendor; the fund pays them directly.</label>
+              <div class="err" id="propose-err"></div>
+              <button class="btn primary send" type="submit">Put it on the table</button>
+            </form>
+          </section>
+        </div>
+
+        <div class="col">
+          <section class="win chat" id="chat">
+            <div class="tb"><i></i><span>ASK.THE.TWIN</span></div>
+            <div class="pad">
+              <div class="msgs" id="msgs"></div>
+              <div class="chips" id="chat-chips"></div>
+              <form id="f-chat" novalidate>
+                <span class="mic-wrap"><input name="q" maxlength="600" placeholder="Ask anything about the round, the ideas, or the schemes" autocomplete="off"><button type="button" class="mic" data-for="q" aria-label="Speak"></button></span>
+                <button class="btn primary" type="submit">Ask</button>
+              </form>
+              <p class="fine"><select id="lang" aria-label="Dictation language"><option value="en-IN">English (India)</option><option value="hi-IN">हिन्दी</option><option value="mr-IN">मराठी</option><option value="kok-IN">कोंकणी</option></select> The twin never decides anything. It reads what the shops need and answers from the twin of Goa: 203 villages and towns, 770 schemes.</p>
+            </div>
+          </section>
+
+          <section class="win lean" id="lean">
+            <div class="tb"><i></i><span>YOUR.LEAN</span></div>
+            <div class="pad">
+              <div class="radar" id="lean-radar"></div>
+              <p class="hint" id="lean-hint">The five trade-offs your business answered, as one shape. The twin reads it when it drafts for you. Tap to change it.</p>
+            </div>
+          </section>
+
+          <section class="win biz" id="biz">
+            <div class="tb"><i></i><span>YOUR.BUSINESS</span></div>
+            <div class="pad" id="biz-in"></div>
+          </section>
+
+          <section class="win cmap" id="cmap">
+            <div class="tb"><i></i><span>THE.COMMONS.MAP</span></div>
+            <div class="pad">
+              <div class="map" id="map"></div>
+              <p class="hint" id="map-hint">Every business in the Commons, in its place. Tap an idea on the table to see whom it joins.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <section class="win goatwin" id="goatwin">
+        <div class="tb"><i></i><span>THE.TWIN.OF.GOA · 770 SCHEMES</span></div>
+        <div class="pad">
+          <div class="gt">
+            <div>
+              <div class="lvl" id="gt-lvl"><button type="button" data-l="district">Districts</button><button type="button" data-l="taluka">Talukas</button><button type="button" data-l="body">Villages &amp; towns</button></div>
+              <div class="crumb" id="gt-crumb"></div>
+              <div class="gmap" id="gt-map"></div>
+              <p class="hint" id="gt-hint">Tap a place. Every village panchayat and town in Goa, read against the state's 770 schemes.</p>
+            </div>
+            <div class="tcard" id="gt-card"><p class="empty">Tap a place on the map to read its card: who lives there, what it could draw on, and the three schemes worth its attention first.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="appfoot">
+        <a href="/b/goa">The public board</a>
+        <a href="https://cyberneticsociety.com/">cyberneticsociety.com</a>
+        <a href="#" id="signout">Sign out</a>
+        <span id="asof"></span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<dialog class="profile" id="d-profile">
+  <div class="tb"><button type="button" aria-label="Close" data-close><i></i></button><span>YOUR.PROFILE</span></div>
+  <div class="in">
+    <div class="ptop"><b class="big" id="p-initials"></b><div><h2 id="p-name"></h2><p class="place" id="p-sub"></p></div></div>
+    <form id="f-profile" novalidate>
+      <div class="row">
+        <label>Your name <input name="display" maxlength="80" autocomplete="name"></label>
+        <label id="p-biz-l">Business <input name="business" maxlength="80"></label>
+      </div>
+      <label id="p-place-l">Where the business is <input name="place" maxlength="80" list="gt-places" placeholder="A village panchayat or town"><datalist id="gt-places"></datalist></label>
+      <div class="err" id="profile-err"></div>
+      <button class="btn primary small" type="submit">Save</button>
+    </form>
+    <h3 class="sub">Your lean <span class="fine" style="margin:0 0 0 8px">drag a point to change it</span></h3>
+    <div class="radar big" id="p-radar"></div>
+    <div class="acts" id="p-radar-acts"></div>
+    <h3 class="sub">Your choices</h3>
+    <div class="choices" id="p-choices"></div>
+  </div>
+</dialog>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/app/assets/app.js"></script>
+</body>
+</html>
