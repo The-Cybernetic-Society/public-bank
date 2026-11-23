@@ -115,8 +115,9 @@ printf '%s' "postgresql://pb:${DBPASS}@/publicbank_staging?host=/cloudsql/${CONN
 # a developer who deploys by merging needs no cloud role at all; to read logs and roll back from the console:
 gcloud projects add-iam-policy-binding $PROJECT --member="user:DEV_EMAIL" --role=roles/run.developer
 gcloud projects add-iam-policy-binding $PROJECT --member="user:DEV_EMAIL" --role=roles/logging.viewer
-# the address: the service answers at goa.cyberneticsociety.com; the old hosts forward (PB_OLD_HOSTS)
-gcloud beta run domain-mappings create --service=publicbank --domain=goa.cyberneticsociety.com --region=$REGION   # prints the CNAME to add at the DNS host
+# the address move, when ready: map the new domain (prints the CNAME to add at the DNS host), wait for it to serve, then change the two
+# address lines at the top of node/cloudbuild.yaml (_BASE_URL to the new host, _OLD_HOSTS to the old ones) and merge; the old hosts forward
+gcloud beta run domain-mappings create --service=publicbank --domain=goa.cyberneticsociety.com --region=$REGION
 ```
 
 `sh node/deploy.sh` still deploys by hand from a laptop with `gcloud` signed in, for the day Cloud Build is broken.

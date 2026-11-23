@@ -7,8 +7,8 @@
 substitutions:
   _SERVICE: publicbank
   _REGION: asia-southeast1
-  _BASE_URL: https://goa.cyberneticsociety.com
-  _OLD_HOSTS: goa.cyberneticsutra.com,bank.cyberneticsutra.com
+  _BASE_URL: https://goa.cyberneticsutra.com       # after the goa.cyberneticsociety.com mapping and its DNS record exist: https://goa.cyberneticsociety.com
+  _OLD_HOSTS: bank.cyberneticsutra.com                # and then: goa.cyberneticsutra.com,bank.cyberneticsutra.com (the old hosts forward to the new one)
   _DB_SECRET: DATABASE_URL
   _EXTRA_ENV: ""            # staging: PB_OTP_DEV=1 (the sign-in code is shown on screen; never on production)
   _MIN_INSTANCES: "1"
